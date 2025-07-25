@@ -37,24 +37,27 @@
             stemsDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             wordsDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             inMemoryDatabaseBindingSource = new BindingSource(components);
-            buttonAdd = new Button();
-            buttonEdit = new Button();
-            buttonDelete = new Button();
-            buttonSave = new Button();
-            buttonOpen = new Button();
+            mainMenu = new MenuStrip();
+            fileToolStripMenuItem = new ToolStripMenuItem();
+            openToolStripMenuItem = new ToolStripMenuItem();
+            saveAsToolStripMenuItem1 = new ToolStripMenuItem();
+            saveToolStripMenuItem = new ToolStripMenuItem();
+            exitToolStripMenuItem = new ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)dataGridViewWords).BeginInit();
             ((System.ComponentModel.ISupportInitialize)inMemoryDatabaseBindingSource).BeginInit();
+            mainMenu.SuspendLayout();
             SuspendLayout();
             // 
             // dataGridViewWords
             // 
-            dataGridViewWords.AutoGenerateColumns = true;
+            dataGridViewWords.AutoGenerateColumns = false;
             dataGridViewWords.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewWords.Columns.AddRange(new DataGridViewColumn[] { semanticGroupsDataGridViewTextBoxColumn, sourcesDataGridViewTextBoxColumn, languagesDataGridViewTextBoxColumn, rootsDataGridViewTextBoxColumn, stemsDataGridViewTextBoxColumn, wordsDataGridViewTextBoxColumn });
             dataGridViewWords.DataSource = inMemoryDatabaseBindingSource;
-            dataGridViewWords.Location = new Point(5, 50);
+            dataGridViewWords.Dock = DockStyle.Fill;
+            dataGridViewWords.Location = new Point(0, 24);
             dataGridViewWords.Name = "dataGridViewWords";
-            dataGridViewWords.Size = new Size(783, 388);
+            dataGridViewWords.Size = new Size(800, 426);
             dataGridViewWords.TabIndex = 0;
             dataGridViewWords.CellContentClick += dataGridViewWords_CellContentClick;
             // 
@@ -104,69 +107,67 @@
             // 
             inMemoryDatabaseBindingSource.DataSource = typeof(InMemoryDatabase);
             // 
-            // buttonAdd
+            // mainMenu
             // 
-            buttonAdd.Location = new Point(11, 17);
-            buttonAdd.Name = "buttonAdd";
-            buttonAdd.Size = new Size(75, 23);
-            buttonAdd.TabIndex = 1;
-            buttonAdd.Text = "Add";
-            buttonAdd.UseVisualStyleBackColor = true;
+            mainMenu.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem });
+            mainMenu.Location = new Point(0, 0);
+            mainMenu.Name = "mainMenu";
+            mainMenu.Size = new Size(800, 24);
+            mainMenu.TabIndex = 6;
+            mainMenu.Text = "menuStrip1";
             // 
-            // buttonEdit
+            // fileToolStripMenuItem
             // 
-            buttonEdit.Location = new Point(92, 17);
-            buttonEdit.Name = "buttonEdit";
-            buttonEdit.Size = new Size(75, 23);
-            buttonEdit.TabIndex = 2;
-            buttonEdit.Text = "Edit";
-            buttonEdit.UseVisualStyleBackColor = true;
+            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { openToolStripMenuItem, saveAsToolStripMenuItem1, saveToolStripMenuItem, exitToolStripMenuItem });
+            fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            fileToolStripMenuItem.Size = new Size(37, 20);
+            fileToolStripMenuItem.Text = "File";
+            fileToolStripMenuItem.Click += fileToolStripMenuItem_Click;
             // 
-            // buttonDelete
+            // openToolStripMenuItem
             // 
-            buttonDelete.Location = new Point(173, 17);
-            buttonDelete.Name = "buttonDelete";
-            buttonDelete.Size = new Size(75, 23);
-            buttonDelete.TabIndex = 3;
-            buttonDelete.Text = "Delete";
-            buttonDelete.UseVisualStyleBackColor = true;
+            openToolStripMenuItem.Name = "openToolStripMenuItem";
+            openToolStripMenuItem.Size = new Size(180, 22);
+            openToolStripMenuItem.Text = "Open...";
+            openToolStripMenuItem.Click += Open;
             // 
-            // buttonSave
+            // saveAsToolStripMenuItem1
             // 
-            buttonSave.Location = new Point(254, 17);
-            buttonSave.Name = "buttonSave";
-            buttonSave.Size = new Size(75, 23);
-            buttonSave.TabIndex = 4;
-            buttonSave.Text = "Save";
-            buttonSave.UseVisualStyleBackColor = true;
-            buttonSave.Click += buttonSave_Click;
+            saveAsToolStripMenuItem1.Name = "saveAsToolStripMenuItem1";
+            saveAsToolStripMenuItem1.Size = new Size(180, 22);
+            saveAsToolStripMenuItem1.Text = "Save As...";
+            saveAsToolStripMenuItem1.Click += SaveAs;
             // 
-            // buttonOpen
+            // saveToolStripMenuItem
             // 
-            buttonOpen.Location = new Point(335, 17);
-            buttonOpen.Name = "buttonOpen";
-            buttonOpen.Size = new Size(75, 23);
-            buttonOpen.TabIndex = 5;
-            buttonOpen.Text = "Open";
-            buttonOpen.UseVisualStyleBackColor = true;
-            buttonOpen.Click += buttonOpen_Click;
+            saveToolStripMenuItem.Name = "saveToolStripMenuItem";
+            saveToolStripMenuItem.Size = new Size(180, 22);
+            saveToolStripMenuItem.Text = "Save";
+            saveToolStripMenuItem.Click += Save;
+            // 
+            // exitToolStripMenuItem
+            // 
+            exitToolStripMenuItem.Name = "exitToolStripMenuItem";
+            exitToolStripMenuItem.Size = new Size(180, 22);
+            exitToolStripMenuItem.Text = "Exit";
+            exitToolStripMenuItem.Click += Exit;
             // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
-            Controls.Add(buttonOpen);
-            Controls.Add(buttonSave);
-            Controls.Add(buttonDelete);
-            Controls.Add(buttonEdit);
-            Controls.Add(buttonAdd);
             Controls.Add(dataGridViewWords);
+            Controls.Add(mainMenu);
+            MainMenuStrip = mainMenu;
             Name = "MainForm";
-            Text = "Form1";
+            Text = "Comparatist";
             ((System.ComponentModel.ISupportInitialize)dataGridViewWords).EndInit();
             ((System.ComponentModel.ISupportInitialize)inMemoryDatabaseBindingSource).EndInit();
+            mainMenu.ResumeLayout(false);
+            mainMenu.PerformLayout();
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
@@ -179,10 +180,11 @@
         private DataGridViewTextBoxColumn stemsDataGridViewTextBoxColumn;
         private DataGridViewTextBoxColumn wordsDataGridViewTextBoxColumn;
         private BindingSource inMemoryDatabaseBindingSource;
-        private Button buttonAdd;
-        private Button buttonEdit;
-        private Button buttonDelete;
-        private Button buttonSave;
-        private Button buttonOpen;
+        private MenuStrip mainMenu;
+        private ToolStripMenuItem fileToolStripMenuItem;
+        private ToolStripMenuItem openToolStripMenuItem;
+        private ToolStripMenuItem saveAsToolStripMenuItem1;
+        private ToolStripMenuItem saveToolStripMenuItem;
+        private ToolStripMenuItem exitToolStripMenuItem;
     }
 }

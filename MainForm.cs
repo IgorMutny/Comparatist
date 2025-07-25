@@ -11,22 +11,6 @@ namespace Comparatist
             InitializeComponent();
         }
 
-        private void buttonOpen_Click(object sender, EventArgs e)
-        {
-            using (var dialog = new OpenFileDialog())
-            {
-                dialog.Filter = "Файлы базы данных (*.db)|*.db|Все файлы (*.*)|*.*";
-                dialog.Title = "Выберите файл базы данных";
-
-                if (dialog.ShowDialog() == DialogResult.OK)
-                {
-                    _filePath = dialog.FileName;
-                    _db.Load(_filePath);
-                    RefreshTable();
-                }
-            }
-        }
-
         private void dataGridViewWords_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
 
@@ -44,13 +28,13 @@ namespace Comparatist
         {
             var newWord = new Word
             {
-                Value = "Новое слово",
+                Value = "Enter word here...",
                 Translation = "",
                 Comment = "",
                 Checked = false,
                 SemanticGroups = Array.Empty<SemanticGroup>(),
                 Stem = new Stem(),
-                Language = new Language { Value = "неизвестно" }
+                Language = new Language { Value = "unknown" }
             };
 
             _db.Words.Add(newWord);
@@ -63,22 +47,6 @@ namespace Comparatist
             {
                 _db.Words.Delete(_selectedWordId.Value);
                 RefreshTable();
-            }
-        }
-
-        private void buttonSave_Click(object sender, EventArgs e)
-        {
-            using (var dialog = new SaveFileDialog())
-            {
-                dialog.Filter = "Файлы базы данных (*.db)|*.db|Все файлы (*.*)|*.*";
-                dialog.Title = "Сохранить базу данных как...";
-
-                if (dialog.ShowDialog() == DialogResult.OK)
-                {
-                    string path = dialog.FileName;
-                    _db.Save(path);
-                    _filePath = path;
-                }
             }
         }
 
@@ -96,6 +64,64 @@ namespace Comparatist
                 .ToList();
 
             dataGridViewWords.DataSource = list;
+        }
+
+        private void fileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Open(object sender, EventArgs e)
+        {
+            using (var dialog = new OpenFileDialog())
+            {
+                dialog.Filter = "DataBase files (*.db)|*.db";
+                dialog.Title = "Select DataBase file";
+
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    _filePath = dialog.FileName;
+                    _db.Load(_filePath);
+                    RefreshTable();
+                }
+            }
+        }
+
+        private void SaveAs(object sender, EventArgs e)
+        {
+            using (var dialog = new SaveFileDialog())
+            {
+                dialog.Filter = "DataBase files (*.db)|*.db";
+                dialog.Title = "Save DataBase as...";
+
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    string path = dialog.FileName;
+                    _db.Save(path);
+                    _filePath = path;
+                }
+            }
+        }
+
+        private void Save(object sender, EventArgs e)
+        {
+            if (_db != null && !string.IsNullOrEmpty(_filePath))
+                _db.Save(_filePath);
+            else
+                MessageBox.Show("Nothing to save!");
+        }
+
+        private void Exit(object sender, EventArgs e)
+        {
+            if (_db != null)
+            {
+                if (string.IsNullOrEmpty(_filePath))
+                    SaveAs(sender, EventArgs.Empty);
+                else
+                    Save(sender, EventArgs.Empty);
+            }
+
+            Close();
         }
     }
 }

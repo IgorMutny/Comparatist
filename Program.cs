@@ -7,8 +7,6 @@ namespace Comparatist
         {
             ApplicationConfiguration.Initialize();
             Application.Run(new MainForm());
-
-            var test = new SaveTest();
         }
     }
 }
