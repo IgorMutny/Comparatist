@@ -2,25 +2,27 @@ namespace Comparatist
 {
     public partial class MainForm : Form
     {
+        private const string Extension = ".comparatist";
+
         private InMemoryDatabase _db = new();
         private string _filePath = string.Empty;
         private RepoTypes _currentRepo = RepoTypes.Roots;
 
         public MainForm()
         {
+            _db = new();
             InitializeComponent();
-            SetupLanguageGrid();
+            SetupLanguagesGrid();
+            SetupSourcesGrid();
         }
 
         #region FILE_OPERATIONS
-        private void fileToolStripMenuItem_Click(object sender, EventArgs e) { }
-
         private void Open(object sender, EventArgs e)
         {
             using (var dialog = new OpenFileDialog())
             {
-                dialog.Filter = "DataBase files (*.db)|*.db";
-                dialog.Title = "Select DataBase file";
+                dialog.Filter = $"Comparatist DataBase files (*{Extension})|*{Extension}";
+                dialog.Title = "Select Comparatist DataBase file";
 
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
@@ -35,8 +37,8 @@ namespace Comparatist
         {
             using (var dialog = new SaveFileDialog())
             {
-                dialog.Filter = "DataBase files (*.db)|*.db";
-                dialog.Title = "Save DataBase as...";
+                dialog.Filter = $"Comparatist DataBase files (*{Extension})|*{Extension}";
+                dialog.Title = "Save Comparatist DataBase as...";
 
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
@@ -49,21 +51,19 @@ namespace Comparatist
 
         private void Save(object sender, EventArgs e)
         {
-            if (_db != null && !string.IsNullOrEmpty(_filePath))
-                _db.Save(_filePath);
-            else
+            if (_db == null)
                 MessageBox.Show("Nothing to save!");
+            else if (string.IsNullOrEmpty(_filePath))
+                SaveAs(sender, e);
+            else
+                _db.Save(_filePath);
+
         }
 
         private void Exit(object sender, EventArgs e)
         {
             if (_db != null)
-            {
-                if (string.IsNullOrEmpty(_filePath))
-                    SaveAs(sender, EventArgs.Empty);
-                else
-                    Save(sender, EventArgs.Empty);
-            }
+                Save(sender, EventArgs.Empty);
 
             Close();
         }
@@ -79,7 +79,7 @@ namespace Comparatist
             {
                 gridView.ClearSelection();
                 gridView.Rows[e.RowIndex].Selected = true;
-                gridView.CurrentCell = dataGridViewLanguages.Rows[e.RowIndex].Cells[e.ColumnIndex];
+                gridView.CurrentCell = gridView.Rows[e.RowIndex].Cells[e.ColumnIndex];
             }
         }
 
@@ -112,10 +112,10 @@ namespace Comparatist
             //dataGridViewStems.Visible = repo == "Stems";
             //dataGridViewRoots.Visible = repo == "Roots";
             //dataGridViewGroups.Visible = repo == "SemanticGroups";
-            //dataGridViewSources.Visible = repo == "Sources";
+            dataGridViewSources.Visible = _currentRepo == RepoTypes.Sources;
         }
 
-        private void SelectWordsRepo(object sender, EventArgs e)
+        private void SelectRootsRepo(object sender, EventArgs e)
         {
             _currentRepo = RepoTypes.Roots;
             RefreshContent();
@@ -142,14 +142,93 @@ namespace Comparatist
         #endregion COMMON_CONTENT
 
         #region SOURCES
+        private void SetupSourcesGrid()
+        {
+            dataGridViewSources.Columns.Clear();
+
+            var valueColumn = new DataGridViewTextBoxColumn
+            {
+                Name = "Value",
+                HeaderText = "Source",
+                DataPropertyName = "Value",
+                Width = 200
+            };
+
+            dataGridViewSources.Columns.AddRange(valueColumn);
+            dataGridViewSources.AutoGenerateColumns = false;
+            dataGridViewSources.CellMouseDown += OnDataGridViewRightClick;
+            dataGridViewSources.ReadOnly = true;
+            dataGridViewSources.Visible = false;
+        }
+
         private void RefreshSources()
         {
+            dataGridViewSources.Rows.Clear();
 
+            foreach (var e in _db.Sources.GetAll())
+            {
+                int rowIndex = dataGridViewSources.Rows.Add(e.Record.Value);
+                dataGridViewSources.Rows[rowIndex].Tag = e.Id;
+            }
+        }
+
+        private void AddSource(object sender, EventArgs e)
+        {
+            string? input = InputDialog.Show("Add source", string.Empty);
+            if (!string.IsNullOrEmpty(input))
+            {
+                _db.Sources.Add(new Source { Value = input });
+                RefreshContent();
+            }
+        }
+
+        private void EditSource(object sender, EventArgs e)
+        {
+            if (dataGridViewSources.SelectedRows.Count == 0)
+                return;
+
+            var row = dataGridViewSources.SelectedRows[0];
+
+            if (row.Tag == null)
+                return;
+
+            Guid id = (Guid)row.Tag;
+
+            var source = row.Cells[0].Value.ToString() ?? string.Empty;
+            var input = InputDialog.Show("Edit source", $"Enter new name for {source}");
+            if (!string.IsNullOrWhiteSpace(input))
+            {
+                var item = new Source() { Value = input };
+                _db.Sources.Update(id, item);
+                RefreshContent();
+            }
+        }
+
+        private void RemoveSource(object sender, EventArgs e)
+        {
+            if (dataGridViewSources.SelectedRows.Count == 0)
+                return;
+
+            var row = dataGridViewSources.SelectedRows[0];
+
+            if (row.Tag == null)
+                return;
+
+            Guid id = (Guid)row.Tag;
+            var source = row.Cells[0].Value.ToString() ?? string.Empty;
+
+            var result = MessageBox.Show($"Remove source {source}?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+
+            if (result == DialogResult.Yes)
+            {
+                _db.Sources.Delete(id);
+                RefreshContent();
+            }
         }
         #endregion SOURCES
 
         #region LANGUAGES
-        private void SetupLanguageGrid()
+        private void SetupLanguagesGrid()
         {
             dataGridViewLanguages.Columns.Clear();
 
@@ -165,6 +244,7 @@ namespace Comparatist
             dataGridViewLanguages.AutoGenerateColumns = false;
             dataGridViewLanguages.CellMouseDown += OnDataGridViewRightClick;
             dataGridViewLanguages.ReadOnly = true;
+            dataGridViewLanguages.Visible = false;
         }
 
         private void RefreshLanguages()
@@ -246,16 +326,6 @@ namespace Comparatist
 
         }
         #endregion ROOTS
-
-
-
-
-
-        
-
-
-
-        
     }
 
     public enum RepoTypes

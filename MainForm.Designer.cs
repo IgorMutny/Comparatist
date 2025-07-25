@@ -46,10 +46,17 @@
             addLanguageToolStripMenuItem = new ToolStripMenuItem();
             editLanguageToolStripMenuItem = new ToolStripMenuItem();
             removeLanguageToolStripMenuItem = new ToolStripMenuItem();
+            dataGridViewSources = new DataGridView();
+            contextMenuStripSources = new ContextMenuStrip(components);
+            addSourceToolStripMenuItem = new ToolStripMenuItem();
+            editSourceToolStripMenuItem = new ToolStripMenuItem();
+            removeSourceToolStripMenuItem = new ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)inMemoryDatabaseBindingSource).BeginInit();
             mainMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewLanguages).BeginInit();
             contextMenuStripLanguages.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dataGridViewSources).BeginInit();
+            contextMenuStripSources.SuspendLayout();
             SuspendLayout();
             // 
             // inMemoryDatabaseBindingSource
@@ -71,7 +78,6 @@
             fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             fileToolStripMenuItem.Size = new Size(37, 20);
             fileToolStripMenuItem.Text = "File";
-            fileToolStripMenuItem.Click += fileToolStripMenuItem_Click;
             // 
             // openToolStripMenuItem
             // 
@@ -113,7 +119,7 @@
             rootsToolStripMenuItem.Name = "rootsToolStripMenuItem";
             rootsToolStripMenuItem.Size = new Size(164, 22);
             rootsToolStripMenuItem.Text = "Roots";
-            rootsToolStripMenuItem.Click += SelectWordsRepo;
+            rootsToolStripMenuItem.Click += SelectRootsRepo;
             // 
             // semanticGroupsToolStripMenuItem
             // 
@@ -177,11 +183,49 @@
             removeLanguageToolStripMenuItem.Text = "Remove Language";
             removeLanguageToolStripMenuItem.Click += RemoveLanguage;
             // 
+            // dataGridViewSources
+            // 
+            dataGridViewSources.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridViewSources.ContextMenuStrip = contextMenuStripSources;
+            dataGridViewSources.Dock = DockStyle.Fill;
+            dataGridViewSources.Location = new Point(0, 24);
+            dataGridViewSources.Name = "dataGridViewSources";
+            dataGridViewSources.Size = new Size(800, 426);
+            dataGridViewSources.TabIndex = 8;
+            // 
+            // contextMenuStripSources
+            // 
+            contextMenuStripSources.Items.AddRange(new ToolStripItem[] { addSourceToolStripMenuItem, editSourceToolStripMenuItem, removeSourceToolStripMenuItem });
+            contextMenuStripSources.Name = "contextMenuStripSources";
+            contextMenuStripSources.Size = new Size(181, 92);
+            // 
+            // addSourceToolStripMenuItem
+            // 
+            addSourceToolStripMenuItem.Name = "addSourceToolStripMenuItem";
+            addSourceToolStripMenuItem.Size = new Size(180, 22);
+            addSourceToolStripMenuItem.Text = "Add Source";
+            addSourceToolStripMenuItem.Click += AddSource;
+            // 
+            // editSourceToolStripMenuItem
+            // 
+            editSourceToolStripMenuItem.Name = "editSourceToolStripMenuItem";
+            editSourceToolStripMenuItem.Size = new Size(180, 22);
+            editSourceToolStripMenuItem.Text = "Edit Source";
+            editSourceToolStripMenuItem.Click += EditSource;
+            // 
+            // removeSourceToolStripMenuItem
+            // 
+            removeSourceToolStripMenuItem.Name = "removeSourceToolStripMenuItem";
+            removeSourceToolStripMenuItem.Size = new Size(180, 22);
+            removeSourceToolStripMenuItem.Text = "Remove Source";
+            removeSourceToolStripMenuItem.Click += RemoveSource;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(dataGridViewSources);
             Controls.Add(dataGridViewLanguages);
             Controls.Add(mainMenu);
             MainMenuStrip = mainMenu;
@@ -192,6 +236,8 @@
             mainMenu.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewLanguages).EndInit();
             contextMenuStripLanguages.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)dataGridViewSources).EndInit();
+            contextMenuStripSources.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -214,5 +260,10 @@
         private ToolStripMenuItem addLanguageToolStripMenuItem;
         private ToolStripMenuItem editLanguageToolStripMenuItem;
         private ToolStripMenuItem removeLanguageToolStripMenuItem;
+        private DataGridView dataGridViewSources;
+        private ContextMenuStrip contextMenuStripSources;
+        private ToolStripMenuItem addSourceToolStripMenuItem;
+        private ToolStripMenuItem editSourceToolStripMenuItem;
+        private ToolStripMenuItem removeSourceToolStripMenuItem;
     }
 }
