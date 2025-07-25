@@ -8,8 +8,8 @@
         T? GetById(Guid id);
 
         Dictionary<Guid, T> Export();
-        IEnumerable<T> GetAll();
-        IEnumerable<T> Filter(Func<T, bool> predicate);
+        IEnumerable<GuidedRecord<T>> GetAll();
+        IEnumerable<GuidedRecord<T>> Filter(Func<T, bool> predicate);
 
         void CleanupDeleted();
         void Clear();
@@ -43,18 +43,22 @@
 
             if (entity != null && !entity.Deleted)
                 return entity;
-            else 
+            else
                 return default;
         }
 
-        public IEnumerable<T> GetAll()
+        public IEnumerable<GuidedRecord<T>> GetAll()
         {
-            return _storage.Values.Where(e => !e.Deleted);
+            return _storage
+                .Where(e => !e.Value.Deleted)
+                .Select((pair) => new GuidedRecord<T>() {Id = pair.Key, Record = pair.Value });
         }
 
-        public IEnumerable<T> Filter(Func<T, bool> predicate)
+        public IEnumerable<GuidedRecord<T>> Filter(Func<T, bool> predicate)
         {
-            return _storage.Values.Where(kv => !kv.Deleted && predicate(kv));
+            return _storage
+                .Where(kv => !kv.Value.Deleted && predicate(kv.Value))
+                .Select((pair) => new GuidedRecord<T>() { Id = pair.Key, Record = pair.Value });
         }
 
         public void CleanupDeleted()
@@ -76,5 +80,11 @@
 
         public Dictionary<Guid, T> Export() => _storage;
         public void Import(Dictionary<Guid, T> data) => _storage = data;
+    }
+
+    public class GuidedRecord<T> where T: IRecord
+    {
+        public required Guid Id { get; set; }
+        public required T Record { get; set; }
     }
 }

@@ -29,13 +29,6 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            dataGridViewWords = new DataGridView();
-            semanticGroupsDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
-            sourcesDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
-            languagesDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
-            rootsDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
-            stemsDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
-            wordsDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             inMemoryDatabaseBindingSource = new BindingSource(components);
             mainMenu = new MenuStrip();
             fileToolStripMenuItem = new ToolStripMenuItem();
@@ -43,65 +36,21 @@
             saveAsToolStripMenuItem1 = new ToolStripMenuItem();
             saveToolStripMenuItem = new ToolStripMenuItem();
             exitToolStripMenuItem = new ToolStripMenuItem();
-            ((System.ComponentModel.ISupportInitialize)dataGridViewWords).BeginInit();
+            repositoriesToolStripMenuItem = new ToolStripMenuItem();
+            rootsToolStripMenuItem = new ToolStripMenuItem();
+            semanticGroupsToolStripMenuItem = new ToolStripMenuItem();
+            languagesToolStripMenuItem = new ToolStripMenuItem();
+            sourcesToolStripMenuItem = new ToolStripMenuItem();
+            dataGridViewLanguages = new DataGridView();
+            contextMenuStripLanguages = new ContextMenuStrip(components);
+            addLanguageToolStripMenuItem = new ToolStripMenuItem();
+            editLanguageToolStripMenuItem = new ToolStripMenuItem();
+            removeLanguageToolStripMenuItem = new ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)inMemoryDatabaseBindingSource).BeginInit();
             mainMenu.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dataGridViewLanguages).BeginInit();
+            contextMenuStripLanguages.SuspendLayout();
             SuspendLayout();
-            // 
-            // dataGridViewWords
-            // 
-            dataGridViewWords.AutoGenerateColumns = false;
-            dataGridViewWords.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewWords.Columns.AddRange(new DataGridViewColumn[] { semanticGroupsDataGridViewTextBoxColumn, sourcesDataGridViewTextBoxColumn, languagesDataGridViewTextBoxColumn, rootsDataGridViewTextBoxColumn, stemsDataGridViewTextBoxColumn, wordsDataGridViewTextBoxColumn });
-            dataGridViewWords.DataSource = inMemoryDatabaseBindingSource;
-            dataGridViewWords.Dock = DockStyle.Fill;
-            dataGridViewWords.Location = new Point(0, 24);
-            dataGridViewWords.Name = "dataGridViewWords";
-            dataGridViewWords.Size = new Size(800, 426);
-            dataGridViewWords.TabIndex = 0;
-            dataGridViewWords.CellContentClick += dataGridViewWords_CellContentClick;
-            // 
-            // semanticGroupsDataGridViewTextBoxColumn
-            // 
-            semanticGroupsDataGridViewTextBoxColumn.DataPropertyName = "SemanticGroups";
-            semanticGroupsDataGridViewTextBoxColumn.HeaderText = "SemanticGroups";
-            semanticGroupsDataGridViewTextBoxColumn.Name = "semanticGroupsDataGridViewTextBoxColumn";
-            semanticGroupsDataGridViewTextBoxColumn.ReadOnly = true;
-            // 
-            // sourcesDataGridViewTextBoxColumn
-            // 
-            sourcesDataGridViewTextBoxColumn.DataPropertyName = "Sources";
-            sourcesDataGridViewTextBoxColumn.HeaderText = "Sources";
-            sourcesDataGridViewTextBoxColumn.Name = "sourcesDataGridViewTextBoxColumn";
-            sourcesDataGridViewTextBoxColumn.ReadOnly = true;
-            // 
-            // languagesDataGridViewTextBoxColumn
-            // 
-            languagesDataGridViewTextBoxColumn.DataPropertyName = "Languages";
-            languagesDataGridViewTextBoxColumn.HeaderText = "Languages";
-            languagesDataGridViewTextBoxColumn.Name = "languagesDataGridViewTextBoxColumn";
-            languagesDataGridViewTextBoxColumn.ReadOnly = true;
-            // 
-            // rootsDataGridViewTextBoxColumn
-            // 
-            rootsDataGridViewTextBoxColumn.DataPropertyName = "Roots";
-            rootsDataGridViewTextBoxColumn.HeaderText = "Roots";
-            rootsDataGridViewTextBoxColumn.Name = "rootsDataGridViewTextBoxColumn";
-            rootsDataGridViewTextBoxColumn.ReadOnly = true;
-            // 
-            // stemsDataGridViewTextBoxColumn
-            // 
-            stemsDataGridViewTextBoxColumn.DataPropertyName = "Stems";
-            stemsDataGridViewTextBoxColumn.HeaderText = "Stems";
-            stemsDataGridViewTextBoxColumn.Name = "stemsDataGridViewTextBoxColumn";
-            stemsDataGridViewTextBoxColumn.ReadOnly = true;
-            // 
-            // wordsDataGridViewTextBoxColumn
-            // 
-            wordsDataGridViewTextBoxColumn.DataPropertyName = "Words";
-            wordsDataGridViewTextBoxColumn.HeaderText = "Words";
-            wordsDataGridViewTextBoxColumn.Name = "wordsDataGridViewTextBoxColumn";
-            wordsDataGridViewTextBoxColumn.ReadOnly = true;
             // 
             // inMemoryDatabaseBindingSource
             // 
@@ -109,7 +58,7 @@
             // 
             // mainMenu
             // 
-            mainMenu.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem });
+            mainMenu.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, repositoriesToolStripMenuItem });
             mainMenu.Location = new Point(0, 0);
             mainMenu.Name = "mainMenu";
             mainMenu.Size = new Size(800, 24);
@@ -127,58 +76,127 @@
             // openToolStripMenuItem
             // 
             openToolStripMenuItem.Name = "openToolStripMenuItem";
-            openToolStripMenuItem.Size = new Size(180, 22);
+            openToolStripMenuItem.Size = new Size(123, 22);
             openToolStripMenuItem.Text = "Open...";
             openToolStripMenuItem.Click += Open;
             // 
             // saveAsToolStripMenuItem1
             // 
             saveAsToolStripMenuItem1.Name = "saveAsToolStripMenuItem1";
-            saveAsToolStripMenuItem1.Size = new Size(180, 22);
+            saveAsToolStripMenuItem1.Size = new Size(123, 22);
             saveAsToolStripMenuItem1.Text = "Save As...";
             saveAsToolStripMenuItem1.Click += SaveAs;
             // 
             // saveToolStripMenuItem
             // 
             saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            saveToolStripMenuItem.Size = new Size(180, 22);
+            saveToolStripMenuItem.Size = new Size(123, 22);
             saveToolStripMenuItem.Text = "Save";
             saveToolStripMenuItem.Click += Save;
             // 
             // exitToolStripMenuItem
             // 
             exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            exitToolStripMenuItem.Size = new Size(180, 22);
+            exitToolStripMenuItem.Size = new Size(123, 22);
             exitToolStripMenuItem.Text = "Exit";
             exitToolStripMenuItem.Click += Exit;
+            // 
+            // repositoriesToolStripMenuItem
+            // 
+            repositoriesToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { rootsToolStripMenuItem, semanticGroupsToolStripMenuItem, languagesToolStripMenuItem, sourcesToolStripMenuItem });
+            repositoriesToolStripMenuItem.Name = "repositoriesToolStripMenuItem";
+            repositoriesToolStripMenuItem.Size = new Size(83, 20);
+            repositoriesToolStripMenuItem.Text = "Repositories";
+            // 
+            // rootsToolStripMenuItem
+            // 
+            rootsToolStripMenuItem.Name = "rootsToolStripMenuItem";
+            rootsToolStripMenuItem.Size = new Size(164, 22);
+            rootsToolStripMenuItem.Text = "Roots";
+            rootsToolStripMenuItem.Click += SelectWordsRepo;
+            // 
+            // semanticGroupsToolStripMenuItem
+            // 
+            semanticGroupsToolStripMenuItem.Name = "semanticGroupsToolStripMenuItem";
+            semanticGroupsToolStripMenuItem.Size = new Size(164, 22);
+            semanticGroupsToolStripMenuItem.Text = "Semantic Groups";
+            semanticGroupsToolStripMenuItem.Click += SelectSemanticGroupsRepo;
+            // 
+            // languagesToolStripMenuItem
+            // 
+            languagesToolStripMenuItem.Name = "languagesToolStripMenuItem";
+            languagesToolStripMenuItem.Size = new Size(164, 22);
+            languagesToolStripMenuItem.Text = "Languages";
+            languagesToolStripMenuItem.Click += SelectLanguagesRepo;
+            // 
+            // sourcesToolStripMenuItem
+            // 
+            sourcesToolStripMenuItem.Name = "sourcesToolStripMenuItem";
+            sourcesToolStripMenuItem.Size = new Size(164, 22);
+            sourcesToolStripMenuItem.Text = "Sources";
+            sourcesToolStripMenuItem.Click += SelectSourcesRepo;
+            // 
+            // dataGridViewLanguages
+            // 
+            dataGridViewLanguages.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridViewLanguages.ContextMenuStrip = contextMenuStripLanguages;
+            dataGridViewLanguages.Dock = DockStyle.Fill;
+            dataGridViewLanguages.Location = new Point(0, 24);
+            dataGridViewLanguages.MultiSelect = false;
+            dataGridViewLanguages.Name = "dataGridViewLanguages";
+            dataGridViewLanguages.ReadOnly = true;
+            dataGridViewLanguages.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dataGridViewLanguages.Size = new Size(800, 426);
+            dataGridViewLanguages.TabIndex = 7;
+            dataGridViewLanguages.Visible = false;
+            // 
+            // contextMenuStripLanguages
+            // 
+            contextMenuStripLanguages.Items.AddRange(new ToolStripItem[] { addLanguageToolStripMenuItem, editLanguageToolStripMenuItem, removeLanguageToolStripMenuItem });
+            contextMenuStripLanguages.Name = "Languages Menu";
+            contextMenuStripLanguages.Size = new Size(173, 70);
+            // 
+            // addLanguageToolStripMenuItem
+            // 
+            addLanguageToolStripMenuItem.Name = "addLanguageToolStripMenuItem";
+            addLanguageToolStripMenuItem.Size = new Size(172, 22);
+            addLanguageToolStripMenuItem.Text = "Add Language";
+            addLanguageToolStripMenuItem.Click += AddLanguage;
+            // 
+            // editLanguageToolStripMenuItem
+            // 
+            editLanguageToolStripMenuItem.Name = "editLanguageToolStripMenuItem";
+            editLanguageToolStripMenuItem.Size = new Size(172, 22);
+            editLanguageToolStripMenuItem.Text = "Edit Language";
+            editLanguageToolStripMenuItem.Click += EditLanguage;
+            // 
+            // removeLanguageToolStripMenuItem
+            // 
+            removeLanguageToolStripMenuItem.Name = "removeLanguageToolStripMenuItem";
+            removeLanguageToolStripMenuItem.Size = new Size(172, 22);
+            removeLanguageToolStripMenuItem.Text = "Remove Language";
+            removeLanguageToolStripMenuItem.Click += RemoveLanguage;
             // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
-            Controls.Add(dataGridViewWords);
+            Controls.Add(dataGridViewLanguages);
             Controls.Add(mainMenu);
             MainMenuStrip = mainMenu;
             Name = "MainForm";
             Text = "Comparatist";
-            ((System.ComponentModel.ISupportInitialize)dataGridViewWords).EndInit();
             ((System.ComponentModel.ISupportInitialize)inMemoryDatabaseBindingSource).EndInit();
             mainMenu.ResumeLayout(false);
             mainMenu.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)dataGridViewLanguages).EndInit();
+            contextMenuStripLanguages.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
 
         #endregion
-
-        private DataGridView dataGridViewWords;
-        private DataGridViewTextBoxColumn semanticGroupsDataGridViewTextBoxColumn;
-        private DataGridViewTextBoxColumn sourcesDataGridViewTextBoxColumn;
-        private DataGridViewTextBoxColumn languagesDataGridViewTextBoxColumn;
-        private DataGridViewTextBoxColumn rootsDataGridViewTextBoxColumn;
-        private DataGridViewTextBoxColumn stemsDataGridViewTextBoxColumn;
-        private DataGridViewTextBoxColumn wordsDataGridViewTextBoxColumn;
         private BindingSource inMemoryDatabaseBindingSource;
         private MenuStrip mainMenu;
         private ToolStripMenuItem fileToolStripMenuItem;
@@ -186,5 +204,15 @@
         private ToolStripMenuItem saveAsToolStripMenuItem1;
         private ToolStripMenuItem saveToolStripMenuItem;
         private ToolStripMenuItem exitToolStripMenuItem;
+        private ToolStripMenuItem repositoriesToolStripMenuItem;
+        private ToolStripMenuItem rootsToolStripMenuItem;
+        private ToolStripMenuItem semanticGroupsToolStripMenuItem;
+        private ToolStripMenuItem languagesToolStripMenuItem;
+        private ToolStripMenuItem sourcesToolStripMenuItem;
+        private DataGridView dataGridViewLanguages;
+        private ContextMenuStrip contextMenuStripLanguages;
+        private ToolStripMenuItem addLanguageToolStripMenuItem;
+        private ToolStripMenuItem editLanguageToolStripMenuItem;
+        private ToolStripMenuItem removeLanguageToolStripMenuItem;
     }
 }

@@ -4,72 +4,16 @@ namespace Comparatist
     {
         private InMemoryDatabase _db = new();
         private string _filePath = string.Empty;
-        private Guid? _selectedWordId = null;
+        private RepoTypes _currentRepo = RepoTypes.Roots;
 
         public MainForm()
         {
             InitializeComponent();
+            SetupLanguageGrid();
         }
 
-        private void dataGridViewWords_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
-        }
-
-        private void dataGridViewWords_SelectionChanged(object sender, EventArgs e)
-        {
-            if (dataGridViewWords.CurrentRow?.Cells["Id"].Value is Guid id)
-                _selectedWordId = id;
-            else
-                _selectedWordId = null;
-        }
-
-        private void buttonAdd_Click(object sender, EventArgs e)
-        {
-            var newWord = new Word
-            {
-                Value = "Enter word here...",
-                Translation = "",
-                Comment = "",
-                Checked = false,
-                SemanticGroups = Array.Empty<SemanticGroup>(),
-                Stem = new Stem(),
-                Language = new Language { Value = "unknown" }
-            };
-
-            _db.Words.Add(newWord);
-            RefreshTable();
-        }
-
-        private void buttonDelete_Click(object sender, EventArgs e)
-        {
-            if (_selectedWordId != null)
-            {
-                _db.Words.Delete(_selectedWordId.Value);
-                RefreshTable();
-            }
-        }
-
-        private void RefreshTable()
-        {
-            var list = _db.Words.GetAll()
-                .Select((word, index) => new
-                {
-                    Value = word.Value,
-                    Translation = word.Translation,
-                    Comment = word.Comment,
-                    Checked = word.Checked,
-                    Language = word.Language?.Value ?? ""
-                })
-                .ToList();
-
-            dataGridViewWords.DataSource = list;
-        }
-
-        private void fileToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
+        #region FILE_OPERATIONS
+        private void fileToolStripMenuItem_Click(object sender, EventArgs e) { }
 
         private void Open(object sender, EventArgs e)
         {
@@ -82,7 +26,7 @@ namespace Comparatist
                 {
                     _filePath = dialog.FileName;
                     _db.Load(_filePath);
-                    RefreshTable();
+                    RefreshContent();
                 }
             }
         }
@@ -123,5 +67,202 @@ namespace Comparatist
 
             Close();
         }
+        #endregion FILE_OPERATIONS
+
+        #region COMMON_CONTENT
+        private void OnDataGridViewRightClick(object? sender, DataGridViewCellMouseEventArgs e)
+        {
+            if (sender is not DataGridView gridView)
+                return;
+
+            if (e.RowIndex >= 0 && e.Button == MouseButtons.Right)
+            {
+                gridView.ClearSelection();
+                gridView.Rows[e.RowIndex].Selected = true;
+                gridView.CurrentCell = dataGridViewLanguages.Rows[e.RowIndex].Cells[e.ColumnIndex];
+            }
+        }
+
+        private void RefreshContent()
+        {
+            ShowActiveGrid();
+            SetCheckedRepositoryMenu();
+
+            switch (_currentRepo)
+            {
+                case RepoTypes.Roots: RefreshRoots(); break;
+                case RepoTypes.SemanticGroups: RefreshSemanticGroups(); break;
+                case RepoTypes.Languages: RefreshLanguages(); break;
+                case RepoTypes.Sources: RefreshSources(); break;
+            }
+        }
+
+        private void SetCheckedRepositoryMenu()
+        {
+            rootsToolStripMenuItem.Checked = _currentRepo == RepoTypes.Roots;
+            semanticGroupsToolStripMenuItem.Checked = _currentRepo == RepoTypes.SemanticGroups;
+            languagesToolStripMenuItem.Checked = _currentRepo == RepoTypes.Languages;
+            sourcesToolStripMenuItem.Checked = _currentRepo == RepoTypes.Sources;
+        }
+
+        private void ShowActiveGrid()
+        {
+            dataGridViewLanguages.Visible = _currentRepo == RepoTypes.Languages;
+            //dataGridViewWords.Visible = repo == "Words";
+            //dataGridViewStems.Visible = repo == "Stems";
+            //dataGridViewRoots.Visible = repo == "Roots";
+            //dataGridViewGroups.Visible = repo == "SemanticGroups";
+            //dataGridViewSources.Visible = repo == "Sources";
+        }
+
+        private void SelectWordsRepo(object sender, EventArgs e)
+        {
+            _currentRepo = RepoTypes.Roots;
+            RefreshContent();
+        }
+
+        private void SelectSemanticGroupsRepo(object sender, EventArgs e)
+        {
+            _currentRepo = RepoTypes.SemanticGroups;
+            RefreshContent();
+        }
+
+        private void SelectLanguagesRepo(object sender, EventArgs e)
+        {
+            _currentRepo = RepoTypes.Languages;
+            RefreshContent();
+        }
+
+        private void SelectSourcesRepo(object sender, EventArgs e)
+        {
+            _currentRepo = RepoTypes.Sources;
+            RefreshContent();
+        }
+
+        #endregion COMMON_CONTENT
+
+        #region SOURCES
+        private void RefreshSources()
+        {
+
+        }
+        #endregion SOURCES
+
+        #region LANGUAGES
+        private void SetupLanguageGrid()
+        {
+            dataGridViewLanguages.Columns.Clear();
+
+            var valueColumn = new DataGridViewTextBoxColumn
+            {
+                Name = "Value",
+                HeaderText = "Language",
+                DataPropertyName = "Value",
+                Width = 200
+            };
+
+            dataGridViewLanguages.Columns.AddRange(valueColumn);
+            dataGridViewLanguages.AutoGenerateColumns = false;
+            dataGridViewLanguages.CellMouseDown += OnDataGridViewRightClick;
+            dataGridViewLanguages.ReadOnly = true;
+        }
+
+        private void RefreshLanguages()
+        {
+            dataGridViewLanguages.Rows.Clear();
+
+            foreach (var e in _db.Languages.GetAll())
+            {
+                int rowIndex = dataGridViewLanguages.Rows.Add(e.Record.Value);
+                dataGridViewLanguages.Rows[rowIndex].Tag = e.Id;
+            }
+        }
+
+        private void AddLanguage(object sender, EventArgs e)
+        {
+            string? input = InputDialog.Show("Add language", string.Empty);
+            if (!string.IsNullOrEmpty(input))
+            {
+                _db.Languages.Add(new Language { Value = input });
+                RefreshContent();
+            }
+        }
+
+        private void EditLanguage(object sender, EventArgs e)
+        {
+            if (dataGridViewLanguages.SelectedRows.Count == 0)
+                return;
+
+            var row = dataGridViewLanguages.SelectedRows[0];
+
+            if (row.Tag == null)
+                return;
+
+            Guid id = (Guid)row.Tag;
+
+            var language = row.Cells[0].Value.ToString() ?? string.Empty;
+            var input = InputDialog.Show("Edit language", $"Enter new name for {language}");
+            if (!string.IsNullOrWhiteSpace(input))
+            {
+                var item = new Language() { Value = input };
+                _db.Languages.Update(id, item);
+                RefreshContent();
+            }
+        }
+
+        private void RemoveLanguage(object sender, EventArgs e)
+        {
+            if (dataGridViewLanguages.SelectedRows.Count == 0)
+                return;
+
+            var row = dataGridViewLanguages.SelectedRows[0];
+
+            if (row.Tag == null)
+                return;
+
+            Guid id = (Guid)row.Tag;
+            var language = row.Cells[0].Value.ToString() ?? string.Empty;
+
+            var result = MessageBox.Show($"Remove language {language}?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+
+            if (result == DialogResult.Yes)
+            {
+                _db.Languages.Delete(id);
+                RefreshContent();
+            }
+        }
+        #endregion LANGUAGES
+
+        #region SEMANTIC_GROUPS
+        private void RefreshSemanticGroups()
+        {
+
+        }
+        #endregion SEMANTIC_GROUPS
+
+        #region ROOTS
+        private void RefreshRoots()
+        {
+
+        }
+        #endregion ROOTS
+
+
+
+
+
+        
+
+
+
+        
+    }
+
+    public enum RepoTypes
+    {
+        Roots = 0,
+        SemanticGroups = 1,
+        Languages = 2,
+        Sources = 3,
     }
 }
