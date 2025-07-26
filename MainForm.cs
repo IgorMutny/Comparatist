@@ -6,7 +6,7 @@ namespace Comparatist
 
         private InMemoryDatabase _db = new();
         private string _filePath = string.Empty;
-        private RepoTypes _currentRepo = RepoTypes.Roots;
+        private ContentHolderTypes _currentContentHolder = ContentHolderTypes.Roots;
 
         public MainForm()
         {
@@ -85,57 +85,57 @@ namespace Comparatist
 
         private void RefreshContent()
         {
-            ShowActiveGrid();
+            ShowActiveContentHolder();
             SetCheckedRepositoryMenu();
 
-            switch (_currentRepo)
+            switch (_currentContentHolder)
             {
-                case RepoTypes.Roots: RefreshRoots(); break;
-                case RepoTypes.SemanticGroups: RefreshSemanticGroups(); break;
-                case RepoTypes.Languages: RefreshLanguages(); break;
-                case RepoTypes.Sources: RefreshSources(); break;
+                case ContentHolderTypes.Roots: RefreshRoots(); break;
+                case ContentHolderTypes.SemanticGroups: RefreshSemanticGroups(); break;
+                case ContentHolderTypes.Languages: RefreshLanguages(); break;
+                case ContentHolderTypes.Sources: RefreshSources(); break;
             }
         }
 
         private void SetCheckedRepositoryMenu()
         {
-            rootsToolStripMenuItem.Checked = _currentRepo == RepoTypes.Roots;
-            semanticGroupsToolStripMenuItem.Checked = _currentRepo == RepoTypes.SemanticGroups;
-            languagesToolStripMenuItem.Checked = _currentRepo == RepoTypes.Languages;
-            sourcesToolStripMenuItem.Checked = _currentRepo == RepoTypes.Sources;
+            rootsToolStripMenuItem.Checked = _currentContentHolder == ContentHolderTypes.Roots;
+            semanticGroupsToolStripMenuItem.Checked = _currentContentHolder == ContentHolderTypes.SemanticGroups;
+            languagesToolStripMenuItem.Checked = _currentContentHolder == ContentHolderTypes.Languages;
+            sourcesToolStripMenuItem.Checked = _currentContentHolder == ContentHolderTypes.Sources;
         }
 
-        private void ShowActiveGrid()
+        private void ShowActiveContentHolder()
         {
-            dataGridViewLanguages.Visible = _currentRepo == RepoTypes.Languages;
+            dataGridViewLanguages.Visible = _currentContentHolder == ContentHolderTypes.Languages;
             //dataGridViewWords.Visible = repo == "Words";
             //dataGridViewStems.Visible = repo == "Stems";
             //dataGridViewRoots.Visible = repo == "Roots";
-            //dataGridViewGroups.Visible = repo == "SemanticGroups";
-            dataGridViewSources.Visible = _currentRepo == RepoTypes.Sources;
+            treeViewSemanticGroups.Visible = _currentContentHolder == ContentHolderTypes.SemanticGroups;
+            dataGridViewSources.Visible = _currentContentHolder == ContentHolderTypes.Sources;
         }
 
         private void SelectRootsRepo(object sender, EventArgs e)
         {
-            _currentRepo = RepoTypes.Roots;
+            _currentContentHolder = ContentHolderTypes.Roots;
             RefreshContent();
         }
 
         private void SelectSemanticGroupsRepo(object sender, EventArgs e)
         {
-            _currentRepo = RepoTypes.SemanticGroups;
+            _currentContentHolder = ContentHolderTypes.SemanticGroups;
             RefreshContent();
         }
 
         private void SelectLanguagesRepo(object sender, EventArgs e)
         {
-            _currentRepo = RepoTypes.Languages;
+            _currentContentHolder = ContentHolderTypes.Languages;
             RefreshContent();
         }
 
         private void SelectSourcesRepo(object sender, EventArgs e)
         {
-            _currentRepo = RepoTypes.Sources;
+            _currentContentHolder = ContentHolderTypes.Sources;
             RefreshContent();
         }
 
@@ -189,18 +189,21 @@ namespace Comparatist
 
             var row = dataGridViewSources.SelectedRows[0];
 
-            if (row.Tag == null)
-                return;
-
-            Guid id = (Guid)row.Tag;
-
-            var source = row.Cells[0].Value.ToString() ?? string.Empty;
-            var input = InputDialog.Show("Edit source", $"Enter new name for {source}");
-            if (!string.IsNullOrWhiteSpace(input))
+            if (row.Tag != null && row.Tag is Guid id)
             {
-                var item = new Source() { Value = input };
-                _db.Sources.Update(id, item);
-                RefreshContent();
+                var source = _db.Sources.GetById(id);
+
+                if (source != null)
+                {
+                    var input = InputDialog.Show("Edit source", $"New name for {source.Value}");
+
+                    if (!string.IsNullOrWhiteSpace(input))
+                    {
+                        var item = new Source() { Value = input };
+                        _db.Sources.Update(id, item);
+                        RefreshContent();
+                    }
+                }
             }
         }
 
@@ -211,18 +214,20 @@ namespace Comparatist
 
             var row = dataGridViewSources.SelectedRows[0];
 
-            if (row.Tag == null)
-                return;
-
-            Guid id = (Guid)row.Tag;
-            var source = row.Cells[0].Value.ToString() ?? string.Empty;
-
-            var result = MessageBox.Show($"Remove source {source}?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-
-            if (result == DialogResult.Yes)
+            if (row.Tag != null && row.Tag is Guid id)
             {
-                _db.Sources.Delete(id);
-                RefreshContent();
+                var source = _db.Sources.GetById(id);
+
+                if (source != null)
+                {
+                    var result = MessageBox.Show($"Remove {source.Value}", $"Remove source?", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+
+                    if (result == DialogResult.Yes)
+                    {
+                        _db.Sources.Delete(id);
+                        RefreshContent();
+                    }
+                }
             }
         }
         #endregion SOURCES
@@ -275,18 +280,20 @@ namespace Comparatist
 
             var row = dataGridViewLanguages.SelectedRows[0];
 
-            if (row.Tag == null)
-                return;
-
-            Guid id = (Guid)row.Tag;
-
-            var language = row.Cells[0].Value.ToString() ?? string.Empty;
-            var input = InputDialog.Show("Edit language", $"Enter new name for {language}");
-            if (!string.IsNullOrWhiteSpace(input))
+            if (row.Tag != null && row.Tag is Guid id)
             {
-                var item = new Language() { Value = input };
-                _db.Languages.Update(id, item);
-                RefreshContent();
+                var language = _db.Languages.GetById(id);
+
+                if (language != null)
+                {
+                    var input = InputDialog.Show("Edit language", $"New name for {language.Value}");
+                    if (!string.IsNullOrWhiteSpace(input))
+                    {
+                        var item = new Language() { Value = input };
+                        _db.Languages.Update(id, item);
+                        RefreshContent();
+                    }
+                }
             }
         }
 
@@ -297,18 +304,20 @@ namespace Comparatist
 
             var row = dataGridViewLanguages.SelectedRows[0];
 
-            if (row.Tag == null)
-                return;
-
-            Guid id = (Guid)row.Tag;
-            var language = row.Cells[0].Value.ToString() ?? string.Empty;
-
-            var result = MessageBox.Show($"Remove language {language}?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-
-            if (result == DialogResult.Yes)
+            if (row.Tag != null && row.Tag is Guid id)
             {
-                _db.Languages.Delete(id);
-                RefreshContent();
+                var language = _db.Languages.GetById(id);
+
+                if (language != null)
+                {
+                    var result = MessageBox.Show($"Remove {language.Value}", $"Remove language?", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+
+                    if (result == DialogResult.Yes)
+                    {
+                        _db.Languages.Delete(id);
+                        RefreshContent();
+                    }
+                }
             }
         }
         #endregion LANGUAGES
@@ -316,7 +325,103 @@ namespace Comparatist
         #region SEMANTIC_GROUPS
         private void RefreshSemanticGroups()
         {
+            treeViewSemanticGroups.BeginUpdate();
+            treeViewSemanticGroups.Nodes.Clear();
 
+            var groupsToNodeMap = new Dictionary<SemanticGroup, TreeNode>();
+
+            foreach (var guidedRecord in _db.SemanticGroups.GetAll())
+            {
+                var node = new TreeNode(guidedRecord.Record.Value) { Tag = guidedRecord.Id };
+                groupsToNodeMap[guidedRecord.Record] = node;
+            }
+
+            foreach (var pair in groupsToNodeMap)
+            {
+                var node = pair.Key;
+
+                if (node.ParentSemanticGroup == null)
+                {
+                    treeViewSemanticGroups.Nodes.Add(pair.Value);
+                }
+                else if (groupsToNodeMap.ContainsKey(node.ParentSemanticGroup))
+                {
+                    var parentNode = groupsToNodeMap[node.ParentSemanticGroup];
+                    parentNode.Nodes.Add(node.Value);
+                }
+            }
+
+            treeViewSemanticGroups.EndUpdate();
+            treeViewSemanticGroups.ExpandAll();
+        }
+
+        private void AddGroup(object sender, EventArgs e)
+        {
+            SemanticGroup? parent = null;
+            string prompt = string.Empty;
+
+            if (treeViewSemanticGroups.SelectedNode?.Tag is Guid parentId)
+            {
+                parent = _db.SemanticGroups.GetById(parentId);
+
+                if (parent != null)
+                    prompt = $"As descendant of {parent.Value}";
+            }
+
+            var input = InputDialog.Show("New semantic group", prompt);
+            if (!string.IsNullOrWhiteSpace(input))
+            {
+                var newGroup = new SemanticGroup
+                {
+                    Value = input,
+                    ParentSemanticGroup = parent
+                };
+                _db.SemanticGroups.Add(newGroup);
+                RefreshSemanticGroups();
+            }
+        }
+
+        private void EditGroup(object sender, EventArgs e)
+        {
+            if (treeViewSemanticGroups.SelectedNode?.Tag is Guid id)
+            {
+                var group = _db.SemanticGroups.GetById(id);
+
+                if (group != null)
+                {
+                    var input = InputDialog.Show("Edit group", $"New name for {group.Value}");
+
+                    if (!string.IsNullOrWhiteSpace(input))
+                    {
+                        group.Value = input;
+                        _db.SemanticGroups.Update(id, group);
+                        RefreshSemanticGroups();
+                    }
+                }
+            }
+        }
+
+        private void moveGroupToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void RemoveGroup(object sender, EventArgs e)
+        {
+            if (treeViewSemanticGroups.SelectedNode?.Tag is Guid id)
+            {
+                var group = _db.SemanticGroups.GetById(id);
+                if (group != null)
+                {
+                    var result = MessageBox.Show($"Remove {group.Value}", "Remove semantic group?", MessageBoxButtons.YesNo);
+
+                    if (result == DialogResult.Yes)
+                    {
+                        _db.SemanticGroups.Delete(id);
+                        RefreshSemanticGroups();
+                    }
+                }
+            }
         }
         #endregion SEMANTIC_GROUPS
 
@@ -328,7 +433,7 @@ namespace Comparatist
         #endregion ROOTS
     }
 
-    public enum RepoTypes
+    public enum ContentHolderTypes
     {
         Roots = 0,
         SemanticGroups = 1,
