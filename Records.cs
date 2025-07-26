@@ -11,7 +11,7 @@ namespace Comparatist
     public class SemanticGroup: IRecord
     {
         [Key(0)] public string Value { get; set; } = string.Empty;
-        [Key(1)] public SemanticGroup? ParentSemanticGroup { get; set; }
+        [Key(1)] public Guid? ParentId { get; set; }
         [Key(2)] public bool Deleted { get; set; } = false;
     }
 

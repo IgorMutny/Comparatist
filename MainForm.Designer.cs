@@ -52,17 +52,20 @@
             editSourceToolStripMenuItem = new ToolStripMenuItem();
             removeSourceToolStripMenuItem = new ToolStripMenuItem();
             treeViewSemanticGroups = new TreeView();
-            contextMenuStripSemanticGroups = new ContextMenuStrip(components);
-            addGroupToolStripMenuItem = new ToolStripMenuItem();
+            contextMenuStripSemanticGroupsNode = new ContextMenuStrip(components);
+            addChildGroupToolStripMenuItem = new ToolStripMenuItem();
             editGroupToolStripMenuItem = new ToolStripMenuItem();
             moveGroupToolStripMenuItem = new ToolStripMenuItem();
             removeGroupToolStripMenuItem = new ToolStripMenuItem();
+            contextMenuStripSemanticGroups = new ContextMenuStrip(components);
+            addRootGroupToolStripMenuItem = new ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)inMemoryDatabaseBindingSource).BeginInit();
             mainMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewLanguages).BeginInit();
             contextMenuStripLanguages.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewSources).BeginInit();
             contextMenuStripSources.SuspendLayout();
+            contextMenuStripSemanticGroupsNode.SuspendLayout();
             contextMenuStripSemanticGroups.SuspendLayout();
             SuspendLayout();
             // 
@@ -235,40 +238,58 @@
             treeViewSemanticGroups.Name = "treeViewSemanticGroups";
             treeViewSemanticGroups.Size = new Size(800, 426);
             treeViewSemanticGroups.TabIndex = 9;
+            treeViewSemanticGroups.ItemDrag += DragGroup;
+            treeViewSemanticGroups.MouseUp += OnTreeViewClicked;
+            treeViewSemanticGroups.DragDrop += DragDropGroup;
+            treeViewSemanticGroups.DragEnter += EnterDragGroup;
+            treeViewSemanticGroups.DragOver += DragOverGroup;
             // 
-            // contextMenuStripSemanticGroups
+            // contextMenuStripSemanticGroupsNode
             // 
-            contextMenuStripSemanticGroups.Items.AddRange(new ToolStripItem[] { addGroupToolStripMenuItem, editGroupToolStripMenuItem, moveGroupToolStripMenuItem, removeGroupToolStripMenuItem });
-            contextMenuStripSemanticGroups.Name = "contextMenuStripSemanticGroups";
-            contextMenuStripSemanticGroups.Size = new Size(154, 92);
+            contextMenuStripSemanticGroupsNode.Items.AddRange(new ToolStripItem[] { addChildGroupToolStripMenuItem, editGroupToolStripMenuItem, moveGroupToolStripMenuItem, removeGroupToolStripMenuItem });
+            contextMenuStripSemanticGroupsNode.Name = "contextMenuStripSemanticGroups";
+            contextMenuStripSemanticGroupsNode.Size = new Size(164, 92);
             // 
-            // addGroupToolStripMenuItem
+            // addChildGroupToolStripMenuItem
             // 
-            addGroupToolStripMenuItem.Name = "addGroupToolStripMenuItem";
-            addGroupToolStripMenuItem.Size = new Size(153, 22);
-            addGroupToolStripMenuItem.Text = "Add Group";
-            addGroupToolStripMenuItem.Click += AddGroup;
+            addChildGroupToolStripMenuItem.Name = "addChildGroupToolStripMenuItem";
+            addChildGroupToolStripMenuItem.Size = new Size(163, 22);
+            addChildGroupToolStripMenuItem.Text = "Add Child Group";
+            addChildGroupToolStripMenuItem.Click += AddChildGroup;
             // 
             // editGroupToolStripMenuItem
             // 
             editGroupToolStripMenuItem.Name = "editGroupToolStripMenuItem";
-            editGroupToolStripMenuItem.Size = new Size(153, 22);
+            editGroupToolStripMenuItem.Size = new Size(163, 22);
             editGroupToolStripMenuItem.Text = "Edit Group";
             editGroupToolStripMenuItem.Click += EditGroup;
             // 
             // moveGroupToolStripMenuItem
             // 
             moveGroupToolStripMenuItem.Name = "moveGroupToolStripMenuItem";
-            moveGroupToolStripMenuItem.Size = new Size(153, 22);
+            moveGroupToolStripMenuItem.Size = new Size(163, 22);
             moveGroupToolStripMenuItem.Text = "Move Group";
-            moveGroupToolStripMenuItem.Click += moveGroupToolStripMenuItem_Click;
+            moveGroupToolStripMenuItem.Click += MoveGroup;
             // 
             // removeGroupToolStripMenuItem
             // 
             removeGroupToolStripMenuItem.Name = "removeGroupToolStripMenuItem";
-            removeGroupToolStripMenuItem.Size = new Size(153, 22);
+            removeGroupToolStripMenuItem.Size = new Size(163, 22);
             removeGroupToolStripMenuItem.Text = "Remove Group";
             removeGroupToolStripMenuItem.Click += RemoveGroup;
+            // 
+            // contextMenuStripSemanticGroups
+            // 
+            contextMenuStripSemanticGroups.Items.AddRange(new ToolStripItem[] { addRootGroupToolStripMenuItem });
+            contextMenuStripSemanticGroups.Name = "contextMenuStripSemanticGroups";
+            contextMenuStripSemanticGroups.Size = new Size(181, 48);
+            // 
+            // addRootGroupToolStripMenuItem
+            // 
+            addRootGroupToolStripMenuItem.Name = "addRootGroupToolStripMenuItem";
+            addRootGroupToolStripMenuItem.Size = new Size(180, 22);
+            addRootGroupToolStripMenuItem.Text = "Add Root Group";
+            addRootGroupToolStripMenuItem.Click += AddRootGroup;
             // 
             // MainForm
             // 
@@ -289,6 +310,7 @@
             contextMenuStripLanguages.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)dataGridViewSources).EndInit();
             contextMenuStripSources.ResumeLayout(false);
+            contextMenuStripSemanticGroupsNode.ResumeLayout(false);
             contextMenuStripSemanticGroups.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
@@ -318,10 +340,12 @@
         private ToolStripMenuItem editSourceToolStripMenuItem;
         private ToolStripMenuItem removeSourceToolStripMenuItem;
         private TreeView treeViewSemanticGroups;
-        private ContextMenuStrip contextMenuStripSemanticGroups;
-        private ToolStripMenuItem addGroupToolStripMenuItem;
+        private ContextMenuStrip contextMenuStripSemanticGroupsNode;
+        private ToolStripMenuItem addChildGroupToolStripMenuItem;
         private ToolStripMenuItem editGroupToolStripMenuItem;
         private ToolStripMenuItem moveGroupToolStripMenuItem;
         private ToolStripMenuItem removeGroupToolStripMenuItem;
+        private ContextMenuStrip contextMenuStripSemanticGroups;
+        private ToolStripMenuItem addRootGroupToolStripMenuItem;
     }
 }

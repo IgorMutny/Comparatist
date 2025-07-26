@@ -7,6 +7,8 @@ namespace Comparatist
         private InMemoryDatabase _db = new();
         private string _filePath = string.Empty;
         private ContentHolderTypes _currentContentHolder = ContentHolderTypes.Roots;
+        private bool _isMoveMode = false;
+        private TreeNode? _nodeBeingMoved = null;
 
         public MainForm()
         {
@@ -14,6 +16,7 @@ namespace Comparatist
             InitializeComponent();
             SetupLanguagesGrid();
             SetupSourcesGrid();
+            SetupSemanticGroupsTree();
         }
 
         #region FILE_OPERATIONS
@@ -62,9 +65,6 @@ namespace Comparatist
 
         private void Exit(object sender, EventArgs e)
         {
-            if (_db != null)
-                Save(sender, EventArgs.Empty);
-
             Close();
         }
         #endregion FILE_OPERATIONS
@@ -323,31 +323,40 @@ namespace Comparatist
         #endregion LANGUAGES
 
         #region SEMANTIC_GROUPS
+        private void SetupSemanticGroupsTree()
+        {
+            treeViewSemanticGroups.AllowDrop = true;
+        }
+
         private void RefreshSemanticGroups()
         {
             treeViewSemanticGroups.BeginUpdate();
             treeViewSemanticGroups.Nodes.Clear();
 
-            var groupsToNodeMap = new Dictionary<SemanticGroup, TreeNode>();
+            var groupsToNodeMap = new Dictionary<Guid, TreeNode>();
 
             foreach (var guidedRecord in _db.SemanticGroups.GetAll())
             {
                 var node = new TreeNode(guidedRecord.Record.Value) { Tag = guidedRecord.Id };
-                groupsToNodeMap[guidedRecord.Record] = node;
+                groupsToNodeMap[guidedRecord.Id] = node;
             }
 
             foreach (var pair in groupsToNodeMap)
             {
-                var node = pair.Key;
+                var id = pair.Key;
+                var parentId = _db.SemanticGroups.GetById(id)?.ParentId;
 
-                if (node.ParentSemanticGroup == null)
+                if (parentId == null)
                 {
                     treeViewSemanticGroups.Nodes.Add(pair.Value);
                 }
-                else if (groupsToNodeMap.ContainsKey(node.ParentSemanticGroup))
+                else
                 {
-                    var parentNode = groupsToNodeMap[node.ParentSemanticGroup];
-                    parentNode.Nodes.Add(node.Value);
+                    var parentGroup = _db.SemanticGroups.GetById(parentId.Value);
+
+                    if (parentGroup != null)
+                        if (groupsToNodeMap.TryGetValue(parentId.Value, out var parentNode))
+                            parentNode.Nodes.Add(groupsToNodeMap[id]);
                 }
             }
 
@@ -355,26 +364,38 @@ namespace Comparatist
             treeViewSemanticGroups.ExpandAll();
         }
 
-        private void AddGroup(object sender, EventArgs e)
+        private void AddChildGroup(object sender, EventArgs e)
         {
-            SemanticGroup? parent = null;
-            string prompt = string.Empty;
-
             if (treeViewSemanticGroups.SelectedNode?.Tag is Guid parentId)
             {
-                parent = _db.SemanticGroups.GetById(parentId);
+                var parent = _db.SemanticGroups.GetById(parentId);
 
                 if (parent != null)
-                    prompt = $"As descendant of {parent.Value}";
+                {
+                    var input = InputDialog.Show("New semantic group", $"As descendant of {parent.Value}");
+                    if (!string.IsNullOrWhiteSpace(input))
+                    {
+                        var newGroup = new SemanticGroup
+                        {
+                            Value = input,
+                            ParentId = parentId
+                        };
+                        _db.SemanticGroups.Add(newGroup);
+                        RefreshSemanticGroups();
+                    }
+                }
             }
+        }
 
-            var input = InputDialog.Show("New semantic group", prompt);
+        private void AddRootGroup(object sender, EventArgs e)
+        {
+            var input = InputDialog.Show("New semantic group", "Will be a root group");
             if (!string.IsNullOrWhiteSpace(input))
             {
                 var newGroup = new SemanticGroup
                 {
                     Value = input,
-                    ParentSemanticGroup = parent
+                    ParentId = null
                 };
                 _db.SemanticGroups.Add(newGroup);
                 RefreshSemanticGroups();
@@ -401,9 +422,13 @@ namespace Comparatist
             }
         }
 
-        private void moveGroupToolStripMenuItem_Click(object sender, EventArgs e)
+        private void MoveGroup(object sender, EventArgs e)
         {
+            if (treeViewSemanticGroups.SelectedNode == null)
+                return;
 
+            _isMoveMode = true;
+            _nodeBeingMoved = treeViewSemanticGroups.SelectedNode;
         }
 
         private void RemoveGroup(object sender, EventArgs e)
@@ -422,6 +447,136 @@ namespace Comparatist
                     }
                 }
             }
+        }
+
+        private void OnTreeViewClicked(object sender, EventArgs e)
+        {
+            var m = (MouseEventArgs)e;
+
+            if (m.Button == MouseButtons.Right)
+            {
+                TreeNode clickedNode = treeViewSemanticGroups.GetNodeAt(m.X, m.Y);
+
+                if (clickedNode != null)
+                {
+                    treeViewSemanticGroups.SelectedNode = clickedNode;
+                    contextMenuStripSemanticGroupsNode.Show(treeViewSemanticGroups, m.Location);
+                }
+                else
+                {
+                    treeViewSemanticGroups.SelectedNode = null;
+                    contextMenuStripSemanticGroups.Show(treeViewSemanticGroups, m.Location);
+                }
+            }
+        }
+
+        private void DragGroup(object sender, ItemDragEventArgs e)
+        {
+            if (_isMoveMode && e.Item is TreeNode node)
+                DoDragDrop(node, DragDropEffects.Move);
+        }
+
+        private void EnterDragGroup(object sender, DragEventArgs e)
+        {
+            if (e.Data != null)
+                if (_isMoveMode && e.Data.GetDataPresent(typeof(TreeNode)))
+                    e.Effect = DragDropEffects.Move;
+        }
+
+        private void DragOverGroup(object sender, DragEventArgs e)
+        {
+            if (!_isMoveMode)
+                return;
+
+            Point pt = treeViewSemanticGroups.PointToClient(new Point(e.X, e.Y));
+            treeViewSemanticGroups.SelectedNode = treeViewSemanticGroups.GetNodeAt(pt);
+        }
+
+        private void DragDropGroup(object sender, DragEventArgs e)
+        {
+            if (!_isMoveMode || !(_nodeBeingMoved?.Tag is Guid sourceId))
+                return;
+
+            Point pt = treeViewSemanticGroups.PointToClient(new Point(e.X, e.Y));
+            TreeNode targetNode = treeViewSemanticGroups.GetNodeAt(pt);
+            bool clickedOnNode = targetNode != null && targetNode.Bounds.Contains(pt);
+
+            if (targetNode == _nodeBeingMoved)
+                return;
+
+            if (clickedOnNode)
+            {
+                if (targetNode == null)
+                    return;
+
+                var confirm = MessageBox.Show(
+                    $"Move \"{_nodeBeingMoved.Text}\" into \"{targetNode.Text}\"?",
+                    "Move semantic group?",
+                    MessageBoxButtons.YesNo);
+
+                if (confirm == DialogResult.Yes && targetNode.Tag is Guid targetId)
+                {
+                    var group = _db.SemanticGroups.GetById(sourceId);
+
+                    if (group != null)
+                    {
+                        var parentGroup = _db.SemanticGroups.GetById(targetId);
+
+                        if (parentGroup != null)
+                        {
+                            if (IsDescendant(targetId, sourceId))
+                            {
+                                MessageBox.Show("Moving forbidden", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                _isMoveMode = false;
+                                _nodeBeingMoved = null;
+                                return;
+                            }
+
+                            group.ParentId = targetId;
+                            _db.SemanticGroups.Update(sourceId, group);
+                            RefreshSemanticGroups();
+                        }
+                    }
+                }
+            }
+            else
+            {
+                var confirm = MessageBox.Show(
+                    $"Move \"{_nodeBeingMoved.Text}\" to the root?",
+                    "Move semantic group?",
+                    MessageBoxButtons.YesNo);
+
+                if (confirm == DialogResult.Yes)
+                {
+                    var group = _db.SemanticGroups.GetById(sourceId);
+
+                    if (group != null)
+                    {
+                        group.ParentId = null;
+                        _db.SemanticGroups.Update(sourceId, group);
+                        RefreshSemanticGroups();
+                    }
+                }
+            }
+
+            _isMoveMode = false;
+            _nodeBeingMoved = null;
+        }
+
+        private bool IsDescendant(Guid childId, Guid parentId)
+        {
+            Guid? currentId = childId;
+
+            while (currentId.HasValue)
+            {
+                if (currentId == parentId)
+                    return true;
+
+                var currentGroup = _db.SemanticGroups.GetById(currentId.Value);
+                currentId = currentGroup?.ParentId;
+            }
+
+            return false;
         }
         #endregion SEMANTIC_GROUPS
 
