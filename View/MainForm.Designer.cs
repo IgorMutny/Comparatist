@@ -129,28 +129,28 @@
             rootsToolStripMenuItem.Name = "rootsToolStripMenuItem";
             rootsToolStripMenuItem.Size = new Size(164, 22);
             rootsToolStripMenuItem.Text = "Roots";
-            rootsToolStripMenuItem.Click += SelectRootsRepo;
+            rootsToolStripMenuItem.Click += SelectRoots;
             // 
             // semanticGroupsToolStripMenuItem
             // 
             semanticGroupsToolStripMenuItem.Name = "semanticGroupsToolStripMenuItem";
             semanticGroupsToolStripMenuItem.Size = new Size(164, 22);
             semanticGroupsToolStripMenuItem.Text = "Semantic Groups";
-            semanticGroupsToolStripMenuItem.Click += SelectSemanticGroupsRepo;
+            semanticGroupsToolStripMenuItem.Click += SelectSemanticGroups;
             // 
             // languagesToolStripMenuItem
             // 
             languagesToolStripMenuItem.Name = "languagesToolStripMenuItem";
             languagesToolStripMenuItem.Size = new Size(164, 22);
             languagesToolStripMenuItem.Text = "Languages";
-            languagesToolStripMenuItem.Click += SelectLanguagesRepo;
+            languagesToolStripMenuItem.Click += SelectLanguages;
             // 
             // sourcesToolStripMenuItem
             // 
             sourcesToolStripMenuItem.Name = "sourcesToolStripMenuItem";
             sourcesToolStripMenuItem.Size = new Size(164, 22);
             sourcesToolStripMenuItem.Text = "Sources";
-            sourcesToolStripMenuItem.Click += SelectSourcesRepo;
+            sourcesToolStripMenuItem.Click += SelectSources;
             // 
             // dataGridViewLanguages
             // 
@@ -238,11 +238,6 @@
             _semanticTreeView.Name = "treeViewSemanticGroups";
             _semanticTreeView.Size = new Size(800, 426);
             _semanticTreeView.TabIndex = 9;
-            _semanticTreeView.ItemDrag += DragGroup;
-            _semanticTreeView.MouseUp += OnTreeViewMouseUp;
-            _semanticTreeView.DragDrop += DragDropGroup;
-            _semanticTreeView.DragEnter += EnterDragGroup;
-            _semanticTreeView.DragOver += DragOverGroup;
             // 
             // contextMenuStripSemanticGroupsNode
             // 
