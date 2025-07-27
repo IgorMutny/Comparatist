@@ -1,11 +1,11 @@
 ﻿namespace Comparatist
 {
-    public class SourcesService
+    public class LanguagesService
     {
         private readonly DataGridView _grid;
-        private readonly IRepository<Source> _repository;
+        private readonly IRepository<Language> _repository;
 
-        public SourcesService(DataGridView grid, IRepository<Source> repository)
+        public LanguagesService(DataGridView grid, IRepository<Language> repository)
         {
             _grid = grid;
             _repository = repository;
@@ -20,19 +20,19 @@
             var valueColumn = new DataGridViewTextBoxColumn
             {
                 Name = "Value",
-                HeaderText = "Source",
+                HeaderText = "Language",
                 DataPropertyName = "Value",
                 Width = 200
             };
 
             _grid.Columns.Add(valueColumn);
             _grid.AutoGenerateColumns = false;
-            _grid.CellMouseDown += OnGridMouseDown;
+            _grid.CellMouseDown += OnCellMouseDown;
             _grid.ReadOnly = true;
             _grid.Visible = false;
         }
 
-        private void OnGridMouseDown(object? sender, DataGridViewCellMouseEventArgs e)
+        private void OnCellMouseDown(object? sender, DataGridViewCellMouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right && e.RowIndex >= 0)
                 _grid.Rows[e.RowIndex].Selected = true;
@@ -51,11 +51,11 @@
 
         public void Add()
         {
-            string? input = InputBox.Show("Add source", string.Empty);
+            string? input = InputBox.Show("Add language", string.Empty);
 
             if (!string.IsNullOrWhiteSpace(input))
             {
-                _repository.Add(new Source { Value = input });
+                _repository.Add(new Language { Value = input });
                 Refresh();
             }
         }
@@ -66,14 +66,14 @@
                 return;
 
             var row = _grid.SelectedRows[0];
-            if (row.Tag is not Guid id || !_repository.TryGet(id, out var source))
+            if (row.Tag is not Guid id || !_repository.TryGet(id, out var language))
                 return;
 
-            string? input = InputBox.Show("Edit source", $"New name for {source.Value}");
+            string? input = InputBox.Show("Edit language", $"New name for {language.Value}", language.Value);
             if (string.IsNullOrWhiteSpace(input))
                 return;
 
-            source.Value = input;
+            language.Value = input;
             Refresh();
         }
 
@@ -83,12 +83,12 @@
                 return;
 
             var row = _grid.SelectedRows[0];
-            if (row.Tag is not Guid id || !_repository.TryGet(id, out var source))
+            if (row.Tag is not Guid id || !_repository.TryGet(id, out var language))
                 return;
 
             var result = MessageBox.Show(
-                $"Delete {source.Value}?",
-                "Delete source",
+                $"Delete {language.Value}?",
+                "Delete language",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Warning);
 
@@ -99,4 +99,5 @@
             }
         }
     }
+
 }

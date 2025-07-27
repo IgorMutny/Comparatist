@@ -67,7 +67,7 @@
             _tree.EndUpdate();
             _tree.ExpandAll();
         }
-        public void AddRoot()
+        public void AddHead()
         {
             var input = InputBox.Show("New semantic group", "Will be a root group");
 
@@ -111,7 +111,7 @@
                 !_repository.TryGet(id, out var group))
                 return;
 
-            var input = InputBox.Show("Edit group", $"New name for {group.Value}");
+            var input = InputBox.Show("Edit group", $"New name for {group.Value}", group.Value);
 
             if (string.IsNullOrWhiteSpace(input))
                 return;

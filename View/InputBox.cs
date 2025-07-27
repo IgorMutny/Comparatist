@@ -2,7 +2,7 @@
 {
     public static class InputBox
     {
-        public static string? Show(string title, string prompt)
+        public static string? Show(string title, string prompt, string defaultText = "")
         {
             using var form = CreateForm(title);
             var label = CreateLabel(prompt);
@@ -10,6 +10,8 @@
             var buttonOK = CreateOkButton();
             var buttonCancel = CreateCancelButton();
 
+            textBox.Text = defaultText;
+            buttonOK.Enabled = !string.IsNullOrWhiteSpace(textBox.Text);
             textBox.TextChanged += (_, _) => buttonOK.Enabled = !string.IsNullOrWhiteSpace(textBox.Text);
             form.Controls.AddRange([label, textBox, buttonOK, buttonCancel]);
             form.AcceptButton = buttonOK;
@@ -47,7 +49,6 @@
         {
             Text = "OK",
             DialogResult = DialogResult.OK,
-            Enabled = false,
             Anchor = AnchorStyles.Right,
             Location = new Point(130, 75),
             Width = 70
