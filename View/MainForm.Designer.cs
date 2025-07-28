@@ -65,6 +65,9 @@
             addStemToolStripMenuItem1 = new ToolStripMenuItem();
             editStemToolStripMenuItem = new ToolStripMenuItem();
             deleteStemToolStripMenuItem = new ToolStripMenuItem();
+            _wordMenu = new ContextMenuStrip(components);
+            addWordToolStripMenuItem = new ToolStripMenuItem();
+            deleteWordToolStripMenuItem = new ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)inMemoryDatabaseBindingSource).BeginInit();
             mainMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)_languagesGridView).BeginInit();
@@ -75,6 +78,7 @@
             _rootGridMenu.SuspendLayout();
             _rootRowMenu.SuspendLayout();
             _stemRowMenu.SuspendLayout();
+            _wordMenu.SuspendLayout();
             SuspendLayout();
             // 
             // inMemoryDatabaseBindingSource
@@ -310,28 +314,48 @@
             // 
             _stemRowMenu.Items.AddRange(new ToolStripItem[] { addStemToolStripMenuItem1, editStemToolStripMenuItem, deleteStemToolStripMenuItem });
             _stemRowMenu.Name = "_stemRowMenu";
-            _stemRowMenu.Size = new Size(181, 92);
+            _stemRowMenu.Size = new Size(138, 70);
             // 
             // addStemToolStripMenuItem1
             // 
             addStemToolStripMenuItem1.Name = "addStemToolStripMenuItem1";
-            addStemToolStripMenuItem1.Size = new Size(180, 22);
+            addStemToolStripMenuItem1.Size = new Size(137, 22);
             addStemToolStripMenuItem1.Text = "Add Stem";
             addStemToolStripMenuItem1.Click += AddStemWithRoot;
             // 
             // editStemToolStripMenuItem
             // 
             editStemToolStripMenuItem.Name = "editStemToolStripMenuItem";
-            editStemToolStripMenuItem.Size = new Size(180, 22);
+            editStemToolStripMenuItem.Size = new Size(137, 22);
             editStemToolStripMenuItem.Text = "Edit Stem";
             editStemToolStripMenuItem.Click += EditStem;
             // 
             // deleteStemToolStripMenuItem
             // 
             deleteStemToolStripMenuItem.Name = "deleteStemToolStripMenuItem";
-            deleteStemToolStripMenuItem.Size = new Size(180, 22);
+            deleteStemToolStripMenuItem.Size = new Size(137, 22);
             deleteStemToolStripMenuItem.Text = "Delete Stem";
             deleteStemToolStripMenuItem.Click += DeleteStem;
+            // 
+            // _wordMenu
+            // 
+            _wordMenu.Items.AddRange(new ToolStripItem[] { addWordToolStripMenuItem, deleteWordToolStripMenuItem });
+            _wordMenu.Name = "_wordMenu";
+            _wordMenu.Size = new Size(181, 70);
+            // 
+            // addWordToolStripMenuItem
+            // 
+            addWordToolStripMenuItem.Name = "addWordToolStripMenuItem";
+            addWordToolStripMenuItem.Size = new Size(180, 22);
+            addWordToolStripMenuItem.Text = "Add / Edit Word";
+            addWordToolStripMenuItem.Click += AddOrEditWord;
+            // 
+            // deleteWordToolStripMenuItem
+            // 
+            deleteWordToolStripMenuItem.Name = "deleteWordToolStripMenuItem";
+            deleteWordToolStripMenuItem.Size = new Size(180, 22);
+            deleteWordToolStripMenuItem.Text = "Delete Word";
+            deleteWordToolStripMenuItem.Click += DeleteWord;
             // 
             // MainForm
             // 
@@ -356,6 +380,7 @@
             _rootGridMenu.ResumeLayout(false);
             _rootRowMenu.ResumeLayout(false);
             _stemRowMenu.ResumeLayout(false);
+            _wordMenu.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -397,5 +422,8 @@
         private ToolStripMenuItem addStemToolStripMenuItem1;
         private ToolStripMenuItem editStemToolStripMenuItem;
         private ToolStripMenuItem deleteStemToolStripMenuItem;
+        private ContextMenuStrip _wordMenu;
+        private ToolStripMenuItem addWordToolStripMenuItem;
+        private ToolStripMenuItem deleteWordToolStripMenuItem;
     }
 }

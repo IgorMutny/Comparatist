@@ -26,7 +26,8 @@ namespace Comparatist
                 _alphaRootsGridView,
                 _rootGridMenu,
                 _rootRowMenu,
-                _stemRowMenu);
+                _stemRowMenu,
+                _wordMenu);
         }
 
         private void Open(object sender, EventArgs e) => _fileService.Open();
@@ -56,6 +57,9 @@ namespace Comparatist
         private void AddStemWithRoot(object sender, EventArgs e) => _alphaRootsService.AddStem();
         private void EditStem(object sender, EventArgs e) => _alphaRootsService.EditStem();
         private void DeleteStem(object sender, EventArgs e) => _alphaRootsService.DeleteStem();
+
+        private void AddOrEditWord(object sender, EventArgs e) => _alphaRootsService.AddOrEditWord();
+        private void DeleteWord(object sender, EventArgs e) => _alphaRootsService.DeleteWord();
 
         private void RefreshAllContent()
         {
