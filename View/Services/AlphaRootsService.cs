@@ -7,6 +7,7 @@
         private ContextMenuStrip _gridMenu;
         private ContextMenuStrip _rootRowMenu;
         private ContextMenuStrip _stemRowMenu;
+        private List<Guid> _expandedRootIds = new();
 
         public AlphaRootsService(
             IDatabase db,
@@ -32,6 +33,7 @@
             _grid.MultiSelect = false;
             _grid.CellMouseDown += OnCellMouseDown;
             _grid.CellDoubleClick += OnCellDoubleClick;
+            _grid.CellPainting += OnCellPainting;
             _grid.ReadOnly = true;
             _grid.Visible = false;
         }
@@ -89,10 +91,36 @@
             tag.Expanded = !tag.Expanded;
         }
 
+        private void OnCellPainting(object? sender, DataGridViewCellPaintingEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.ColumnIndex < 0) return;
+            var value = e.FormattedValue?.ToString();
+            if (string.IsNullOrEmpty(value)) return;
+
+            e.Handled = true;
+            e.PaintBackground(e.CellBounds, true);
+
+            var formatted = RichTextFormatter.Parse(value);
+            var x = e.CellBounds.X + 2;
+            var y = e.CellBounds.Y + 2;
+
+            if (e.CellStyle != null && e.Graphics != null)
+            {
+                foreach (var (text, style) in formatted)
+                {
+                    using var font = new Font(e.CellStyle.Font, style);
+                    var size = TextRenderer.MeasureText(text, font);
+                    TextRenderer.DrawText(e.Graphics, text, font, new Point(x, y), e.CellStyle.ForeColor);
+                    x += size.Width;
+                }
+            }
+        }
+
         public void Refresh()
         {
             RefreshColumns();
             RefreshRows();
+            _grid.ClearSelection();
         }
 
         private void RefreshColumns()
@@ -126,9 +154,14 @@
                 int rowIndex = _grid.Rows.Add();
 
                 var row = _grid.Rows[rowIndex];
-                row.Cells[0].Value = root.Value;
+                row.Cells[0].Value = $"[b]{root.Value}[/b] {root.Translation}";
 
-                row.Tag = new RootRowTag { Id = root.Id, Expanded = false };
+                var expanded = _expandedRootIds.Contains(root.Id);
+
+                row.Tag = new RootRowTag { Id = root.Id, Expanded = expanded };
+
+                if (expanded)
+                    ExpandRow(rowIndex);
             }
         }
 
@@ -156,7 +189,7 @@
                     var row = _grid.Rows[newIndex];
                     row.Tag = new StemRowTag { Id = stem.Id };
 
-                    row.Cells[0].Value = $"{stem.Value} — {stem.Translation}";
+                    row.Cells[0].Value = $"→ [b]{stem.Value}[/b] {stem.Translation}";
                 }
             }
             else
@@ -164,13 +197,20 @@
                 _grid.Rows.Insert(insertIndex);
                 var row = _grid.Rows[insertIndex];
                 row.Tag = new EmptyRowTag();
-                row.Cells[0].Value = "---no stems---";
-
+                row.Cells[0].Value = "→ [i]no stems[/i]";
             }
+
+            if (!_expandedRootIds.Contains(rootTag.Id))
+                _expandedRootIds.Add(rootTag.Id);
         }
 
         private void CollapseRow(int rootRowIndex)
         {
+            var rootRow = _grid.Rows[rootRowIndex];
+
+            if (rootRow.Tag is RootRowTag rootTag && _expandedRootIds.Contains(rootTag.Id))
+                _expandedRootIds.Remove(rootTag.Id);
+
             var nextIndex = rootRowIndex + 1;
 
             while (nextIndex < _grid.Rows.Count)
@@ -250,6 +290,9 @@
 
             if (result == DialogResult.Yes)
             {
+                if (_expandedRootIds.Contains(root.Id))
+                    _expandedRootIds.Remove(root.Id);
+
                 _db.Roots.Delete(rowTag.Id);
                 Refresh();
             }
@@ -266,7 +309,7 @@
             else if (_grid.SelectedRows[0].Tag is StemRowTag stemTag
                 && _db.Stems.TryGet(stemTag.Id, out var stem))
             {
-               foreach (var rootId in stem.RootIds)
+                foreach (var rootId in stem.RootIds)
                     selectedRootIds.Add(rootId);
             }
 
