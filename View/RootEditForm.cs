@@ -32,20 +32,16 @@
             set => _checkedBox.Checked = value;
         }
 
-        public RootEditForm()
+        public RootEditForm(string header)
         {
             InitializeComponent();
+
+            Text = header;
 
             _okButton.Enabled = !string.IsNullOrWhiteSpace(_valueTextBox.Text);
 
             _valueTextBox.TextChanged += (_, _) =>
                  _okButton.Enabled = !string.IsNullOrWhiteSpace(_valueTextBox.Text);
-        }
-
-        public RootEditForm WithHeader(string header)
-        {
-            Text = header;
-            return this;
         }
     }
 }

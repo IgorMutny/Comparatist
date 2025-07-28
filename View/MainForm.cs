@@ -1,5 +1,3 @@
-using Comparatist.View.Services;
-
 namespace Comparatist
 {
     public partial class MainForm : Form
@@ -23,7 +21,12 @@ namespace Comparatist
                 _semanticMenu,
                 _semanticNodeMenu,
                 (obj, e) => DoDragDrop(obj, e));
-            _alphaRootsService = new(_db, _alphaRootsGridView, _rootGridMenu, _rootRowMenu);
+            _alphaRootsService = new(
+                _db,
+                _alphaRootsGridView,
+                _rootGridMenu,
+                _rootRowMenu,
+                _stemRowMenu);
         }
 
         private void Open(object sender, EventArgs e) => _fileService.Open();
@@ -48,6 +51,11 @@ namespace Comparatist
         private void AddRoot(object sender, EventArgs e) => _alphaRootsService.AddRoot();
         private void EditRoot(object sender, EventArgs e) => _alphaRootsService.EditRoot();
         private void DeleteRoot(object sender, EventArgs e) => _alphaRootsService.DeleteRoot();
+
+        private void AddStem(object sender, EventArgs e) => _alphaRootsService.AddStem();
+        private void AddStemWithRoot(object sender, EventArgs e) => _alphaRootsService.AddStem();
+        private void EditStem(object sender, EventArgs e) => _alphaRootsService.EditStem();
+        private void DeleteStem(object sender, EventArgs e) => _alphaRootsService.DeleteStem();
 
         private void RefreshAllContent()
         {

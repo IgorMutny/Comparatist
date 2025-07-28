@@ -60,6 +60,11 @@
             _addRootRowMenuItem = new ToolStripMenuItem();
             _editRootRowMenuItem = new ToolStripMenuItem();
             _deleteRootRowMenuItem = new ToolStripMenuItem();
+            addStemToolStripMenuItem = new ToolStripMenuItem();
+            _stemRowMenu = new ContextMenuStrip(components);
+            addStemToolStripMenuItem1 = new ToolStripMenuItem();
+            editStemToolStripMenuItem = new ToolStripMenuItem();
+            deleteStemToolStripMenuItem = new ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)inMemoryDatabaseBindingSource).BeginInit();
             mainMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)_languagesGridView).BeginInit();
@@ -69,6 +74,7 @@
             ((System.ComponentModel.ISupportInitialize)_alphaRootsGridView).BeginInit();
             _rootGridMenu.SuspendLayout();
             _rootRowMenu.SuspendLayout();
+            _stemRowMenu.SuspendLayout();
             SuspendLayout();
             // 
             // inMemoryDatabaseBindingSource
@@ -121,7 +127,7 @@
             // 
             // repositoriesToolStripMenuItem
             // 
-            repositoriesToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { _showAlphaRootsMenuItem, _showSemanticMenuItem, _showLanguageMenuItem});
+            repositoriesToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { _showAlphaRootsMenuItem, _showSemanticMenuItem, _showLanguageMenuItem });
             repositoriesToolStripMenuItem.Name = "repositoriesToolStripMenuItem";
             repositoriesToolStripMenuItem.Size = new Size(83, 20);
             repositoriesToolStripMenuItem.Text = "Repositories";
@@ -268,30 +274,64 @@
             // 
             // _rootRowMenu
             // 
-            _rootRowMenu.Items.AddRange(new ToolStripItem[] { _addRootRowMenuItem, _editRootRowMenuItem, _deleteRootRowMenuItem });
+            _rootRowMenu.Items.AddRange(new ToolStripItem[] { _addRootRowMenuItem, _editRootRowMenuItem, _deleteRootRowMenuItem, addStemToolStripMenuItem });
             _rootRowMenu.Name = "_rootRowMenu";
-            _rootRowMenu.Size = new Size(181, 92);
+            _rootRowMenu.Size = new Size(136, 92);
             // 
             // _addRootRowMenuItem
             // 
             _addRootRowMenuItem.Name = "_addRootRowMenuItem";
-            _addRootRowMenuItem.Size = new Size(180, 22);
+            _addRootRowMenuItem.Size = new Size(135, 22);
             _addRootRowMenuItem.Text = "Add Root";
             _addRootRowMenuItem.Click += AddRoot;
             // 
             // _editRootRowMenuItem
             // 
             _editRootRowMenuItem.Name = "_editRootRowMenuItem";
-            _editRootRowMenuItem.Size = new Size(180, 22);
+            _editRootRowMenuItem.Size = new Size(135, 22);
             _editRootRowMenuItem.Text = "Edit Root";
             _editRootRowMenuItem.Click += EditRoot;
             // 
             // _deleteRootRowMenuItem
             // 
             _deleteRootRowMenuItem.Name = "_deleteRootRowMenuItem";
-            _deleteRootRowMenuItem.Size = new Size(180, 22);
+            _deleteRootRowMenuItem.Size = new Size(135, 22);
             _deleteRootRowMenuItem.Text = "Delete Root";
             _deleteRootRowMenuItem.Click += DeleteRoot;
+            // 
+            // addStemToolStripMenuItem
+            // 
+            addStemToolStripMenuItem.Name = "addStemToolStripMenuItem";
+            addStemToolStripMenuItem.Size = new Size(135, 22);
+            addStemToolStripMenuItem.Text = "Add Stem";
+            addStemToolStripMenuItem.Click += AddStem;
+            // 
+            // _stemRowMenu
+            // 
+            _stemRowMenu.Items.AddRange(new ToolStripItem[] { addStemToolStripMenuItem1, editStemToolStripMenuItem, deleteStemToolStripMenuItem });
+            _stemRowMenu.Name = "_stemRowMenu";
+            _stemRowMenu.Size = new Size(181, 92);
+            // 
+            // addStemToolStripMenuItem1
+            // 
+            addStemToolStripMenuItem1.Name = "addStemToolStripMenuItem1";
+            addStemToolStripMenuItem1.Size = new Size(180, 22);
+            addStemToolStripMenuItem1.Text = "Add Stem";
+            addStemToolStripMenuItem1.Click += AddStemWithRoot;
+            // 
+            // editStemToolStripMenuItem
+            // 
+            editStemToolStripMenuItem.Name = "editStemToolStripMenuItem";
+            editStemToolStripMenuItem.Size = new Size(180, 22);
+            editStemToolStripMenuItem.Text = "Edit Stem";
+            editStemToolStripMenuItem.Click += EditStem;
+            // 
+            // deleteStemToolStripMenuItem
+            // 
+            deleteStemToolStripMenuItem.Name = "deleteStemToolStripMenuItem";
+            deleteStemToolStripMenuItem.Size = new Size(180, 22);
+            deleteStemToolStripMenuItem.Text = "Delete Stem";
+            deleteStemToolStripMenuItem.Click += DeleteStem;
             // 
             // MainForm
             // 
@@ -315,6 +355,7 @@
             ((System.ComponentModel.ISupportInitialize)_alphaRootsGridView).EndInit();
             _rootGridMenu.ResumeLayout(false);
             _rootRowMenu.ResumeLayout(false);
+            _stemRowMenu.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -351,5 +392,10 @@
         private ToolStripMenuItem _addRootRowMenuItem;
         private ToolStripMenuItem _editRootRowMenuItem;
         private ToolStripMenuItem _deleteRootRowMenuItem;
+        private ToolStripMenuItem addStemToolStripMenuItem;
+        private ContextMenuStrip _stemRowMenu;
+        private ToolStripMenuItem addStemToolStripMenuItem1;
+        private ToolStripMenuItem editStemToolStripMenuItem;
+        private ToolStripMenuItem deleteStemToolStripMenuItem;
     }
 }

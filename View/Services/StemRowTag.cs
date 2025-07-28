@@ -1,8 +1,7 @@
 ﻿namespace Comparatist
 {
-    public class RootRowTag
+    public class StemRowTag
     {
         public Guid Id { get; set; }
-        public bool Expanded { get; set; }
     }
 }
