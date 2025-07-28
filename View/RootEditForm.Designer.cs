@@ -12,6 +12,7 @@ namespace Comparatist
         private TextBox _translationTextBox;
         private TextBox _commentTextBox;
 
+        private CheckBox _nativeBox;
         private CheckBox _checkedBox;
         private Button _okButton;
         private Button _cancelButton;
@@ -24,6 +25,7 @@ namespace Comparatist
             _valueTextBox = new TextBox();
             _translationTextBox = new TextBox();
             _commentTextBox = new TextBox();
+            _nativeBox = new CheckBox();
             _checkedBox = new CheckBox();
             _okButton = new Button();
             _cancelButton = new Button();
@@ -77,10 +79,20 @@ namespace Comparatist
             _commentTextBox.Size = new Size(150, 23);
             _commentTextBox.TabIndex = 5;
             // 
+            // _nativeBox
+            // 
+            _nativeBox.AutoSize = true;
+            _nativeBox.Location = new Point(100, 110);
+            _nativeBox.Name = "_nativeBox";
+            _nativeBox.Size = new Size(60, 19);
+            _nativeBox.TabIndex = 6;
+            _nativeBox.Text = "Native";
+            _nativeBox.UseVisualStyleBackColor = true;
+            // 
             // _checkedBox
             // 
             _checkedBox.AutoSize = true;
-            _checkedBox.Location = new Point(100, 110);
+            _checkedBox.Location = new Point(100, 130);
             _checkedBox.Name = "_checkedBox";
             _checkedBox.Size = new Size(72, 19);
             _checkedBox.TabIndex = 6;
@@ -90,7 +102,7 @@ namespace Comparatist
             // _okButton
             // 
             _okButton.DialogResult = DialogResult.OK;
-            _okButton.Location = new Point(50, 150);
+            _okButton.Location = new Point(50, 170);
             _okButton.Name = "_okButton";
             _okButton.Size = new Size(80, 25);
             _okButton.TabIndex = 7;
@@ -100,7 +112,7 @@ namespace Comparatist
             // _cancelButton
             // 
             _cancelButton.DialogResult = DialogResult.Cancel;
-            _cancelButton.Location = new Point(150, 150);
+            _cancelButton.Location = new Point(150, 170);
             _cancelButton.Name = "_cancelButton";
             _cancelButton.Size = new Size(80, 25);
             _cancelButton.TabIndex = 8;
@@ -113,13 +125,14 @@ namespace Comparatist
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             CancelButton = _cancelButton;
-            ClientSize = new Size(280, 200);
+            ClientSize = new Size(280, 220);
             Controls.Add(_lblValue);
             Controls.Add(_valueTextBox);
             Controls.Add(_lblTranslation);
             Controls.Add(_translationTextBox);
             Controls.Add(_lblComment);
             Controls.Add(_commentTextBox);
+            Controls.Add(_nativeBox);
             Controls.Add(_checkedBox);
             Controls.Add(_okButton);
             Controls.Add(_cancelButton);

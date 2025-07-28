@@ -20,6 +20,12 @@
             set => _commentTextBox.Text = value;
         }
 
+        public bool NativeValue
+        {
+            get => _nativeBox.Checked;
+            set => _nativeBox.Checked = value;
+        }
+
         public bool CheckedValue
         {
             get => _checkedBox.Checked;

@@ -40,17 +40,11 @@
             _showAlphaRootsMenuItem = new ToolStripMenuItem();
             _showSemanticMenuItem = new ToolStripMenuItem();
             _showLanguageMenuItem = new ToolStripMenuItem();
-            _showSourcesMenuItem = new ToolStripMenuItem();
             _languagesGridView = new DataGridView();
             contextMenuStripLanguages = new ContextMenuStrip(components);
             addLanguageToolStripMenuItem = new ToolStripMenuItem();
             editLanguageToolStripMenuItem = new ToolStripMenuItem();
             removeLanguageToolStripMenuItem = new ToolStripMenuItem();
-            _sourcesGridView = new DataGridView();
-            contextMenuStripSources = new ContextMenuStrip(components);
-            addSourceToolStripMenuItem = new ToolStripMenuItem();
-            editSourceToolStripMenuItem = new ToolStripMenuItem();
-            removeSourceToolStripMenuItem = new ToolStripMenuItem();
             _semanticTreeView = new TreeView();
             _semanticMenu = new ContextMenuStrip(components);
             addRootGroupToolStripMenuItem = new ToolStripMenuItem();
@@ -70,8 +64,6 @@
             mainMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)_languagesGridView).BeginInit();
             contextMenuStripLanguages.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)_sourcesGridView).BeginInit();
-            contextMenuStripSources.SuspendLayout();
             _semanticMenu.SuspendLayout();
             _semanticNodeMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)_alphaRootsGridView).BeginInit();
@@ -129,7 +121,7 @@
             // 
             // repositoriesToolStripMenuItem
             // 
-            repositoriesToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { _showAlphaRootsMenuItem, _showSemanticMenuItem, _showLanguageMenuItem, _showSourcesMenuItem });
+            repositoriesToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { _showAlphaRootsMenuItem, _showSemanticMenuItem, _showLanguageMenuItem});
             repositoriesToolStripMenuItem.Name = "repositoriesToolStripMenuItem";
             repositoriesToolStripMenuItem.Size = new Size(83, 20);
             repositoriesToolStripMenuItem.Text = "Repositories";
@@ -154,13 +146,6 @@
             _showLanguageMenuItem.Size = new Size(169, 22);
             _showLanguageMenuItem.Text = "Languages";
             _showLanguageMenuItem.Click += SelectLanguages;
-            // 
-            // _showSourcesMenuItem
-            // 
-            _showSourcesMenuItem.Name = "_showSourcesMenuItem";
-            _showSourcesMenuItem.Size = new Size(169, 22);
-            _showSourcesMenuItem.Text = "Sources";
-            _showSourcesMenuItem.Click += SelectSources;
             // 
             // _languagesGridView
             // 
@@ -202,43 +187,6 @@
             removeLanguageToolStripMenuItem.Size = new Size(172, 22);
             removeLanguageToolStripMenuItem.Text = "Remove Language";
             removeLanguageToolStripMenuItem.Click += DeleteLanguage;
-            // 
-            // _sourcesGridView
-            // 
-            _sourcesGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            _sourcesGridView.ContextMenuStrip = contextMenuStripSources;
-            _sourcesGridView.Dock = DockStyle.Fill;
-            _sourcesGridView.Location = new Point(0, 24);
-            _sourcesGridView.Name = "_sourcesGridView";
-            _sourcesGridView.Size = new Size(800, 426);
-            _sourcesGridView.TabIndex = 8;
-            // 
-            // contextMenuStripSources
-            // 
-            contextMenuStripSources.Items.AddRange(new ToolStripItem[] { addSourceToolStripMenuItem, editSourceToolStripMenuItem, removeSourceToolStripMenuItem });
-            contextMenuStripSources.Name = "contextMenuStripSources";
-            contextMenuStripSources.Size = new Size(157, 70);
-            // 
-            // addSourceToolStripMenuItem
-            // 
-            addSourceToolStripMenuItem.Name = "addSourceToolStripMenuItem";
-            addSourceToolStripMenuItem.Size = new Size(156, 22);
-            addSourceToolStripMenuItem.Text = "Add Source";
-            addSourceToolStripMenuItem.Click += AddSource;
-            // 
-            // editSourceToolStripMenuItem
-            // 
-            editSourceToolStripMenuItem.Name = "editSourceToolStripMenuItem";
-            editSourceToolStripMenuItem.Size = new Size(156, 22);
-            editSourceToolStripMenuItem.Text = "Edit Source";
-            editSourceToolStripMenuItem.Click += EditSource;
-            // 
-            // removeSourceToolStripMenuItem
-            // 
-            removeSourceToolStripMenuItem.Name = "removeSourceToolStripMenuItem";
-            removeSourceToolStripMenuItem.Size = new Size(156, 22);
-            removeSourceToolStripMenuItem.Text = "Remove Source";
-            removeSourceToolStripMenuItem.Click += DeleteSource;
             // 
             // _semanticTreeView
             // 
@@ -352,7 +300,6 @@
             ClientSize = new Size(800, 450);
             Controls.Add(_alphaRootsGridView);
             Controls.Add(_semanticTreeView);
-            Controls.Add(_sourcesGridView);
             Controls.Add(_languagesGridView);
             Controls.Add(mainMenu);
             MainMenuStrip = mainMenu;
@@ -363,8 +310,6 @@
             mainMenu.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)_languagesGridView).EndInit();
             contextMenuStripLanguages.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)_sourcesGridView).EndInit();
-            contextMenuStripSources.ResumeLayout(false);
             _semanticMenu.ResumeLayout(false);
             _semanticNodeMenu.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)_alphaRootsGridView).EndInit();
@@ -386,17 +331,11 @@
         private ToolStripMenuItem _showAlphaRootsMenuItem;
         private ToolStripMenuItem _showSemanticMenuItem;
         private ToolStripMenuItem _showLanguageMenuItem;
-        private ToolStripMenuItem _showSourcesMenuItem;
         private DataGridView _languagesGridView;
         private ContextMenuStrip contextMenuStripLanguages;
         private ToolStripMenuItem addLanguageToolStripMenuItem;
         private ToolStripMenuItem editLanguageToolStripMenuItem;
         private ToolStripMenuItem removeLanguageToolStripMenuItem;
-        private DataGridView _sourcesGridView;
-        private ContextMenuStrip contextMenuStripSources;
-        private ToolStripMenuItem addSourceToolStripMenuItem;
-        private ToolStripMenuItem editSourceToolStripMenuItem;
-        private ToolStripMenuItem removeSourceToolStripMenuItem;
         private TreeView _semanticTreeView;
         private ContextMenuStrip _semanticNodeMenu;
         private ToolStripMenuItem addChildGroupToolStripMenuItem;

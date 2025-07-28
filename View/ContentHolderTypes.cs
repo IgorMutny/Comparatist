@@ -6,6 +6,5 @@ namespace Comparatist
         SemanticRoots = 1,
         SemanticGroups = 2,
         Languages = 3,
-        Sources = 4,
     }
 }

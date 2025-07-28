@@ -8,7 +8,6 @@ namespace Comparatist
         private ContentHolderTypes _currentContentHolder = ContentHolderTypes.AlphaRoots;
         private FileService _fileService;
         private LanguagesService _languagesService;
-        private SourcesService _sourcesService;
         private SemanticTreeService _semanticTreeService;
         private AlphaRootsService _alphaRootsService;
 
@@ -18,7 +17,6 @@ namespace Comparatist
             InitializeComponent();
             _fileService = new FileService(_db, RefreshAllContent);
             _languagesService = new(_languagesGridView, _db.Languages);
-            _sourcesService = new(_sourcesGridView, _db.Sources);
             _semanticTreeService = new(
                 _semanticTreeView,
                 _db.SemanticGroups,
@@ -36,12 +34,6 @@ namespace Comparatist
         private void SelectAlphaRoots(object sender, EventArgs e) => SelectContent(ContentHolderTypes.AlphaRoots);
         private void SelectSemanticGroups(object sender, EventArgs e) => SelectContent(ContentHolderTypes.SemanticGroups);
         private void SelectLanguages(object sender, EventArgs e) => SelectContent(ContentHolderTypes.Languages);
-        private void SelectSources(object sender, EventArgs e) => SelectContent(ContentHolderTypes.Sources);
-
-        private void AddSource(object sender, EventArgs e) => _sourcesService.Add();
-        private void EditSource(object sender, EventArgs e) => _sourcesService.Edit();
-        private void DeleteSource(object sender, EventArgs e) => _sourcesService.Delete();
-
 
         private void AddLanguage(object sender, EventArgs e) => _languagesService.Add();
         private void EditLanguage(object sender, EventArgs e) => _languagesService.Edit();
@@ -63,7 +55,6 @@ namespace Comparatist
             SetCheckedRepositoryMenu();
             _semanticTreeService.Refresh();
             _languagesService.Refresh();
-            _sourcesService.Refresh();
             _alphaRootsService.Refresh();
         }
 
@@ -72,7 +63,6 @@ namespace Comparatist
             _showAlphaRootsMenuItem.Checked = _currentContentHolder == ContentHolderTypes.AlphaRoots;
             _showSemanticMenuItem.Checked = _currentContentHolder == ContentHolderTypes.SemanticGroups;
             _showLanguageMenuItem.Checked = _currentContentHolder == ContentHolderTypes.Languages;
-            _showSourcesMenuItem.Checked = _currentContentHolder == ContentHolderTypes.Sources;
         }
 
         private void ShowActiveContentHolder()
@@ -80,7 +70,6 @@ namespace Comparatist
             _alphaRootsGridView.Visible = _currentContentHolder == ContentHolderTypes.AlphaRoots;
             _languagesGridView.Visible = _currentContentHolder == ContentHolderTypes.Languages;
             _semanticTreeView.Visible = _currentContentHolder == ContentHolderTypes.SemanticGroups;
-            _sourcesGridView.Visible = _currentContentHolder == ContentHolderTypes.Sources;
         }
 
         private void SelectContent(ContentHolderTypes type)

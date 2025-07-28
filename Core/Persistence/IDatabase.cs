@@ -3,7 +3,6 @@
     public interface IDatabase
     {
         IRepository<SemanticGroup> SemanticGroups { get; }
-        IRepository<Source> Sources { get; }
         IRepository<Language> Languages { get; }
         IRepository<Root> Roots { get; }
         IRepository<Stem> Stems { get; }

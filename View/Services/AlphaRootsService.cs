@@ -169,6 +169,7 @@
                     Value = form.ValueText,
                     Translation = form.TranslationText,
                     Comment = form.CommentText,
+                    Native = form.NativeValue,
                     Checked = form.CheckedValue
                 };
                 _db.Roots.Add(newRoot);
@@ -190,6 +191,7 @@
             form.ValueText = root.Value;
             form.TranslationText = root.Translation;
             form.CommentText = root.Comment;
+            form.NativeValue = root.Native;
             form.CheckedValue = root.Checked;
 
             if (form.ShowDialog() == DialogResult.OK)
@@ -197,6 +199,7 @@
                 root.Value = form.ValueText;
                 root.Translation = form.TranslationText;
                 root.Comment = form.CommentText;
+                root.Native = form.NativeValue;
                 root.Checked = form.CheckedValue;
                 Refresh();
             }

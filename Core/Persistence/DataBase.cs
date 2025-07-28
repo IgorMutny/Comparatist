@@ -6,7 +6,6 @@ namespace Comparatist
     public class Database : IDatabase
     {
         public IRepository<SemanticGroup> SemanticGroups { get; } = new Repository<SemanticGroup>();
-        public IRepository<Source> Sources { get; } = new Repository<Source>();
         public IRepository<Language> Languages { get; } = new Repository<Language>();
         public IRepository<Root> Roots { get; } = new Repository<Root>();
         public IRepository<Stem> Stems { get; } = new Repository<Stem>();
@@ -38,7 +37,6 @@ namespace Comparatist
         public void Clear()
         {
             SemanticGroups.Clear();
-            Sources.Clear();
             Languages.Clear();
             Roots.Clear();
             Stems.Clear();
