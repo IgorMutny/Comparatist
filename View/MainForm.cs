@@ -55,6 +55,7 @@ namespace Comparatist
 
         private void AddRoot(object sender, EventArgs e) => _alphaRootsService.AddRoot();
         private void EditRoot(object sender, EventArgs e) => _alphaRootsService.EditRoot();
+        private void DeleteRoot(object sender, EventArgs e) => _alphaRootsService.DeleteRoot();
 
         private void RefreshAllContent()
         {

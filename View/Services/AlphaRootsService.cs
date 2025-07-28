@@ -22,9 +22,13 @@
 
         private void SetupGridView()
         {
+            _grid.Dock = DockStyle.Fill;
+            _grid.AllowUserToAddRows = false;
+            _grid.RowHeadersVisible = false;
             _grid.AutoGenerateColumns = false;
             _grid.MultiSelect = false;
             _grid.CellMouseDown += OnCellMouseDown;
+            _grid.CellDoubleClick += OnCellDoubleClick;
             _grid.ReadOnly = true;
             _grid.Visible = false;
         }
@@ -54,6 +58,24 @@
                     }
                 }
             }
+        }
+
+        private void OnCellDoubleClick(object? sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0)
+                return;
+
+            var row = _grid.Rows[e.RowIndex];
+
+            if (row.Tag is not RootRowTag tag)
+                return;
+
+            if (tag.Expanded)
+                CollapseRow(e.RowIndex);
+            else
+                ExpandRow(e.RowIndex);
+
+            tag.Expanded = !tag.Expanded;
         }
 
         public void Refresh()
@@ -95,13 +117,44 @@
                 var row = _grid.Rows[rowIndex];
                 row.Cells[0].Value = root.Value;
 
-                // Скрываем столбцы языков для root строки
-                //for (int i = 1; i < _rootsGridView.Columns.Count; i++)
-                {
-                    //row.Cells[i].Value = null;
-                }
-
                 row.Tag = new RootRowTag { Id = root.Id, Expanded = false };
+            }
+        }
+
+        private void ExpandRow(int rootRowIndex)
+        {
+            var rootRow = _grid.Rows[rootRowIndex];
+
+            if (rootRow.Tag is not RootRowTag)
+                return;
+
+            var expandedRowIndex = rootRowIndex + 1;
+            _grid.Rows.Insert(expandedRowIndex);
+
+            var expandedRow = _grid.Rows[expandedRowIndex];
+
+            // fake
+            expandedRow.Cells[0].Value = "[Expanded content]";
+
+            for (int i = 1; i < _grid.Columns.Count; i++)
+            {
+                expandedRow.Cells[i].Value = "Expanded content";
+            }
+
+            expandedRow.Tag = null;
+        }
+
+        private void CollapseRow(int rootRowIndex)
+        {
+            var nextIndex = rootRowIndex + 1;
+            if (nextIndex < _grid.Rows.Count)
+            {
+                var nextRow = _grid.Rows[nextIndex];
+
+                if (nextRow.Tag == null) // fake
+                {
+                    _grid.Rows.RemoveAt(nextIndex);
+                }
             }
         }
 
@@ -145,6 +198,28 @@
                 root.Translation = form.TranslationText;
                 root.Comment = form.CommentText;
                 root.Checked = form.CheckedValue;
+                Refresh();
+            }
+        }
+
+        public void DeleteRoot()
+        {
+            if (_grid.SelectedRows.Count == 0)
+                return;
+
+            var row = _grid.SelectedRows[0];
+            if (row.Tag is not RootRowTag rowTag || !_db.Roots.TryGet(rowTag.Id, out var root))
+                return;
+
+            var result = MessageBox.Show(
+                $"Delete '{root.Value}'?",
+                "Delete root",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning);
+
+            if (result == DialogResult.Yes)
+            {
+                _db.Roots.Delete(rowTag.Id);
                 Refresh();
             }
         }

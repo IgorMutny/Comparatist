@@ -26,7 +26,12 @@
             };
 
             _grid.Columns.Add(valueColumn);
+
+            _grid.Dock = DockStyle.Fill;
+            _grid.AllowUserToAddRows = false;
+            _grid.RowHeadersVisible = false;
             _grid.AutoGenerateColumns = false;
+            _grid.MultiSelect = false;
             _grid.CellMouseDown += OnCellMouseDown;
             _grid.ReadOnly = true;
             _grid.Visible = false;

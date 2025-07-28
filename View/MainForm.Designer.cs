@@ -311,9 +311,9 @@
             _rootGridMenu.Name = "_rootGridMenu";
             _rootGridMenu.Size = new Size(125, 26);
             // 
-            // addRootToolStripMenuItem
+            // _addRootMenuItem
             // 
-            _addRootMenuItem.Name = "addRootToolStripMenuItem";
+            _addRootMenuItem.Name = "_addRootMenuItem";
             _addRootMenuItem.Size = new Size(124, 22);
             _addRootMenuItem.Text = "Add Root";
             _addRootMenuItem.Click += AddRoot;
@@ -324,25 +324,26 @@
             _rootRowMenu.Name = "_rootRowMenu";
             _rootRowMenu.Size = new Size(181, 92);
             // 
-            // addRootToolStripMenuItem1
+            // _addRootRowMenuItem
             // 
-            _addRootRowMenuItem.Name = "addRootToolStripMenuItem1";
+            _addRootRowMenuItem.Name = "_addRootRowMenuItem";
             _addRootRowMenuItem.Size = new Size(180, 22);
             _addRootRowMenuItem.Text = "Add Root";
             _addRootRowMenuItem.Click += AddRoot;
             // 
-            // editRootToolStripMenuItem
+            // _editRootRowMenuItem
             // 
-            _editRootRowMenuItem.Name = "editRootToolStripMenuItem";
+            _editRootRowMenuItem.Name = "_editRootRowMenuItem";
             _editRootRowMenuItem.Size = new Size(180, 22);
             _editRootRowMenuItem.Text = "Edit Root";
             _editRootRowMenuItem.Click += EditRoot;
             // 
-            // deleteRootToolStripMenuItem
+            // _deleteRootRowMenuItem
             // 
-            _deleteRootRowMenuItem.Name = "deleteRootToolStripMenuItem";
+            _deleteRootRowMenuItem.Name = "_deleteRootRowMenuItem";
             _deleteRootRowMenuItem.Size = new Size(180, 22);
             _deleteRootRowMenuItem.Text = "Delete Root";
+            _deleteRootRowMenuItem.Click += DeleteRoot;
             // 
             // MainForm
             // 
