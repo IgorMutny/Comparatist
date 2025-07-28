@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Comparatist
 {
-    partial class RootSelectionForm
+    partial class GroupSelectionForm
     {
         private CheckedListBox _checkedListBox;
         private Button _okButton;
@@ -36,7 +36,7 @@ namespace Comparatist
             Controls.Add(_checkedListBox);
             Controls.Add(_okButton);
             Controls.Add(_cancelButton);
-            Text = "Root selection";
+            Text = "Semantic group selection";
             ClientSize = new Size(300, 350);
         }
     }

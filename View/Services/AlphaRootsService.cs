@@ -186,7 +186,7 @@
 
         public void AddRoot()
         {
-            var form = new RootEditForm("Add Root");
+            var form = new RootEditForm("Add Root", _db.SemanticGroups.GetAll().ToList(), new List<Guid>());
 
             if (form.ShowDialog() == DialogResult.OK)
             {
@@ -195,6 +195,7 @@
                     Value = form.ValueText,
                     Translation = form.TranslationText,
                     Comment = form.CommentText,
+                    SemanticGroupIds = form.SelectedGroupIds,
                     Native = form.NativeValue,
                     Checked = form.CheckedValue
                 };
@@ -213,7 +214,7 @@
             if (row.Tag is not RootRowTag rowTag || !_db.Roots.TryGet(rowTag.Id, out var root))
                 return;
 
-            var form = new RootEditForm("Edit Root");
+            var form = new RootEditForm("Edit Root", _db.SemanticGroups.GetAll().ToList(), root.SemanticGroupIds);
             form.ValueText = root.Value;
             form.TranslationText = root.Translation;
             form.CommentText = root.Comment;
@@ -225,6 +226,7 @@
                 root.Value = form.ValueText;
                 root.Translation = form.TranslationText;
                 root.Comment = form.CommentText;
+                root.SemanticGroupIds = form.SelectedGroupIds;
                 root.Native = form.NativeValue;
                 root.Checked = form.CheckedValue;
                 Refresh();
@@ -255,7 +257,20 @@
 
         public void AddStem()
         {
-            var form = new StemEditForm("Add Stem", _db.Roots.GetAll().ToList(), new List<Guid>());
+            var selectedRootIds = new List<Guid>();
+
+            if (_grid.SelectedRows[0].Tag is RootRowTag rootTag)
+            {
+                selectedRootIds.Add(rootTag.Id);
+            }
+            else if (_grid.SelectedRows[0].Tag is StemRowTag stemTag
+                && _db.Stems.TryGet(stemTag.Id, out var stem))
+            {
+               foreach (var rootId in stem.RootIds)
+                    selectedRootIds.Add(rootId);
+            }
+
+            var form = new StemEditForm("Add Stem", _db.Roots.GetAll().ToList(), selectedRootIds);
 
             if (form.ShowDialog() == DialogResult.OK)
             {

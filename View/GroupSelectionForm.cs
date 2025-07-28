@@ -1,8 +1,8 @@
 ﻿namespace Comparatist
 {
-    public partial class RootSelectionForm : Form
+    public partial class GroupSelectionForm : Form
     {
-        private List<Root> _roots;
+        private List<SemanticGroup> _groups;
         private List<Guid> _selectedIds;
 
         public List<Guid> SelectedIds
@@ -12,18 +12,18 @@
                 var result = new List<Guid>();
                 foreach (var item in _checkedListBox.CheckedItems)
                 {
-                    if (item is Root root)
-                        result.Add(root.Id);
+                    if (item is SemanticGroup group)
+                        result.Add(group.Id);
                 }
                 return result;
             }
         }
 
-        public RootSelectionForm(List<Root> roots, List<Guid> selectedIds)
+        public GroupSelectionForm(List<SemanticGroup> groups, List<Guid> selectedIds)
         {
             InitializeComponent();
 
-            _roots = roots;
+            _groups = groups;
             _selectedIds = selectedIds;
 
             _checkedListBox.Dock = DockStyle.Fill;
@@ -34,13 +34,13 @@
 
         private void PopulateList()
         {
-            _checkedListBox.DisplayMember = nameof(Root.Value);
+            _checkedListBox.DisplayMember = nameof(SemanticGroup.Value);
 
-            foreach (var root in _roots)
+            foreach (var group in _groups)
             {
-                int index = _checkedListBox.Items.Add(root);
+                int index = _checkedListBox.Items.Add(group);
 
-                if (_selectedIds.Contains(root.Id))
+                if (_selectedIds.Contains(group.Id))
                     _checkedListBox.SetItemChecked(index, true);
             }
         }
