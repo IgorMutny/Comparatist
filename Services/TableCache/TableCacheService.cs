@@ -10,9 +10,9 @@ namespace Comparatist.Services.TableCache
         private IDatabase _database;
         private TableCache _cache;
 
-        public TableCacheService()
+        public TableCacheService(IDatabase database)
         {
-            _database = new Database();
+            _database = database;
             _cache = new TableCache();
         }
 
@@ -58,9 +58,8 @@ namespace Comparatist.Services.TableCache
             return false;
         }
 
-        public void RebuildCache(IDatabase database)
+        public void RebuildCache()
         {
-            _database = database;
             _cache.Blocks.Clear();
             _cache.Rows.Clear();
 
@@ -165,7 +164,7 @@ namespace Comparatist.Services.TableCache
         private void UpdateCacheIfDirty()
         {
             if (_isDirty)
-                RebuildCache(_database);
+                RebuildCache();
 
             _isDirty = false;
         }

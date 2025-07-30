@@ -1,9 +1,12 @@
-﻿using Comparatist.Core.Records;
+﻿using Comparatist.Core.Infrastructure;
+using Comparatist.Core.Records;
 
 namespace Comparatist.Services.CascadeDelete
 {
     internal class LanguageCascadeDeleteStrategy : CascadeDeleteStrategy<Language>
     {
+        public LanguageCascadeDeleteStrategy(IDatabase database) : base(database) { }
+
         protected override IEnumerable<IRecord> Delete(Language record)
         {
             record.IsDeleted = true;

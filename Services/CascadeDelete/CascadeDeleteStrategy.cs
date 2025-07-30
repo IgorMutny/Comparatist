@@ -8,7 +8,7 @@ namespace Comparatist.Services.CascadeDelete
     {
         protected IDatabase Database { get; private set; } = new Database();
 
-        public void SetDatabase(IDatabase database)
+        public CascadeDeleteStrategy(IDatabase database)
         {
             Database = database;
         }

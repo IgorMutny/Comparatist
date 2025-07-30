@@ -9,38 +9,18 @@ namespace Comparatist.Services.CascadeDelete
         private Dictionary<Type, ICascadeDeleteStrategy> _strategies;
         private HashSet<Guid> _visitedIds = new();
 
-        public CascadeDeleteService()
+        public CascadeDeleteService(IDatabase database)
         {
-            _database = new Database();
-            _strategies = new Dictionary<Type, ICascadeDeleteStrategy>
-            {
-                {typeof(Language), new LanguageCascadeDeleteStrategy() },
-                {typeof(Category), new CategoryCascadeDeleteStrategy() },
-                {typeof(Root), new RootCascadeDeleteStrategy() },
-                {typeof(Stem), new StemCascadeDeleteStrategy() },
-                {typeof(Word), new WordCascadeDeleteStrategy() },
-            };
-        }
-
-        public void SetDatabase(IDatabase database)
-        {
-            _visitedIds.Clear();
             _database = database;
 
-            foreach (var strategy in _strategies.Values)
-                strategy.SetDatabase(_database);
-        }
-
-        public void SetAndValidateDatabase(IDatabase database)
-        {
-            SetDatabase(database);
-            ValidateDatabase();
-        }
-
-        public void Delete(IRecord record)
-        {
-            _visitedIds.Clear();
-            DeleteInternal(record);
+            _strategies = new Dictionary<Type, ICascadeDeleteStrategy>
+            {
+                {typeof(Language), new LanguageCascadeDeleteStrategy(database) },
+                {typeof(Category), new CategoryCascadeDeleteStrategy(database) },
+                {typeof(Root), new RootCascadeDeleteStrategy(database) },
+                {typeof(Stem), new StemCascadeDeleteStrategy(database) },
+                {typeof(Word), new WordCascadeDeleteStrategy(database) },
+            };
         }
 
         public void ValidateDatabase()
@@ -50,8 +30,12 @@ namespace Comparatist.Services.CascadeDelete
 
             foreach (var record in deletedRecords)
                 DeleteInternal(record);
+        }
 
-            _database.RemoveDeletedRecords();
+        public void Delete(IRecord record)
+        {
+            _visitedIds.Clear();
+            DeleteInternal(record);
         }
 
         private void DeleteInternal(IRecord record)

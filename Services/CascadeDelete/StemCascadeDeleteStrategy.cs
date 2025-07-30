@@ -5,6 +5,8 @@ namespace Comparatist.Services.CascadeDelete
 {
     internal class StemCascadeDeleteStrategy : CascadeDeleteStrategy<Stem>
     {
+        public StemCascadeDeleteStrategy(IDatabase database) : base(database) { }
+
         protected override IEnumerable<IRecord> Delete(Stem record)
         {
             record.IsDeleted = true;
