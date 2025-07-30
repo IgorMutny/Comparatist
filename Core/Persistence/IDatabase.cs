@@ -1,8 +1,10 @@
-﻿namespace Comparatist
+﻿using Comparatist.Core.Records;
+
+namespace Comparatist.Core.Persistence
 {
     public interface IDatabase
     {
-        IRepository<SemanticGroup> SemanticGroups { get; }
+        IRepository<Category> Categories { get; }
         IRepository<Language> Languages { get; }
         IRepository<Root> Roots { get; }
         IRepository<Stem> Stems { get; }

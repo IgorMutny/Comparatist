@@ -1,4 +1,6 @@
-﻿namespace Comparatist
+﻿using Comparatist.Core.Records;
+
+namespace Comparatist
 {
     public partial class StemEditForm
     {

@@ -1,3 +1,5 @@
+using Comparatist.Services.Cache;
+
 namespace Comparatist
 {
     internal static class Program
@@ -5,8 +7,10 @@ namespace Comparatist
         [STAThread]
         static void Main()
         {
+            //Test.Run(10, 200, 10000, 100000);
             ApplicationConfiguration.Initialize();
-            Application.Run(new MainForm());
+            var dataCacheService = new DataCacheService();
+            Application.Run(new MainForm(dataCacheService));
         }
     }
 }

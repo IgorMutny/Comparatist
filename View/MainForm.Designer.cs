@@ -1,4 +1,6 @@
-﻿namespace Comparatist
+﻿using Comparatist.Core.Persistence;
+
+namespace Comparatist
 {
     partial class MainForm
     {

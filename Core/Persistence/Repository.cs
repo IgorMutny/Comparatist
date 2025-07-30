@@ -1,6 +1,7 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using Comparatist.Core.Records;
+using System.Diagnostics.CodeAnalysis;
 
-namespace Comparatist
+namespace Comparatist.Core.Persistence
 {
 
     public class Repository<T> : IRepository<T> where T : IRecord
@@ -18,12 +19,12 @@ namespace Comparatist
         public void Delete(Guid id)
         {
             if (_storage.TryGetValue(id, out var entity))
-                entity.Deleted = true;
+                entity.IsDeleted = true;
         }
 
         public bool TryGet(Guid id, [NotNullWhen(true)] out T record)
         {
-            if (_storage.TryGetValue(id, out var r) && !r.Deleted)
+            if (_storage.TryGetValue(id, out var r) && !r.IsDeleted)
             {
                 record = r;
                 return true;
@@ -35,12 +36,12 @@ namespace Comparatist
 
         public IEnumerable<T> GetAll()
         {
-            return _storage.Values.Where(e => !e.Deleted);
+            return _storage.Values.Where(e => !e.IsDeleted);
         }
 
         public IEnumerable<T> Filter(Func<T, bool> predicate)
         {
-            return _storage.Values.Where(e => !e.Deleted && predicate(e));
+            return _storage.Values.Where(e => !e.IsDeleted && predicate(e));
         }
 
         public List<T> Export()
@@ -59,7 +60,7 @@ namespace Comparatist
         public void RemoveDeletedRecords()
         {
             var deletedKeys = _storage
-                .Where(pair => pair.Value.Deleted)
+                .Where(pair => pair.Value.IsDeleted)
                 .Select(pair => pair.Key)
                 .ToList();
 

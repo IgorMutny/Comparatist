@@ -1,4 +1,7 @@
-﻿namespace Comparatist
+﻿using Comparatist.Core.Persistence;
+using Comparatist.Services.Cache;
+
+namespace Comparatist
 {
     public class FileService
     {
@@ -7,11 +10,13 @@
         private Database _db = new();
         private string _filePath = string.Empty;
         private Action _onLoaded;
+        private DataCacheService _dataCacheService;
 
-        public FileService(Database db, Action onLoaded)
+        public FileService(Database db, Action onLoaded, DataCacheService dataCacheService)
         {
             _db = db;
             _onLoaded = onLoaded;
+            _dataCacheService = dataCacheService;
         }
 
         public void Open()
@@ -25,6 +30,7 @@
                 {
                     _filePath = dialog.FileName;
                     _db.Load(_filePath);
+                    _dataCacheService.BuildFromDataBase(_db);
                     _onLoaded();
                 }
             }

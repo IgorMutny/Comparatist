@@ -1,30 +1,47 @@
-﻿using System.Text;
+﻿using Comparatist.View.Tags;
+using System.Text;
 
 namespace Comparatist
 {
     public partial class StemEditForm : Form
     {
-        private List<Root> _allRoots;
+        private List<RootTag> _allRoots;
         private List<Guid> _selectedRootIds;
+        private StemTag _baseTag;
 
-        public string ValueText { get => _valueTextBox.Text; set => _valueTextBox.Text = value; }
-        public string TranslationText { get => _translationTextBox.Text; set => _translationTextBox.Text = value; }
-        public string CommentText { get => _commentTextBox.Text; set => _commentTextBox.Text = value; }
-        public bool NativeValue { get => _nativeBox.Checked; set => _nativeBox.Checked = value; }
-        public bool CheckedValue { get => _checkedBox.Checked; set => _checkedBox.Checked = value; }
-        public List<Guid> SelectedRootIds => _selectedRootIds;
-
-        public StemEditForm(string header, List<Root> allRoots, List<Guid> selectedRootIds)
+        public StemEditForm(string header,
+            StemTag baseTag,
+            List<RootTag> allRoots,
+            IReadOnlyList<Guid> selectedRootIds)
         {
             InitializeComponent();
 
             Text = header;
 
+            _baseTag = baseTag;
             _allRoots = allRoots;
-            _selectedRootIds = selectedRootIds;
+            _selectedRootIds = (List<Guid>)selectedRootIds;
+            _valueTextBox.Text = baseTag.Value;
+            _translationTextBox.Text = baseTag.Translation;
+            _commentTextBox.Text = baseTag.Comment;
+            _nativeBox.Checked = baseTag.IsNative;
+            _checkedBox.Checked = baseTag.IsChecked;
             _rootSelectionButton.Click += OnRootSelectionClicked;
 
             UpdateRootList();
+        }
+
+        public StemTag GetResult()
+        {
+            return new StemTag(
+                id: _baseTag.Id,
+                value: _valueTextBox.Text,
+                translation: _translationTextBox.Text,
+                comment: _commentTextBox.Text,
+                isNative: _nativeBox.Checked,
+                isChecked: _checkedBox.Checked,
+                rootIds: _selectedRootIds
+                );
         }
 
         private void UpdateRootList()

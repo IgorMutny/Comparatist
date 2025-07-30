@@ -1,4 +1,7 @@
-﻿namespace Comparatist
+﻿using Comparatist.Core.Persistence;
+using Comparatist.Core.Records;
+
+namespace Comparatist
 {
     public class LanguagesService
     {

@@ -1,42 +1,56 @@
-﻿using System.Text;
+﻿using Comparatist.View.Tags;
+using System.Text;
 
 namespace Comparatist
 {
     public partial class RootEditForm : Form
     {
-        private List<SemanticGroup> _allGroups;
-        private List<Guid> _selectedGroupIds;
+        private List<CategoryTag> _allCategories;
+        private List<Guid> _selectedCategoryIds;
+        private RootTag _baseTag;
 
-        public string ValueText { get => _valueTextBox.Text; set => _valueTextBox.Text = value; }
-        public string TranslationText { get => _translationTextBox.Text; set => _translationTextBox.Text = value; }
-        public string CommentText { get => _commentTextBox.Text; set => _commentTextBox.Text = value; }
-        public bool NativeValue { get => _nativeBox.Checked; set => _nativeBox.Checked = value; }
-        public bool CheckedValue { get => _checkedBox.Checked; set => _checkedBox.Checked = value; }
-        public List<Guid> SelectedGroupIds => _selectedGroupIds;
-
-        public RootEditForm(string header, List<SemanticGroup> allGroups, List<Guid> selectedIds)
+        public RootEditForm(string header, RootTag baseTag, List<CategoryTag> allCategories)
         {
             InitializeComponent();
 
             Text = header;
 
-            _allGroups = allGroups;
-            _selectedGroupIds = selectedIds;
-            _groupSelectionButton.Click += OnGroupSelectionClicked;
+            _baseTag = baseTag;
+            _allCategories = allCategories;
+            _selectedCategoryIds = (List<Guid>)baseTag.CategoryIds;
+            _valueTextBox.Text = baseTag.Value;
+            _translationTextBox.Text = baseTag.Translation;
+            _commentTextBox.Text = baseTag.Comment;
+            _nativeBox.Checked = baseTag.IsNative;
+            _checkedBox.Checked = baseTag.IsChecked;
+            _groupSelectionButton.Click += OnCategorySelectionClicked;
 
             UpdateGroupList();
+        }
+
+        public RootTag GetResult()
+        {
+            return new RootTag(
+                id: _baseTag.Id,
+                value: _valueTextBox.Text,
+                translation: _translationTextBox.Text,
+                comment: _commentTextBox.Text,
+                isNative: _nativeBox.Checked,
+                isChecked: _checkedBox.Checked,
+                categoryIds: _selectedCategoryIds
+                );
         }
 
         private void UpdateGroupList()
         {
             var values = new List<string>();
 
-            foreach (var groupId in _selectedGroupIds)
+            foreach (var id in _selectedCategoryIds)
             {
-                var group = _allGroups.FirstOrDefault(x => x.Id == groupId);
+                var category = _allCategories.FirstOrDefault(x => x.Id == id);
 
-                if (group != null)
-                    values.Add(group.Value);
+                if (category != null)
+                    values.Add(category.Value);
             }
 
             var builder = new StringBuilder();
@@ -44,13 +58,13 @@ namespace Comparatist
             _groupsTextBox.Text = builder.ToString();
         }
 
-        private void OnGroupSelectionClicked(object? sender, EventArgs e)
+        private void OnCategorySelectionClicked(object? sender, EventArgs e)
         {
-            var dialog = new GroupSelectionForm(_allGroups, _selectedGroupIds);
+            var dialog = new CategorySelectionForm(_allCategories, _selectedCategoryIds);
 
             if (dialog.ShowDialog(this) == DialogResult.OK)
             {
-                _selectedGroupIds = dialog.SelectedIds;
+                _selectedCategoryIds = dialog.SelectedIds;
                 UpdateGroupList();
             }
         }

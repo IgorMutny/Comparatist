@@ -1,31 +1,38 @@
-﻿namespace Comparatist
+﻿using Comparatist.Core.Persistence;
+using Comparatist.Services.Cache;
+using Comparatist.View.Tags;
+
+namespace Comparatist
 {
     public class AlphaRootsService
     {
-        private IDatabase _db;
         private DataGridView _grid;
         private ContextMenuStrip _gridMenu;
         private ContextMenuStrip _rootRowMenu;
         private ContextMenuStrip _stemRowMenu;
         private ContextMenuStrip _wordMenu;
-        private List<Guid> _expandedRootIds = new();
+        private DataCacheService _dataCacheService;
+        private HashSet<Guid> _expandedRootIds = new();
 
         public AlphaRootsService(
-            IDatabase db,
             DataGridView grid,
             ContextMenuStrip gridMenu,
             ContextMenuStrip rootRowMenu,
             ContextMenuStrip stemRowMenu,
-            ContextMenuStrip wordMenu)
+            ContextMenuStrip wordMenu,
+            DataCacheService dataCacheService)
         {
-            _db = db;
             _grid = grid;
             _gridMenu = gridMenu;
             _rootRowMenu = rootRowMenu;
             _stemRowMenu = stemRowMenu;
             _wordMenu = wordMenu;
+            _dataCacheService = dataCacheService;
             SetupGridView();
         }
+
+        private List<CategoryTag> AllCategories => _dataCacheService.AllCategories.ToList();
+        private List<RootTag> AllRoots => _dataCacheService.AllRoots.ToList();
 
         private void SetupGridView()
         {
@@ -64,11 +71,11 @@
                         row.Selected = true;
                     }
 
-                    if (row.Tag is RootRowTag)
+                    if (row.Tag is RootTag)
                     {
                         _rootRowMenu.Show(_grid, _grid.PointToClient(Cursor.Position));
                     }
-                    else if (row.Tag is StemRowTag)
+                    else if (row.Tag is StemTag)
                     {
                         if (e.ColumnIndex == 0)
                         {
@@ -79,7 +86,7 @@
                             _wordMenu.Show(_grid, _grid.PointToClient(Cursor.Position));
                         }
                     }
-                    else if (row.Tag is EmptyRowTag)
+                    else if (row.Tag is EmptyTag)
                     {
                         // do nothing
                     }
@@ -98,15 +105,19 @@
 
             var row = _grid.Rows[e.RowIndex];
 
-            if (row.Tag is not RootRowTag tag)
+            if (row.Tag is not RootTag tag)
                 return;
 
-            if (tag.Expanded)
+            if (_expandedRootIds.Contains(tag.Id))
+            {
                 CollapseRow(e.RowIndex);
+                _expandedRootIds.Remove(tag.Id);
+            }
             else
-                ExpandRow(e.RowIndex);
-
-            tag.Expanded = !tag.Expanded;
+            {
+                ExpandRow(e.RowIndex, tag.Stems);
+                _expandedRootIds.Add(tag.Id);
+            }
         }
 
         private void OnCellPainting(object? sender, DataGridViewCellPaintingEventArgs e)
@@ -145,21 +156,27 @@
         private void RefreshColumns()
         {
             _grid.Columns.Clear();
-            var languages = _db.Languages.GetAll();
+            var languages = _dataCacheService.AllLanguages.ToList();
 
-            var rootColumn = new DataGridViewTextBoxColumn();
-            rootColumn.HeaderText = string.Empty;
-            rootColumn.Name = "Roots";
-            rootColumn.Width = 200;
+            var rootColumn = new DataGridViewTextBoxColumn
+            {
+                HeaderText = string.Empty,
+                Name = "Roots_Stems",
+                Width = 200
+            };
+
             _grid.Columns.Add(rootColumn);
 
             foreach (var language in languages)
             {
-                var column = new DataGridViewTextBoxColumn();
-                column.HeaderText = language.Value;
-                column.Name = language.Id.ToString();
-                column.Width = 200;
-                column.Tag = language.Id;
+                var column = new DataGridViewTextBoxColumn
+                {
+                    HeaderText = language.Value,
+                    Name = language.Id.ToString(),
+                    Width = 200,
+                    Tag = language
+                };
+
                 _grid.Columns.Add(column);
             }
         }
@@ -167,138 +184,111 @@
         private void RefreshRows()
         {
             _grid.Rows.Clear();
-            var sortedRoots = _db.Roots.GetAll().OrderBy(r => r.Value).ToList();
 
-            foreach (var root in sortedRoots)
+            var allTags = _dataCacheService.GetAlphabeticalTableData();
+
+            foreach (var tag in allTags)
             {
-                int rowIndex = _grid.Rows.Add();
+                int rootIndex = _grid.Rows.Add();
+                var rootRow = _grid.Rows[rootIndex];
 
-                var row = _grid.Rows[rowIndex];
-                row.Cells[0].Value = $"[b]{root.Value}[/b] {root.Translation}";
+                rootRow.Cells[0].Value = $"[b]{tag.Value}[/b] {tag.Translation}";
+                rootRow.Tag = tag;
 
-                var expanded = _expandedRootIds.Contains(root.Id);
-
-                row.Tag = new RootRowTag { Id = root.Id, Expanded = expanded };
-
+                var expanded = _expandedRootIds.Contains(tag.Id);
                 if (expanded)
-                    ExpandRow(rowIndex);
+                    ExpandRow(rootIndex, tag.Stems);
             }
         }
 
-        private void RefreshCells()
-        {
-            var words = _db.Words.GetAll();
-            var wordLookup = words
-                .GroupBy(w => (w.StemId, w.LanguageId))
-                .ToDictionary(g => g.Key, g => g.First());
-
-            var languages = _db.Languages.GetAll();
-            var languageIndex = languages
-                .Select((lang, index) => new { lang.Id, Index = index + 1 })
-                .ToDictionary(x => x.Id, x => x.Index);
-
-            foreach (DataGridViewRow row in _grid.Rows)
-            {
-                if (row.Tag is not StemRowTag stemTag)
-                    continue;
-
-                foreach (var (langId, colIndex) in languageIndex)
-                {
-                    var cell = row.Cells[colIndex];
-                    var key = (stemTag.Id, langId);
-
-                    if (wordLookup.TryGetValue(key, out var word))
-                    {
-                        cell.Value = $"[b]{word.Value}[/b] {word.Translation}";
-                        cell.Style.BackColor = _grid.DefaultCellStyle.BackColor;
-                        cell.Tag = word.Id;
-                    }
-                    else
-                    {
-                        cell.Value = null;
-                        cell.Style.BackColor = Color.LightGray;
-                    }
-                }
-            }
-        }
-
-        private void ExpandRow(int rootRowIndex)
+        private void ExpandRow(int rootRowIndex, IReadOnlyList<StemTag> tags)
         {
             var rootRow = _grid.Rows[rootRowIndex];
-
-            if (rootRow.Tag is not RootRowTag rootTag)
-                return;
-
-            var stems = _db.Stems
-                .Filter(s => s.RootIds.Contains(rootTag.Id))
-                .OrderBy(s => s.Value)
-                .ToList();
-
             int insertIndex = rootRowIndex + 1;
 
-            if (stems.Count > 0)
+            if (tags.Count > 0)
             {
-                foreach (var stem in stems)
+                foreach (var stemTag in tags)
                 {
-                    int newIndex = insertIndex++;
-                    _grid.Rows.Insert(newIndex);
+                    _grid.Rows.Insert(insertIndex);
+                    var row = _grid.Rows[insertIndex++];
 
-                    var row = _grid.Rows[newIndex];
-                    row.Tag = new StemRowTag { Id = stem.Id };
-
-                    row.Cells[0].Value = $"→ [b]{stem.Value}[/b] {stem.Translation}";
+                    row.Tag = stemTag;
+                    row.Cells[0].Value = $"→ [b]{stemTag.Value}[/b] {stemTag.Translation}";
                 }
-
-                RefreshCells();
             }
             else
             {
                 _grid.Rows.Insert(insertIndex);
                 var row = _grid.Rows[insertIndex];
-                row.Tag = new EmptyRowTag();
+                row.Tag = new EmptyTag();
                 row.Cells[0].Value = "→ [i]no stems[/i]";
             }
 
-            if (!_expandedRootIds.Contains(rootTag.Id))
+            if (rootRow.Tag is RootTag rootTag)
                 _expandedRootIds.Add(rootTag.Id);
+
+            RefreshCells();
         }
 
         private void CollapseRow(int rootRowIndex)
         {
             var rootRow = _grid.Rows[rootRowIndex];
+            if (rootRow.Tag is RootTag root)
+                _expandedRootIds.Remove(root.Id);
 
-            if (rootRow.Tag is RootRowTag rootTag && _expandedRootIds.Contains(rootTag.Id))
-                _expandedRootIds.Remove(rootTag.Id);
-
-            var nextIndex = rootRowIndex + 1;
-
+            int nextIndex = rootRowIndex + 1;
             while (nextIndex < _grid.Rows.Count)
             {
                 var row = _grid.Rows[nextIndex];
-
-                if (row.Tag is StemRowTag || row.Tag is EmptyRowTag)
+                if (row.Tag is StemTag || row.Tag is EmptyTag)
                     _grid.Rows.RemoveAt(nextIndex);
                 else
                     break;
             }
         }
 
+        private void RefreshCells()
+        {
+            var languages = _dataCacheService.AllLanguages;
+            var languageIndex = languages
+                .Select((lang, index) => new { lang.Id, Index = index + 1 })
+                .ToDictionary(x => x.Id, x => x.Index);
+
+            foreach (DataGridViewRow row in _grid.Rows)
+            {
+                if (row.Tag is not StemTag stem)
+                    continue;
+
+                foreach (var (langId, colIndex) in languageIndex)
+                {
+                    var cell = row.Cells[colIndex];
+                    var word = stem.WordsByLanguage.FirstOrDefault(w => w.Key == langId).Value;
+
+                    if (word is not null)
+                    {
+                        cell.Value = $"[b]{word.Value}[/b] {word.Translation}";
+                        cell.Style.BackColor = _grid.DefaultCellStyle.BackColor;
+                        cell.Tag = word;
+                    }
+                    else
+                    {
+                        cell.Value = null;
+                        cell.Style.BackColor = Color.LightGray;
+                        cell.Tag = new EmptyTag();
+                    }
+                }
+            }
+        }
+
         public void AddRoot()
         {
-            var form = new RootEditForm("Add Root", _db.SemanticGroups.GetAll().ToList(), new List<Guid>());
+            var form = new RootEditForm("Add Root", new RootTag(), AllCategories);
 
             if (form.ShowDialog() == DialogResult.OK)
             {
-                var newRoot = new Root
-                {
-                    Value = form.ValueText,
-                    Translation = form.TranslationText,
-                    Comment = form.CommentText,
-                    SemanticGroupIds = form.SelectedGroupIds,
-                    Native = form.NativeValue,
-                    Checked = form.CheckedValue
-                };
-                _db.Roots.Add(newRoot);
+                var newRoot = form.GetResult();
+                _dataCacheService.AddRoot(newRoot);
                 Refresh();
             }
         }
@@ -310,24 +300,15 @@
 
             var row = _grid.SelectedRows[0];
 
-            if (row.Tag is not RootRowTag rowTag || !_db.Roots.TryGet(rowTag.Id, out var root))
+            if (row.Tag is not RootTag tag)
                 return;
 
-            var form = new RootEditForm("Edit Root", _db.SemanticGroups.GetAll().ToList(), root.SemanticGroupIds);
-            form.ValueText = root.Value;
-            form.TranslationText = root.Translation;
-            form.CommentText = root.Comment;
-            form.NativeValue = root.Native;
-            form.CheckedValue = root.Checked;
+            var form = new RootEditForm("Edit Root", tag, AllCategories);
 
             if (form.ShowDialog() == DialogResult.OK)
             {
-                root.Value = form.ValueText;
-                root.Translation = form.TranslationText;
-                root.Comment = form.CommentText;
-                root.SemanticGroupIds = form.SelectedGroupIds;
-                root.Native = form.NativeValue;
-                root.Checked = form.CheckedValue;
+                var root = form.GetResult();
+                _dataCacheService.UpdateRoot(root);
                 Refresh();
             }
         }
@@ -338,21 +319,19 @@
                 return;
 
             var row = _grid.SelectedRows[0];
-            if (row.Tag is not RootRowTag rowTag || !_db.Roots.TryGet(rowTag.Id, out var root))
+            if (row.Tag is not RootTag tag)
                 return;
 
             var result = MessageBox.Show(
-                $"Delete '{root.Value}'?",
+                $"Delete '{tag.Value}'?",
                 "Delete root",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Warning);
 
             if (result == DialogResult.Yes)
             {
-                if (_expandedRootIds.Contains(root.Id))
-                    _expandedRootIds.Remove(root.Id);
-
-                _db.Roots.Delete(rowTag.Id);
+                _expandedRootIds.Remove(tag.Id);
+                _dataCacheService.DeleteRoot(tag.Id);
                 Refresh();
             }
         }
@@ -361,32 +340,22 @@
         {
             var selectedRootIds = new List<Guid>();
 
-            if (_grid.SelectedRows[0].Tag is RootRowTag rootTag)
+            if (_grid.SelectedRows[0].Tag is RootTag rootTag)
             {
                 selectedRootIds.Add(rootTag.Id);
             }
-            else if (_grid.SelectedRows[0].Tag is StemRowTag stemTag
-                && _db.Stems.TryGet(stemTag.Id, out var stem))
+            else if (_grid.SelectedRows[0].Tag is StemTag stemTag)
             {
-                foreach (var rootId in stem.RootIds)
+                foreach (var rootId in stemTag.RootIds)
                     selectedRootIds.Add(rootId);
             }
 
-            var form = new StemEditForm("Add Stem", _db.Roots.GetAll().ToList(), selectedRootIds);
+            var form = new StemEditForm("Add Stem", new StemTag(), AllRoots, selectedRootIds);
 
             if (form.ShowDialog() == DialogResult.OK)
             {
-                var newStem = new Stem
-                {
-                    Value = form.ValueText,
-                    Translation = form.TranslationText,
-                    Comment = form.CommentText,
-                    RootIds = form.SelectedRootIds,
-                    Native = form.NativeValue,
-                    Checked = form.CheckedValue
-                };
-
-                _db.Stems.Add(newStem);
+                var stem = form.GetResult();
+                _dataCacheService.AddStem(stem);
                 Refresh();
             }
         }
@@ -398,24 +367,15 @@
 
             var row = _grid.SelectedRows[0];
 
-            if (row.Tag is not StemRowTag rowTag || !_db.Stems.TryGet(rowTag.Id, out var stem))
+            if (row.Tag is not StemTag stemTag)
                 return;
 
-            var form = new StemEditForm("Edit stem", _db.Roots.GetAll().ToList(), stem.RootIds);
-            form.ValueText = stem.Value;
-            form.TranslationText = stem.Translation;
-            form.CommentText = stem.Comment;
-            form.NativeValue = stem.Native;
-            form.CheckedValue = stem.Checked;
+            var form = new StemEditForm("Add Stem", stemTag, AllRoots, stemTag.RootIds);
 
             if (form.ShowDialog() == DialogResult.OK)
             {
-                stem.Value = form.ValueText;
-                stem.Translation = form.TranslationText;
-                stem.Comment = form.CommentText;
-                stem.RootIds = form.SelectedRootIds;
-                stem.Native = form.NativeValue;
-                stem.Checked = form.CheckedValue;
+                var stem = form.GetResult();
+                _dataCacheService.UpdateStem(stem);
                 Refresh();
             }
         }
@@ -426,18 +386,18 @@
                 return;
 
             var row = _grid.SelectedRows[0];
-            if (row.Tag is not StemRowTag rowTag || !_db.Stems.TryGet(rowTag.Id, out var stem))
+            if (row.Tag is not StemTag tag)
                 return;
 
             var result = MessageBox.Show(
-                $"Delete '{stem.Value}'?",
+                $"Delete '{tag.Value}'?",
                 "Delete stem",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Warning);
 
             if (result == DialogResult.Yes)
             {
-                _db.Stems.Delete(rowTag.Id);
+                _dataCacheService.DeleteStem(tag.Id);
                 Refresh();
             }
         }
@@ -451,51 +411,33 @@
             var row = _grid.Rows[cell.RowIndex];
             var column = _grid.Columns[cell.ColumnIndex];
 
-            if (row.Tag is not StemRowTag rowTag || !_db.Stems.TryGet(rowTag.Id, out var stem))
+            if (row.Tag is not StemTag stemTag)
                 return;
 
-            if (column.Tag is not Guid languageId || !_db.Languages.TryGet(languageId, out var language))
+            if (column.Tag is not LanguageTag languageTag)
                 return;
 
-            if (_grid.SelectedCells[0].Tag is Guid wordId && _db.Words.TryGet(wordId, out var word))
+            if (_grid.SelectedCells[0].Tag is WordTag wordTag)
             {
-                var form = new WordEditForm(stem.Value, language.Value);
-                form.ValueText = word.Value;
-                form.TranslationText = word.Translation;
-                form.CommentText = word.Comment;
-                form.NativeValue = word.Native;
-                form.CheckedValue = word.Checked;
+                var form = new WordEditForm(wordTag, stemTag, languageTag);
 
                 if (form.ShowDialog() == DialogResult.OK)
                 {
-                    word.Value = form.ValueText;
-                    word.Translation = form.TranslationText;
-                    word.Comment = form.CommentText;
-                    word.Native = form.NativeValue;
-                    word.Checked = form.CheckedValue;
+                    var word = form.GetResult();
+                    _dataCacheService.UpdateWord(word);
                     Refresh();
                 }
             }
             else
             {
-                var form = new WordEditForm(stem.Value, language.Value);
+                var form = new WordEditForm(new WordTag(), stemTag, languageTag);
 
                 if (form.ShowDialog() == DialogResult.OK)
                 {
-                    var newWord = new Word
-                    {
-                        Value = form.ValueText,
-                        Translation = form.TranslationText,
-                        Comment = form.CommentText,
-                        StemId = stem.Id,
-                        LanguageId = language.Id,
-                        Native = form.NativeValue,
-                        Checked = form.CheckedValue,
-                    };
-                    _db.Words.Add(newWord);
-
+                    var word = form.GetResult();
+                    _dataCacheService.AddWord(word);
                     Refresh();
-                }
+                 }
             }
         }
 
@@ -504,18 +446,18 @@
             if (_grid.SelectedCells.Count == 0)
                 return;
 
-            if (_grid.SelectedCells[0].Tag is not Guid wordId || !_db.Words.TryGet(wordId, out var word))
+            if (_grid.SelectedCells[0].Tag is not WordTag tag)
                 return;
 
             var result = MessageBox.Show(
-                $"Delete '{word.Value}'?",
+                $"Delete '{tag.Value}'?",
                 "Delete word",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Warning);
 
             if (result == DialogResult.Yes)
             {
-                _db.Words.Delete(wordId);
+                _dataCacheService.DeleteWord(tag.Id);
                 Refresh();
             }
         }

@@ -1,8 +1,11 @@
-﻿namespace Comparatist
+﻿using Comparatist.Core.Records;
+using Comparatist.View.Tags;
+
+namespace Comparatist
 {
     public partial class RootSelectionForm : Form
     {
-        private List<Root> _roots;
+        private List<RootTag> _roots;
         private List<Guid> _selectedIds;
 
         public List<Guid> SelectedIds
@@ -19,7 +22,7 @@
             }
         }
 
-        public RootSelectionForm(List<Root> roots, List<Guid> selectedIds)
+        public RootSelectionForm(List<RootTag> roots, List<Guid> selectedIds)
         {
             InitializeComponent();
 

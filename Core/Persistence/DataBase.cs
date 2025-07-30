@@ -1,11 +1,12 @@
-﻿using MessagePack;
+﻿using Comparatist.Core.Records;
+using MessagePack;
 
-namespace Comparatist
+namespace Comparatist.Core.Persistence
 {
 
     public class Database : IDatabase
     {
-        public IRepository<SemanticGroup> SemanticGroups { get; } = new Repository<SemanticGroup>();
+        public IRepository<Category> Categories { get; } = new Repository<Category>();
         public IRepository<Language> Languages { get; } = new Repository<Language>();
         public IRepository<Root> Roots { get; } = new Repository<Root>();
         public IRepository<Stem> Stems { get; } = new Repository<Stem>();
@@ -36,7 +37,7 @@ namespace Comparatist
 
         public void Clear()
         {
-            SemanticGroups.Clear();
+            Categories.Clear();
             Languages.Clear();
             Roots.Clear();
             Stems.Clear();

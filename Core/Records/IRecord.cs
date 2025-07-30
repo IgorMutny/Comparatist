@@ -1,8 +1,8 @@
-﻿namespace Comparatist
+﻿namespace Comparatist.Core.Records
 {
     public interface IRecord
     {
         Guid Id { get; set; }
-        bool Deleted { get; set; }
+        bool IsDeleted { get; set; }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace Comparatist
+﻿using Comparatist.Core.Records;
+
+namespace Comparatist.Core.Persistence
 {
     public interface IRepository<T> where T : IRecord
     {

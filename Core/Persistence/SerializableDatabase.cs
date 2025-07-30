@@ -1,11 +1,12 @@
-﻿using MessagePack;
+﻿using Comparatist.Core.Records;
+using MessagePack;
 
-namespace Comparatist
+namespace Comparatist.Core.Persistence
 {
     [MessagePackObject]
     public class SerializableDatabase
     {
-        [Key(0)] public List<SemanticGroup> SemanticGroups { get; set; } = new();
+        [Key(0)] public List<Category> Categories { get; set; } = new();
         [Key(1)] public List<Language> Languages { get; set; } = new();
         [Key(2)] public List<Root> Roots { get; set; } = new();
         [Key(3)] public List<Stem> Stems { get; set; } = new();
@@ -15,7 +16,7 @@ namespace Comparatist
 
         public SerializableDatabase(Database db)
         {
-            SemanticGroups = ((Repository<SemanticGroup>)db.SemanticGroups).Export();
+            Categories = ((Repository<Category>)db.Categories).Export();
             Languages = ((Repository<Language>)db.Languages).Export();
             Roots = ((Repository<Root>)db.Roots).Export();
             Stems = ((Repository<Stem>)db.Stems).Export();
@@ -24,7 +25,7 @@ namespace Comparatist
 
         public void RestoreTo(Database db)
         {
-            ((Repository<SemanticGroup>)db.SemanticGroups).Import(SemanticGroups);
+            ((Repository<Category>)db.Categories).Import(Categories);
             ((Repository<Language>)db.Languages).Import(Languages);
             ((Repository<Root>)db.Roots).Import(Roots);
             ((Repository<Stem>)db.Stems).Import(Stems);

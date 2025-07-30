@@ -1,9 +1,12 @@
-﻿namespace Comparatist
+﻿using Comparatist.Core.Persistence;
+using Comparatist.Core.Records;
+
+namespace Comparatist
 {
     public class SemanticTreeService
     {
         private TreeView _tree;
-        private IRepository<SemanticGroup> _repository;
+        private IRepository<Category> _repository;
         private ContextMenuStrip _treeMenu;
         private ContextMenuStrip _nodeMenu;
         private bool _isMoveMode = false;
@@ -12,7 +15,7 @@
 
         public SemanticTreeService(
             TreeView tree,
-            IRepository<SemanticGroup> repository,
+            IRepository<Category> repository,
             ContextMenuStrip treeMenu,
             ContextMenuStrip nodeMenu,
             Action<object, DragDropEffects> doDragDrop)
@@ -40,7 +43,7 @@
             _tree.BeginUpdate();
             _tree.Nodes.Clear();
 
-            var nodeMap = new Dictionary<SemanticGroup, TreeNode>();
+            var nodeMap = new Dictionary<Category, TreeNode>();
 
             foreach (var record in _repository.GetAll())
             {
@@ -74,7 +77,7 @@
             if (string.IsNullOrWhiteSpace(input))
                 return;
 
-            var newGroup = new SemanticGroup
+            var newGroup = new Category
             {
                 Value = input,
                 ParentId = null
@@ -95,7 +98,7 @@
             if (string.IsNullOrWhiteSpace(input))
                 return;
 
-            var newGroup = new SemanticGroup
+            var newGroup = new Category
             {
                 Value = input,
                 ParentId = parentId

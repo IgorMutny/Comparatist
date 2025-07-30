@@ -1,3 +1,6 @@
+using Comparatist.Core.Persistence;
+using Comparatist.Services.Cache;
+
 namespace Comparatist
 {
     public partial class MainForm : Form
@@ -9,25 +12,24 @@ namespace Comparatist
         private SemanticTreeService _semanticTreeService;
         private AlphaRootsService _alphaRootsService;
 
-        public MainForm()
+        public MainForm(DataCacheService dataCacheService)
         {
             _db = new();
             InitializeComponent();
-            _fileService = new FileService(_db, RefreshAllContent);
+            _fileService = new FileService(_db, RefreshAllContent, dataCacheService);
             _languagesService = new(_languagesGridView, _db.Languages);
             _semanticTreeService = new(
                 _semanticTreeView,
-                _db.SemanticGroups,
+                _db.Categories,
                 _semanticMenu,
                 _semanticNodeMenu,
                 (obj, e) => DoDragDrop(obj, e));
             _alphaRootsService = new(
-                _db,
                 _alphaRootsGridView,
                 _rootGridMenu,
                 _rootRowMenu,
                 _stemRowMenu,
-                _wordMenu);
+                _wordMenu, dataCacheService);
         }
 
         private void Open(object sender, EventArgs e) => _fileService.Open();

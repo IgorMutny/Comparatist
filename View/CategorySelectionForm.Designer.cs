@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Comparatist
 {
-    partial class GroupSelectionForm
+    partial class CategorySelectionForm
     {
         private CheckedListBox _checkedListBox;
         private Button _okButton;
