@@ -11,22 +11,36 @@ namespace Comparatist.Core.Persistence
         public Guid Add(T entity)
         {
             var id = Guid.NewGuid();
+
+            if (_storage.ContainsKey(id))
+                throw new InvalidOperationException($"Guid {id} already exists");
+
             entity.Id = id;
             _storage[id] = entity;
             return id;
+        }
+
+        public void Update(T entity)
+        {
+            if (_storage.ContainsKey(entity.Id))
+                _storage[entity.Id] = (T)entity.Clone();
+            else
+                throw new InvalidOperationException($"Guid {entity.Id} does not exist");
         }
 
         public void Delete(Guid id)
         {
             if (_storage.TryGetValue(id, out var entity))
                 entity.IsDeleted = true;
+            else
+                throw new InvalidOperationException($"Guid {id} does not exist");
         }
 
         public bool TryGet(Guid id, [NotNullWhen(true)] out T record)
         {
             if (_storage.TryGetValue(id, out var r) && !r.IsDeleted)
             {
-                record = r;
+                record = (T)r.Clone();
                 return true;
             }
 
@@ -36,12 +50,9 @@ namespace Comparatist.Core.Persistence
 
         public IEnumerable<T> GetAll()
         {
-            return _storage.Values.Where(e => !e.IsDeleted);
-        }
-
-        public IEnumerable<T> Filter(Func<T, bool> predicate)
-        {
-            return _storage.Values.Where(e => !e.IsDeleted && predicate(e));
+            return _storage.Values
+                .Where(e => !e.IsDeleted)
+                .Select(record => (T)record.Clone());
         }
 
         public List<T> Export()

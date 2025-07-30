@@ -13,5 +13,20 @@ namespace Comparatist.Core.Records
         [Key(5)] public bool IsNative { get; set; } = false;
         [Key(6)] public bool IsChecked { get; set; } = false;
         [Key(7)] public bool IsDeleted { get; set; } = false;
+
+        public object Clone()
+        {
+            return new Root
+            {
+                Id = Id,
+                Value = Value,
+                Translation = Translation,
+                Comment = Comment,
+                CategoryIds = CategoryIds,
+                IsNative = IsNative,
+                IsChecked = IsChecked,
+                IsDeleted = IsDeleted
+            };
+        }
     }
 }

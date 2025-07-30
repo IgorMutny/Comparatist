@@ -9,5 +9,16 @@ namespace Comparatist.Core.Records
         [Key(1)] public string Value { get; set; } = string.Empty;
         [Key(2)] public Guid? ParentId { get; set; }
         [Key(3)] public bool IsDeleted { get; set; } = false;
+
+        public object Clone()
+        {
+            return new Category
+            {
+                Id = Id,
+                Value = Value,
+                ParentId = ParentId,
+                IsDeleted = IsDeleted
+            };
+        }
     }
 }

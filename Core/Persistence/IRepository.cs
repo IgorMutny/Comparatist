@@ -8,7 +8,6 @@ namespace Comparatist.Core.Persistence
         void Delete(Guid id);
         bool TryGet(Guid id, out T record);
         IEnumerable<T> GetAll();
-        IEnumerable<T> Filter(Func<T, bool> predicate);
 
         List<T> Export();
         void Import(List<T> records);
