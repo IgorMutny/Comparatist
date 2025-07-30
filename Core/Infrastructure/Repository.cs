@@ -1,9 +1,8 @@
 ﻿using Comparatist.Core.Records;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Comparatist.Core.Persistence
+namespace Comparatist.Core.Infrastructure
 {
-
     public class Repository<T> : IRepository<T> where T : IRecord
     {
         private Dictionary<Guid, T> _storage = new();
@@ -26,14 +25,6 @@ namespace Comparatist.Core.Persistence
                 _storage[entity.Id] = (T)entity.Clone();
             else
                 throw new InvalidOperationException($"Guid {entity.Id} does not exist");
-        }
-
-        public void Delete(Guid id)
-        {
-            if (_storage.TryGetValue(id, out var entity))
-                entity.IsDeleted = true;
-            else
-                throw new InvalidOperationException($"Guid {id} does not exist");
         }
 
         public bool TryGet(Guid id, [NotNullWhen(true)] out T record)

@@ -1,4 +1,4 @@
-﻿using Comparatist.Core.Persistence;
+﻿using Comparatist.Core.Infrastructure;
 using Comparatist.Core.Records;
 
 namespace Comparatist
@@ -102,7 +102,7 @@ namespace Comparatist
 
             if (result == DialogResult.Yes)
             {
-                _repository.Delete(id);
+                //_repository.Delete(id);
                 Refresh();
             }
         }

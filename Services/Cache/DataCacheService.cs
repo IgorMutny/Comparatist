@@ -1,4 +1,4 @@
-﻿using Comparatist.Core.Persistence;
+﻿using Comparatist.Core.Infrastructure;
 using Comparatist.Core.Records;
 using Comparatist.View.Tags;
 
@@ -85,10 +85,8 @@ namespace Comparatist.Services.Cache
 
         private void AddWordToCache(Word word)
         {
-            //if (!_cache.Stems.TryGetValue(word.StemId, out var cachedStem))
-            // throw new InvalidOperationException($"Stem {word.StemId} not found in cache");
-            if (_cache.Stems.TryGetValue(word.StemId, out var cachedStem))
-                cachedStem.WordsByLanguage[word.LanguageId] = word;
+            if (!_cache.Stems.TryGetValue(word.StemId, out var cachedStem))
+                throw new InvalidOperationException($"Stem {word.StemId} not found in cache");
         }
 
         private void DeleteRootFromCache(Guid rootId)

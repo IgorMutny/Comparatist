@@ -1,7 +1,7 @@
 ﻿using Comparatist.Core.Records;
 using MessagePack;
 
-namespace Comparatist.Core.Persistence
+namespace Comparatist.Core.Infrastructure
 {
 
     public class Database : IDatabase
@@ -35,13 +35,23 @@ namespace Comparatist.Core.Persistence
             state.RestoreTo(this);
         }
 
-        public void Clear()
+        public IEnumerable<IRecord> GetAllRecords()
         {
-            Categories.Clear();
-            Languages.Clear();
-            Roots.Clear();
-            Stems.Clear();
-            Words.Clear();
+            return Categories.GetAll()
+                .Concat<IRecord>(Languages.GetAll())
+                .Concat(Roots.GetAll())
+                .Concat(Stems.GetAll())
+                .Concat(Words.GetAll())
+                .ToList();
+        }
+
+        public void RemoveDeletedRecords()
+        {
+            Categories.RemoveDeletedRecords();
+            Languages.RemoveDeletedRecords();
+            Roots.RemoveDeletedRecords();
+            Stems.RemoveDeletedRecords();
+            Words.RemoveDeletedRecords();
         }
     }
 }

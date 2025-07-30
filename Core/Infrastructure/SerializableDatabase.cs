@@ -1,7 +1,7 @@
 ﻿using Comparatist.Core.Records;
 using MessagePack;
 
-namespace Comparatist.Core.Persistence
+namespace Comparatist.Core.Infrastructure
 {
     [MessagePackObject]
     public class SerializableDatabase

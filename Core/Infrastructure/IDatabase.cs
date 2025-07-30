@@ -1,6 +1,6 @@
 ﻿using Comparatist.Core.Records;
 
-namespace Comparatist.Core.Persistence
+namespace Comparatist.Core.Infrastructure
 {
     public interface IDatabase
     {
@@ -12,6 +12,7 @@ namespace Comparatist.Core.Persistence
 
         void Save(string path);
         void Load(string path);
-        void Clear();
+        IEnumerable<IRecord> GetAllRecords();
+        void RemoveDeletedRecords();
     }
 }
