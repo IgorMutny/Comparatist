@@ -6,16 +6,18 @@ namespace Comparatist.Core.Infrastructure
     [MessagePackObject]
     public class SerializableDatabase
     {
-        [Key(0)] public List<Category> Categories { get; set; } = new();
-        [Key(1)] public List<Language> Languages { get; set; } = new();
-        [Key(2)] public List<Root> Roots { get; set; } = new();
-        [Key(3)] public List<Stem> Stems { get; set; } = new();
-        [Key(4)] public List<Word> Words { get; set; } = new();
+        [Key(0)] public ProjectMetadata Metadata { get; set; } = new();
+        [Key(1)] public List<Category> Categories { get; set; } = new();
+        [Key(2)] public List<Language> Languages { get; set; } = new();
+        [Key(3)] public List<Root> Roots { get; set; } = new();
+        [Key(4)] public List<Stem> Stems { get; set; } = new();
+        [Key(5)] public List<Word> Words { get; set; } = new();
 
         public SerializableDatabase() { }
 
         public SerializableDatabase(Database db)
         {
+            Metadata = db.Metadata;
             Categories = ((Repository<Category>)db.Categories).Export();
             Languages = ((Repository<Language>)db.Languages).Export();
             Roots = ((Repository<Root>)db.Roots).Export();

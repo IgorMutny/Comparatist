@@ -6,6 +6,7 @@ namespace Comparatist.Core.Infrastructure
 
     public class Database : IDatabase
     {
+        public ProjectMetadata Metadata { get; } = ProjectMetadata.CreateNew();
         public IRepository<Category> Categories { get; } = new Repository<Category>();
         public IRepository<Language> Languages { get; } = new Repository<Language>();
         public IRepository<Root> Roots { get; } = new Repository<Root>();
@@ -20,6 +21,7 @@ namespace Comparatist.Core.Infrastructure
                 File.Copy(path, backupPath, overwrite: true);
             }
 
+            Metadata.Modified = DateTime.UtcNow;
             var state = new SerializableDatabase(this);
             using var fs = File.Create(path);
             MessagePackSerializer.Serialize(fs, state);
