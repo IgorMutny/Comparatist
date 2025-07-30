@@ -1,4 +1,4 @@
-﻿using Comparatist.Services.Cache;
+﻿using Comparatist.Services.TableCache;
 
 namespace Comparatist.View.Tags
 {
@@ -43,7 +43,7 @@ namespace Comparatist.View.Tags
             _wordsByLanguage = new();
         }
 
-        public StemTag(CachedStem stem)
+        public StemTag(CachedRow stem)
         {
             Id = stem.Stem.Id;
             Value = stem.Stem.Value;
@@ -54,8 +54,8 @@ namespace Comparatist.View.Tags
             _rootIds = stem.Stem.RootIds;
             _wordsByLanguage = new();
 
-            foreach (var pair in stem.WordsByLanguage)
-                _wordsByLanguage[pair.Key] = pair.Value == null ? null : new WordTag(pair.Value);
+           // foreach (var pair in stem.WordsByLanguage)
+           //     _wordsByLanguage[pair.Key] = pair.Value == null ? null : new WordTag(pair.Value);
         }
 
         public IReadOnlyList<Guid> RootIds => _rootIds;

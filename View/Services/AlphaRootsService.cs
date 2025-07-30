@@ -1,5 +1,5 @@
 ﻿using Comparatist.Core.Infrastructure;
-using Comparatist.Services.Cache;
+using Comparatist.Services.TableCache;
 using Comparatist.View.Tags;
 
 namespace Comparatist
@@ -11,16 +11,16 @@ namespace Comparatist
         private ContextMenuStrip _rootRowMenu;
         private ContextMenuStrip _stemRowMenu;
         private ContextMenuStrip _wordMenu;
-        private DataCacheService _dataCacheService;
+        private TableCacheService _dataCacheService;
         private HashSet<Guid> _expandedRootIds = new();
 
-        public AlphaRootsService(
+        internal AlphaRootsService(
             DataGridView grid,
             ContextMenuStrip gridMenu,
             ContextMenuStrip rootRowMenu,
             ContextMenuStrip stemRowMenu,
             ContextMenuStrip wordMenu,
-            DataCacheService dataCacheService)
+            TableCacheService dataCacheService)
         {
             _grid = grid;
             _gridMenu = gridMenu;
@@ -31,8 +31,8 @@ namespace Comparatist
             SetupGridView();
         }
 
-        private List<CategoryTag> AllCategories => _dataCacheService.AllCategories.ToList();
-        private List<RootTag> AllRoots => _dataCacheService.AllRoots.ToList();
+        private List<CategoryTag> AllCategories => new(); // _dataCacheService.AllCategories.ToList();
+        private List<RootTag> AllRoots => new(); // _dataCacheService.AllRoots.ToList();
 
         private void SetupGridView()
         {
@@ -156,7 +156,7 @@ namespace Comparatist
         private void RefreshColumns()
         {
             _grid.Columns.Clear();
-            var languages = _dataCacheService.AllLanguages.ToList();
+           // var languages = _dataCacheService.AllLanguages.ToList();
 
             var rootColumn = new DataGridViewTextBoxColumn
             {
@@ -167,38 +167,38 @@ namespace Comparatist
 
             _grid.Columns.Add(rootColumn);
 
-            foreach (var language in languages)
-            {
-                var column = new DataGridViewTextBoxColumn
-                {
-                    HeaderText = language.Value,
-                    Name = language.Id.ToString(),
-                    Width = 200,
-                    Tag = language
-                };
+            //foreach (var language in languages)
+            //{
+            //    var column = new DataGridViewTextBoxColumn
+            //    {
+           //         HeaderText = language.Value,
+           //         Name = language.Id.ToString(),
+           //         Width = 200,
+           //         Tag = language
+           //     };
 
-                _grid.Columns.Add(column);
-            }
+            //    _grid.Columns.Add(column);
+            //}
         }
 
         private void RefreshRows()
         {
             _grid.Rows.Clear();
 
-            var allTags = _dataCacheService.GetAlphabeticalTableData();
+           // var allTags = _dataCacheService.GetAlphabeticalTableData();
 
-            foreach (var tag in allTags)
-            {
-                int rootIndex = _grid.Rows.Add();
-                var rootRow = _grid.Rows[rootIndex];
+         //   foreach (var tag in allTags)
+          //  {
+          //      int rootIndex = _grid.Rows.Add();
+         //       var rootRow = _grid.Rows[rootIndex];
 
-                rootRow.Cells[0].Value = $"[b]{tag.Value}[/b] {tag.Translation}";
-                rootRow.Tag = tag;
+          //      rootRow.Cells[0].Value = $"[b]{tag.Value}[/b] {tag.Translation}";
+           //     rootRow.Tag = tag;
 
-                var expanded = _expandedRootIds.Contains(tag.Id);
-                if (expanded)
-                    ExpandRow(rootIndex, tag.Stems);
-            }
+          //      var expanded = _expandedRootIds.Contains(tag.Id);
+          //      if (expanded)
+          //          ExpandRow(rootIndex, tag.Stems);
+        //    }
         }
 
         private void ExpandRow(int rootRowIndex, IReadOnlyList<StemTag> tags)
@@ -250,34 +250,34 @@ namespace Comparatist
 
         private void RefreshCells()
         {
-            var languages = _dataCacheService.AllLanguages;
-            var languageIndex = languages
-                .Select((lang, index) => new { lang.Id, Index = index + 1 })
-                .ToDictionary(x => x.Id, x => x.Index);
+            //var languages = _dataCacheService.AllLanguages;
+           // var languageIndex = languages
+           //     .Select((lang, index) => new { lang.Id, Index = index + 1 })
+           //     .ToDictionary(x => x.Id, x => x.Index);
 
             foreach (DataGridViewRow row in _grid.Rows)
             {
                 if (row.Tag is not StemTag stem)
                     continue;
 
-                foreach (var (langId, colIndex) in languageIndex)
-                {
-                    var cell = row.Cells[colIndex];
-                    var word = stem.WordsByLanguage.FirstOrDefault(w => w.Key == langId).Value;
-
-                    if (word is not null)
-                    {
-                        cell.Value = $"[b]{word.Value}[/b] {word.Translation}";
-                        cell.Style.BackColor = _grid.DefaultCellStyle.BackColor;
-                        cell.Tag = word;
-                    }
-                    else
-                    {
-                        cell.Value = null;
-                        cell.Style.BackColor = Color.LightGray;
-                        cell.Tag = new EmptyTag();
-                    }
-                }
+            //    foreach (var (langId, colIndex) in languageIndex)
+            //    {
+            //        var cell = row.Cells[colIndex];
+            //        var word = stem.WordsByLanguage.FirstOrDefault(w => w.Key == langId).Value;
+            //
+            //        if (word is not null)
+            //        {
+            //            cell.Value = $"[b]{word.Value}[/b] {word.Translation}";
+            //            cell.Style.BackColor = _grid.DefaultCellStyle.BackColor;
+             //           cell.Tag = word;
+            //        }
+            //        else
+            //        {
+            //            cell.Value = null;
+            //            cell.Style.BackColor = Color.LightGray;
+            //            cell.Tag = new EmptyTag();
+            //        }
+            //    }
             }
         }
 
@@ -288,7 +288,7 @@ namespace Comparatist
             if (form.ShowDialog() == DialogResult.OK)
             {
                 var newRoot = form.GetResult();
-                _dataCacheService.AddRoot(newRoot);
+                //_dataCacheService.AddRoot(newRoot);
                 Refresh();
             }
         }
@@ -308,7 +308,7 @@ namespace Comparatist
             if (form.ShowDialog() == DialogResult.OK)
             {
                 var root = form.GetResult();
-                _dataCacheService.UpdateRoot(root);
+                //_dataCacheService.UpdateRoot(root);
                 Refresh();
             }
         }
@@ -355,7 +355,7 @@ namespace Comparatist
             if (form.ShowDialog() == DialogResult.OK)
             {
                 var stem = form.GetResult();
-                _dataCacheService.AddStem(stem);
+                //_dataCacheService.AddStem(stem);
                 Refresh();
             }
         }
@@ -375,7 +375,7 @@ namespace Comparatist
             if (form.ShowDialog() == DialogResult.OK)
             {
                 var stem = form.GetResult();
-                _dataCacheService.UpdateStem(stem);
+                //_dataCacheService.UpdateStem(stem);
                 Refresh();
             }
         }
@@ -424,7 +424,7 @@ namespace Comparatist
                 if (form.ShowDialog() == DialogResult.OK)
                 {
                     var word = form.GetResult();
-                    _dataCacheService.UpdateWord(word);
+                   // _dataCacheService.UpdateWord(word);
                     Refresh();
                 }
             }
@@ -435,7 +435,7 @@ namespace Comparatist
                 if (form.ShowDialog() == DialogResult.OK)
                 {
                     var word = form.GetResult();
-                    _dataCacheService.AddWord(word);
+                   // _dataCacheService.AddWord(word);
                     Refresh();
                  }
             }

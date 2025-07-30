@@ -1,5 +1,5 @@
 ﻿using Comparatist.Core.Infrastructure;
-using Comparatist.Services.Cache;
+using Comparatist.Services.TableCache;
 
 namespace Comparatist
 {
@@ -10,9 +10,9 @@ namespace Comparatist
         private Database _db = new();
         private string _filePath = string.Empty;
         private Action _onLoaded;
-        private DataCacheService _dataCacheService;
+        private TableCacheService _dataCacheService;
 
-        public FileService(Database db, Action onLoaded, DataCacheService dataCacheService)
+        internal FileService(Database db, Action onLoaded, TableCacheService dataCacheService)
         {
             _db = db;
             _onLoaded = onLoaded;
@@ -30,7 +30,7 @@ namespace Comparatist
                 {
                     _filePath = dialog.FileName;
                     _db.Load(_filePath);
-                    _dataCacheService.BuildFromDataBase(_db);
+                    //_dataCacheService.BuildFromDataBase(_db);
                     _onLoaded();
                 }
             }

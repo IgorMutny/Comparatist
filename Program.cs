@@ -1,4 +1,4 @@
-using Comparatist.Services.Cache;
+using Comparatist.Services.TableCache;
 
 namespace Comparatist
 {
@@ -9,8 +9,7 @@ namespace Comparatist
         {
             //Test.Run(10, 200, 10000, 100000);
             ApplicationConfiguration.Initialize();
-            var dataCacheService = new DataCacheService();
-            Application.Run(new MainForm(dataCacheService));
+            Application.Run(new MainForm());
         }
     }
 }

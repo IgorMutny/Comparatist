@@ -1,4 +1,4 @@
-﻿using Comparatist.Services.Cache;
+﻿using Comparatist.Services.TableCache;
 
 namespace Comparatist.View.Tags
 {
@@ -43,7 +43,7 @@ namespace Comparatist.View.Tags
             _stems = new();
         }
 
-        public RootTag(CachedRoot root)
+        public RootTag(CachedBlock root)
         {
             Id = root.Root.Id;
             Value = root.Root.Value;
@@ -54,8 +54,8 @@ namespace Comparatist.View.Tags
             _categoryIds = root.Root.CategoryIds;
 
             _stems = new();
-            foreach (var stem in root.Stems)
-                _stems.Add(new StemTag(stem));
+           // foreach (var stem in root.Stems)
+            //    _stems.Add(new StemTag(stem));
         }
 
         public IReadOnlyList<Guid> CategoryIds => _categoryIds;

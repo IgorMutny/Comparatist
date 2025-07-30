@@ -1,5 +1,5 @@
 using Comparatist.Core.Infrastructure;
-using Comparatist.Services.Cache;
+using Comparatist.Services.TableCache;
 
 namespace Comparatist
 {
@@ -12,8 +12,9 @@ namespace Comparatist
         private SemanticTreeService _semanticTreeService;
         private AlphaRootsService _alphaRootsService;
 
-        public MainForm(DataCacheService dataCacheService)
+        public MainForm()
         {
+            var dataCacheService = new TableCacheService(); //to delete!!!
             _db = new();
             InitializeComponent();
             _fileService = new FileService(_db, RefreshAllContent, dataCacheService);
