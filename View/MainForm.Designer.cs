@@ -48,13 +48,6 @@ namespace Comparatist
             editLanguageToolStripMenuItem = new ToolStripMenuItem();
             removeLanguageToolStripMenuItem = new ToolStripMenuItem();
             _semanticTreeView = new TreeView();
-            _semanticMenu = new ContextMenuStrip(components);
-            addRootGroupToolStripMenuItem = new ToolStripMenuItem();
-            _semanticNodeMenu = new ContextMenuStrip(components);
-            addChildGroupToolStripMenuItem = new ToolStripMenuItem();
-            editGroupToolStripMenuItem = new ToolStripMenuItem();
-            moveGroupToolStripMenuItem = new ToolStripMenuItem();
-            removeGroupToolStripMenuItem = new ToolStripMenuItem();
             _alphaRootsGridView = new DataGridView();
             _rootGridMenu = new ContextMenuStrip(components);
             _addRootMenuItem = new ToolStripMenuItem();
@@ -74,8 +67,6 @@ namespace Comparatist
             mainMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)_languagesGridView).BeginInit();
             contextMenuStripLanguages.SuspendLayout();
-            _semanticMenu.SuspendLayout();
-            _semanticNodeMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)_alphaRootsGridView).BeginInit();
             _rootGridMenu.SuspendLayout();
             _rootRowMenu.SuspendLayout();
@@ -202,59 +193,11 @@ namespace Comparatist
             // 
             // _semanticTreeView
             // 
-            _semanticTreeView.ContextMenuStrip = _semanticMenu;
             _semanticTreeView.Dock = DockStyle.Fill;
             _semanticTreeView.Location = new Point(0, 24);
             _semanticTreeView.Name = "_semanticTreeView";
             _semanticTreeView.Size = new Size(800, 426);
             _semanticTreeView.TabIndex = 9;
-            // 
-            // _semanticMenu
-            // 
-            _semanticMenu.Items.AddRange(new ToolStripItem[] { addRootGroupToolStripMenuItem });
-            _semanticMenu.Name = "contextMenuStripSemanticGroups";
-            _semanticMenu.Size = new Size(161, 26);
-            // 
-            // addRootGroupToolStripMenuItem
-            // 
-            addRootGroupToolStripMenuItem.Name = "addRootGroupToolStripMenuItem";
-            addRootGroupToolStripMenuItem.Size = new Size(160, 22);
-            addRootGroupToolStripMenuItem.Text = "Add Root Group";
-            addRootGroupToolStripMenuItem.Click += AddHeadGroup;
-            // 
-            // _semanticNodeMenu
-            // 
-            _semanticNodeMenu.Items.AddRange(new ToolStripItem[] { addChildGroupToolStripMenuItem, editGroupToolStripMenuItem, moveGroupToolStripMenuItem, removeGroupToolStripMenuItem });
-            _semanticNodeMenu.Name = "contextMenuStripSemanticGroups";
-            _semanticNodeMenu.Size = new Size(164, 92);
-            // 
-            // addChildGroupToolStripMenuItem
-            // 
-            addChildGroupToolStripMenuItem.Name = "addChildGroupToolStripMenuItem";
-            addChildGroupToolStripMenuItem.Size = new Size(163, 22);
-            addChildGroupToolStripMenuItem.Text = "Add Child Group";
-            addChildGroupToolStripMenuItem.Click += AddChildGroup;
-            // 
-            // editGroupToolStripMenuItem
-            // 
-            editGroupToolStripMenuItem.Name = "editGroupToolStripMenuItem";
-            editGroupToolStripMenuItem.Size = new Size(163, 22);
-            editGroupToolStripMenuItem.Text = "Edit Group";
-            editGroupToolStripMenuItem.Click += EditGroup;
-            // 
-            // moveGroupToolStripMenuItem
-            // 
-            moveGroupToolStripMenuItem.Name = "moveGroupToolStripMenuItem";
-            moveGroupToolStripMenuItem.Size = new Size(163, 22);
-            moveGroupToolStripMenuItem.Text = "Move Group";
-            moveGroupToolStripMenuItem.Click += MoveGroup;
-            // 
-            // removeGroupToolStripMenuItem
-            // 
-            removeGroupToolStripMenuItem.Name = "removeGroupToolStripMenuItem";
-            removeGroupToolStripMenuItem.Size = new Size(163, 22);
-            removeGroupToolStripMenuItem.Text = "Remove Group";
-            removeGroupToolStripMenuItem.Click += DeleteGroup;
             // 
             // _alphaRootsGridView
             // 
@@ -343,19 +286,19 @@ namespace Comparatist
             // 
             _wordMenu.Items.AddRange(new ToolStripItem[] { addWordToolStripMenuItem, deleteWordToolStripMenuItem });
             _wordMenu.Name = "_wordMenu";
-            _wordMenu.Size = new Size(181, 70);
+            _wordMenu.Size = new Size(160, 48);
             // 
             // addWordToolStripMenuItem
             // 
             addWordToolStripMenuItem.Name = "addWordToolStripMenuItem";
-            addWordToolStripMenuItem.Size = new Size(180, 22);
+            addWordToolStripMenuItem.Size = new Size(159, 22);
             addWordToolStripMenuItem.Text = "Add / Edit Word";
             addWordToolStripMenuItem.Click += AddOrEditWord;
             // 
             // deleteWordToolStripMenuItem
             // 
             deleteWordToolStripMenuItem.Name = "deleteWordToolStripMenuItem";
-            deleteWordToolStripMenuItem.Size = new Size(180, 22);
+            deleteWordToolStripMenuItem.Size = new Size(159, 22);
             deleteWordToolStripMenuItem.Text = "Delete Word";
             deleteWordToolStripMenuItem.Click += DeleteWord;
             // 
@@ -376,8 +319,6 @@ namespace Comparatist
             mainMenu.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)_languagesGridView).EndInit();
             contextMenuStripLanguages.ResumeLayout(false);
-            _semanticMenu.ResumeLayout(false);
-            _semanticNodeMenu.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)_alphaRootsGridView).EndInit();
             _rootGridMenu.ResumeLayout(false);
             _rootRowMenu.ResumeLayout(false);
@@ -405,13 +346,6 @@ namespace Comparatist
         private ToolStripMenuItem editLanguageToolStripMenuItem;
         private ToolStripMenuItem removeLanguageToolStripMenuItem;
         private TreeView _semanticTreeView;
-        private ContextMenuStrip _semanticNodeMenu;
-        private ToolStripMenuItem addChildGroupToolStripMenuItem;
-        private ToolStripMenuItem editGroupToolStripMenuItem;
-        private ToolStripMenuItem moveGroupToolStripMenuItem;
-        private ToolStripMenuItem removeGroupToolStripMenuItem;
-        private ContextMenuStrip _semanticMenu;
-        private ToolStripMenuItem addRootGroupToolStripMenuItem;
         private DataGridView _alphaRootsGridView;
         private ContextMenuStrip _rootGridMenu;
         private ToolStripMenuItem _addRootMenuItem;

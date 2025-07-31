@@ -6,7 +6,7 @@ using Comparatist.Services.TableCache;
 
 namespace Comparatist.Services.Infrastructure
 {
-    public class ProjectService
+    public class ProjectService : IProjectService
     {
         private CascadeDeleteService _cascadeDelete;
         private TableCacheService _tableCache;
