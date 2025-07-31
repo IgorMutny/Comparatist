@@ -4,6 +4,7 @@ namespace Comparatist.Core.Infrastructure
 {
     public interface IDatabase
     {
+        ProjectMetadata Metadata { get; }
         IRepository<Category> Categories { get; }
         IRepository<Language> Languages { get; }
         IRepository<Root> Roots { get; }
@@ -13,6 +14,5 @@ namespace Comparatist.Core.Infrastructure
         void Save(string path);
         void Load(string path);
         IEnumerable<IRecord> GetAllRecords();
-        void RemoveDeletedRecords();
     }
 }

@@ -56,11 +56,11 @@ namespace Comparatist
                 var record = pair.Key;
                 var parentId = record.ParentId;
 
-                if (parentId == null)
+                if (parentId == Guid.Empty)
                 {
                     _tree.Nodes.Add(pair.Value);
                 }
-                else if (_repository.TryGet(parentId.Value, out var parentGroup)
+                else if (_repository.TryGet(parentId, out var parentGroup)
                     && nodeMap.TryGetValue(parentGroup, out var parentNode))
                 {
                     parentNode.Nodes.Add(pair.Value);
@@ -80,7 +80,7 @@ namespace Comparatist
             var newGroup = new Category
             {
                 Value = input,
-                ParentId = null
+                ParentId = Guid.Empty,
             };
 
             _repository.Add(newGroup);
@@ -224,7 +224,7 @@ namespace Comparatist
 
             if (confirm == DialogResult.Yes && _repository.TryGet(sourceId, out var group))
             {
-                group.ParentId = null;
+                group.ParentId = Guid.Empty;
                 Refresh();
             }
         }

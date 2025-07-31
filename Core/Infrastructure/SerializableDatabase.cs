@@ -18,11 +18,11 @@ namespace Comparatist.Core.Infrastructure
         public SerializableDatabase(Database db)
         {
             Metadata = db.Metadata;
-            Categories = ((Repository<Category>)db.Categories).Export();
-            Languages = ((Repository<Language>)db.Languages).Export();
-            Roots = ((Repository<Root>)db.Roots).Export();
-            Stems = ((Repository<Stem>)db.Stems).Export();
-            Words = ((Repository<Word>)db.Words).Export();
+            Categories = ((Repository<Category>)db.Categories).Export().ToList();
+            Languages = ((Repository<Language>)db.Languages).Export().ToList();
+            Roots = ((Repository<Root>)db.Roots).Export().ToList();
+            Stems = ((Repository<Stem>)db.Stems).Export().ToList();
+            Words = ((Repository<Word>)db.Words).Export().ToList();
         }
 
         public void RestoreTo(Database db)

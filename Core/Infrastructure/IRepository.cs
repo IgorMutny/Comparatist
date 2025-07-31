@@ -4,13 +4,15 @@ namespace Comparatist.Core.Infrastructure
 {
     public interface IRepository<T> where T : IRecord
     {
-        Guid Add(T entity);
+        void Add(T entity);
         void Update(T entity);
+        void Delete(Guid id);
+
         bool TryGet(Guid id, out T record);
         IEnumerable<T> GetAll();
 
-        List<T> Export();
-        void Import(List<T> records);
-        void RemoveDeletedRecords();
+        IEnumerable<T> Export();
+        void Import(IEnumerable<T> records);
+        void Clear();
     }
 }

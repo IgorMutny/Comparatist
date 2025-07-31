@@ -12,7 +12,6 @@ namespace Comparatist.Core.Records
         [Key(4)] public List<Guid> RootIds { get; set; } = new();
         [Key(5)] public bool IsNative { get; set; } = false;
         [Key(6)] public bool IsChecked { get; set; } = false;
-        [Key(7)] public bool IsDeleted { get; set; } = false;
 
         public object Clone()
         {
@@ -24,8 +23,7 @@ namespace Comparatist.Core.Records
                 Comment = Comment,
                 RootIds = RootIds,
                 IsNative = IsNative,
-                IsChecked = IsChecked,
-                IsDeleted = IsDeleted
+                IsChecked = IsChecked
             };
         }
     }

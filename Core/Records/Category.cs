@@ -7,8 +7,7 @@ namespace Comparatist.Core.Records
     {
         [Key(0)] public Guid Id { get; set; }
         [Key(1)] public string Value { get; set; } = string.Empty;
-        [Key(2)] public Guid? ParentId { get; set; }
-        [Key(3)] public bool IsDeleted { get; set; } = false;
+        [Key(2)] public Guid ParentId { get; set; } = Guid.Empty;
 
         public object Clone()
         {
@@ -16,8 +15,7 @@ namespace Comparatist.Core.Records
             {
                 Id = Id,
                 Value = Value,
-                ParentId = ParentId,
-                IsDeleted = IsDeleted
+                ParentId = ParentId
             };
         }
     }

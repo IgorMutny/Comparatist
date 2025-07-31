@@ -14,10 +14,9 @@ namespace Comparatist
 
         public MainForm()
         {
-            var dataCacheService = new TableCacheService(); //to delete!!!
             _db = new();
             InitializeComponent();
-            _fileService = new FileService(_db, RefreshAllContent, dataCacheService);
+            _fileService = new FileService(_db, RefreshAllContent);
             _languagesService = new(_languagesGridView, _db.Languages);
             _semanticTreeService = new(
                 _semanticTreeView,
@@ -30,7 +29,7 @@ namespace Comparatist
                 _rootGridMenu,
                 _rootRowMenu,
                 _stemRowMenu,
-                _wordMenu, dataCacheService);
+                _wordMenu);
         }
 
         private void Open(object sender, EventArgs e) => _fileService.Open();

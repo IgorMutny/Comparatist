@@ -9,8 +9,7 @@ namespace Comparatist.Services.CascadeDelete
 
         protected override IEnumerable<IRecord> Delete(Category record)
         {
-            record.IsDeleted = true;
-            Database.Categories.Update(record);
+            Database.Categories.Delete(record.Id);
 
             var roots = Database.Roots.GetAll().Where(x => x.CategoryIds.Contains(record.Id));
 

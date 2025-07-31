@@ -7,16 +7,15 @@ namespace Comparatist.Core.Infrastructure
     {
         private Dictionary<Guid, T> _storage = new();
 
-        public Guid Add(T entity)
+        public void Add(T entity)
         {
             var id = Guid.NewGuid();
 
             if (_storage.ContainsKey(id))
-                throw new InvalidOperationException($"Guid {id} already exists");
+                throw new InvalidOperationException($"{typeof(T).Name} with id {id} already exists");
 
             entity.Id = id;
-            _storage[id] = entity;
-            return id;
+            _storage[id] = (T)entity.Clone();
         }
 
         public void Update(T entity)
@@ -24,12 +23,18 @@ namespace Comparatist.Core.Infrastructure
             if (_storage.ContainsKey(entity.Id))
                 _storage[entity.Id] = (T)entity.Clone();
             else
-                throw new InvalidOperationException($"Guid {entity.Id} does not exist");
+                throw new InvalidOperationException($"{typeof(T).Name} with id {entity.Id} does not exist");
+        }
+
+        public void Delete(Guid id)
+        {
+            if (!_storage.Remove(id))
+                throw new InvalidOperationException($"{typeof(T).Name} with id {id} does not exist");
         }
 
         public bool TryGet(Guid id, [NotNullWhen(true)] out T record)
         {
-            if (_storage.TryGetValue(id, out var r) && !r.IsDeleted)
+            if (_storage.TryGetValue(id, out var r))
             {
                 record = (T)r.Clone();
                 return true;
@@ -41,33 +46,20 @@ namespace Comparatist.Core.Infrastructure
 
         public IEnumerable<T> GetAll()
         {
-            return _storage.Values
-                .Where(e => !e.IsDeleted)
-                .Select(record => (T)record.Clone());
+            return _storage.Values.Select(record => (T)record.Clone());
         }
 
-        public List<T> Export()
+        public IEnumerable<T> Export()
         {
-            return _storage.Values.ToList();
+            return _storage.Values;
         }
 
-        public void Import(List<T> records)
+        public void Import(IEnumerable<T> records)
         {
             Clear();
 
             foreach (var record in records)
                 _storage.Add(record.Id, record);
-        }
-
-        public void RemoveDeletedRecords()
-        {
-            var deletedKeys = _storage
-                .Where(pair => pair.Value.IsDeleted)
-                .Select(pair => pair.Key)
-                .ToList();
-
-            foreach (var key in deletedKeys)
-                _storage.Remove(key);
         }
 
         public void Clear()

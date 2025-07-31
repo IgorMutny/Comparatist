@@ -47,13 +47,13 @@ namespace Comparatist.Core.Infrastructure
                 .ToList();
         }
 
-        public void RemoveDeletedRecords()
+        public void Clear()
         {
-            Categories.RemoveDeletedRecords();
-            Languages.RemoveDeletedRecords();
-            Roots.RemoveDeletedRecords();
-            Stems.RemoveDeletedRecords();
-            Words.RemoveDeletedRecords();
+            Categories.Clear();
+            Languages.Clear();
+            Roots.Clear();
+            Stems.Clear();
+            Words.Clear();
         }
     }
 }

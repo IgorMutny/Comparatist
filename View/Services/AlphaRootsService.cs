@@ -19,15 +19,13 @@ namespace Comparatist
             ContextMenuStrip gridMenu,
             ContextMenuStrip rootRowMenu,
             ContextMenuStrip stemRowMenu,
-            ContextMenuStrip wordMenu,
-            TableCacheService dataCacheService)
+            ContextMenuStrip wordMenu)
         {
             _grid = grid;
             _gridMenu = gridMenu;
             _rootRowMenu = rootRowMenu;
             _stemRowMenu = stemRowMenu;
             _wordMenu = wordMenu;
-            _dataCacheService = dataCacheService;
             SetupGridView();
         }
 

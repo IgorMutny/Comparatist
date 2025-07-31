@@ -12,11 +12,10 @@ namespace Comparatist
         private Action _onLoaded;
         private TableCacheService _dataCacheService;
 
-        internal FileService(Database db, Action onLoaded, TableCacheService dataCacheService)
+        internal FileService(Database db, Action onLoaded)
         {
             _db = db;
             _onLoaded = onLoaded;
-            _dataCacheService = dataCacheService;
         }
 
         public void Open()

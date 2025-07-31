@@ -5,14 +5,11 @@ namespace Comparatist.Services.CascadeDelete
 {
     internal class CascadeDeleteService
     {
-        private IDatabase _database;
         private Dictionary<Type, ICascadeDeleteStrategy> _strategies;
         private HashSet<Guid> _visitedIds = new();
 
         public CascadeDeleteService(IDatabase database)
         {
-            _database = database;
-
             _strategies = new Dictionary<Type, ICascadeDeleteStrategy>
             {
                 {typeof(Language), new LanguageCascadeDeleteStrategy(database) },
@@ -23,23 +20,10 @@ namespace Comparatist.Services.CascadeDelete
             };
         }
 
-        public void ValidateDatabase()
-        {
-            _visitedIds.Clear();
-            var deletedRecords = _database.GetAllRecords().Where(r => r.IsDeleted);
-
-            foreach (var record in deletedRecords)
-                DeleteInternal(record);
-        }
-
         public void Delete(IRecord record)
         {
             _visitedIds.Clear();
-            DeleteInternal(record);
-        }
 
-        private void DeleteInternal(IRecord record)
-        {
             if (_visitedIds.Contains(record.Id))
                 return;
 

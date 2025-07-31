@@ -35,16 +35,6 @@ namespace Comparatist.Services.Infrastructure
             });
         }
 
-        public Result ValidateAndSaveDatabase(string path)
-        {
-            return Execute(() =>
-            {
-                _cascadeDelete.ValidateDatabase();
-                _database.RemoveDeletedRecords();
-                _database.Save(path);
-            });
-        }
-
         public Result AddRoot(Root root)
         {
             return Execute(() =>
