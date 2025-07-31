@@ -2,10 +2,10 @@
 {
     public static class InputBox
     {
-        public static string? Show(string title, string prompt, string defaultText = "")
+        public static string? Show(string text, string caption, string defaultText = "")
         {
-            using var form = CreateForm(title);
-            var label = CreateLabel(prompt);
+            using var form = CreateForm(caption);
+            var label = CreateLabel(text);
             var textBox = CreateTextBox();
             var buttonOK = CreateOkButton();
             var buttonCancel = CreateCancelButton();

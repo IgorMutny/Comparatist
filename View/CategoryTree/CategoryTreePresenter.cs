@@ -14,19 +14,32 @@ namespace Comparatist.View.CategoryTree
         protected override void Subscribe()
         {
             View.AddNodeRequest += OnAddNodeRequest;
+            View.EditNodeRequest += OnEditNodeRequest;
             View.MoveNodeRequest += OnMoveNodeRequest;
+            View.DeleteNodeRequest += OnDeleteNodeRequest;
         }
 
         protected override void Unsubscribe()
         {
             View.AddNodeRequest -= OnAddNodeRequest;
+            View.EditNodeRequest -= OnEditNodeRequest;
             View.MoveNodeRequest -= OnMoveNodeRequest;
+            View.DeleteNodeRequest -= OnDeleteNodeRequest;
         }
 
-        private void OnAddNodeRequest(string name)
+        private void OnAddNodeRequest(string name, CachedCategoryNode? parent)
         {
-            var newCategory = new Category() { Value = name, ParentId = NoParentId };
+            var parentId = parent == null ? NoParentId : parent.Category.Id;
+            var newCategory = new Category() { Value = name, ParentId = parentId };
             Execute(() => Service.AddCategory(newCategory));
+            Render();
+        }
+
+        private void OnEditNodeRequest(CachedCategoryNode node, string newName)
+        {
+            var category = node.Category;
+            category.Value = newName;
+            Execute(() => Service.UpdateCategory(category));
             Render();
         }
 
@@ -37,6 +50,13 @@ namespace Comparatist.View.CategoryTree
             category.ParentId = parentId;
 
             Execute(() => Service.UpdateCategory(category));
+            Render();
+        }
+
+        private void OnDeleteNodeRequest(CachedCategoryNode node)
+        {
+            var category = node.Category;
+            Execute(() => Service.DeleteCategory(category));
             Render();
         }
 

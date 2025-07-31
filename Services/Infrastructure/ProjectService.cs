@@ -87,7 +87,7 @@ namespace Comparatist.Services.Infrastructure
         {
             return Execute(() =>
             {
-                _database.Languages.Delete(language.Id);
+                _cascadeDelete.Delete(language);
                 _tableCache.MarkDirty();
             });
         }
@@ -114,7 +114,7 @@ namespace Comparatist.Services.Infrastructure
         {
             return Execute(() =>
             {
-                _database.Categories.Delete(category.Id);
+                _cascadeDelete.Delete(category);
                 _categoryTree.MarkDirty();
             });
         }
