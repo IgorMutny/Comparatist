@@ -1,6 +1,7 @@
 ﻿using Comparatist.Core.Infrastructure;
 using Comparatist.Core.Records;
 using Comparatist.Services.CascadeDelete;
+using Comparatist.Services.CategoryTree;
 using Comparatist.Services.TableCache;
 
 namespace Comparatist.Services.Infrastructure
@@ -9,6 +10,7 @@ namespace Comparatist.Services.Infrastructure
     {
         private CascadeDeleteService _cascadeDelete;
         private TableCacheService _tableCache;
+        private CategoryTreeService _categoryTree;
         private IDatabase _database;
 
         public ProjectService()
@@ -16,6 +18,7 @@ namespace Comparatist.Services.Infrastructure
             _database = new Database();
             _cascadeDelete = new CascadeDeleteService(_database);
             _tableCache = new TableCacheService(_database);
+            _categoryTree = new CategoryTreeService(_database);
         }
 
         public Result LoadDatabase(string path)
@@ -24,6 +27,7 @@ namespace Comparatist.Services.Infrastructure
             {
                 _database.Load(path);
                 _tableCache.RebuildCache();
+                _categoryTree.RebuildCache();
             });
         }
 
@@ -32,6 +36,86 @@ namespace Comparatist.Services.Infrastructure
             return Execute(() =>
             {
                 _database.Save(path);
+            });
+        }
+
+        public Result<IEnumerable<CachedCategoryNode>> GetTree()
+        {
+            return Execute(_categoryTree.GetTree);
+        }
+
+        public Result<IEnumerable<CachedBlock>> GetAllBlocksByAlphabet()
+        {
+            return Execute(_tableCache.GetAllBlocksByAlphabet);
+        }
+
+        public Result<CachedBlock> GetBlock(Guid rootId)
+        {
+            return Execute(() =>
+            {
+                return _tableCache.GetBlock(rootId);
+            });
+        }
+
+        public Result<CachedRow> GetRow(Guid stemId)
+        {
+            return Execute(() =>
+            {
+                return _tableCache.GetRow(stemId);
+            });
+        }
+
+        public Result AddLanguage(Language language)
+        {
+            return Execute(() =>
+            {
+                _database.Languages.Add(language);
+                _tableCache.MarkDirty();
+            });
+        }
+
+        public Result UpdateLanguage(Language language)
+        {
+            return Execute(() =>
+            {
+                _database.Languages.Update(language);
+                _tableCache.MarkDirty();
+            });
+        }
+
+        public Result DeleteLanguage(Language language)
+        {
+            return Execute(() =>
+            {
+                _database.Languages.Delete(language.Id);
+                _tableCache.MarkDirty();
+            });
+        }
+
+        public Result AddCategory(Category category)
+        {
+            return Execute(() =>
+            {
+                _database.Categories.Add(category);
+                _categoryTree.MarkDirty();
+            });
+        }
+
+        public Result UpdateCategory(Category category)
+        {
+            return Execute(() =>
+            {
+                _database.Categories.Update(category);
+                _categoryTree.MarkDirty();
+            });
+        }
+
+        public Result DeleteCategory(Category category)
+        {
+            return Execute(() =>
+            {
+                _database.Categories.Delete(category.Id);
+                _categoryTree.MarkDirty();
             });
         }
 
@@ -125,8 +209,20 @@ namespace Comparatist.Services.Infrastructure
             }
             catch (Exception e)
             {
-                try { _tableCache.RebuildCache(); } catch { }
                 return new Result(false, e.Message);
+            }
+        }
+
+        private Result<T> Execute<T>(Func<T> func)
+        {
+            try
+            {
+                T value = func();
+                return new Result<T>(true, value, string.Empty);
+            }
+            catch (Exception e)
+            {
+                return new Result<T>(false, default, e.Message);
             }
         }
     }

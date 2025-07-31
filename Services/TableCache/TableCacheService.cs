@@ -1,6 +1,5 @@
 ﻿using Comparatist.Core.Infrastructure;
 using Comparatist.Core.Records;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Comparatist.Services.TableCache
 {
@@ -21,7 +20,7 @@ namespace Comparatist.Services.TableCache
             _isDirty = true;
         }
 
-        public IEnumerable<CachedBlock> AllBlocksByAlphabet()
+        public IEnumerable<CachedBlock> GetAllBlocksByAlphabet()
         {
             UpdateCacheIfDirty();
 
@@ -30,32 +29,24 @@ namespace Comparatist.Services.TableCache
                 .OrderBy(e => e.Root.Value);
         }
 
-        public bool TryGetBlock(Guid rootId, [NotNullWhen(true)] out CachedBlock block)
+        public CachedBlock GetBlock(Guid rootId)
         {
             UpdateCacheIfDirty();
 
             if (_cache.Blocks.TryGetValue(rootId, out var b))
-            {
-                block = (CachedBlock)b.Clone();
-                return true;
-            }
-
-            block = default!;
-            return false;
+                return (CachedBlock)b.Clone();
+            else
+                throw new InvalidOperationException($"Root {rootId} not found in cache");
         }
 
-        public bool TryGetRow(Guid stemId, [NotNullWhen(true)] out CachedRow row)
+        public CachedRow GetRow(Guid stemId)
         {
             UpdateCacheIfDirty();
 
             if (_cache.Rows.TryGetValue(stemId, out var r))
-            {
-                row = (CachedRow)r.Clone();
-                return true;
-            }
-
-            row = default!;
-            return false;
+                return (CachedRow)r.Clone();
+            else
+                throw new InvalidOperationException($"Stem {stemId} not found in cache");
         }
 
         public void RebuildCache()
