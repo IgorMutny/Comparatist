@@ -45,28 +45,10 @@ namespace Comparatist
             _languagesGridView = new DataGridView();
             _semanticTreeView = new TreeView();
             _alphaRootsGridView = new DataGridView();
-            _rootGridMenu = new ContextMenuStrip(components);
-            _addRootMenuItem = new ToolStripMenuItem();
-            _rootRowMenu = new ContextMenuStrip(components);
-            _addRootRowMenuItem = new ToolStripMenuItem();
-            _editRootRowMenuItem = new ToolStripMenuItem();
-            _deleteRootRowMenuItem = new ToolStripMenuItem();
-            addStemToolStripMenuItem = new ToolStripMenuItem();
-            _stemRowMenu = new ContextMenuStrip(components);
-            addStemToolStripMenuItem1 = new ToolStripMenuItem();
-            editStemToolStripMenuItem = new ToolStripMenuItem();
-            deleteStemToolStripMenuItem = new ToolStripMenuItem();
-            _wordMenu = new ContextMenuStrip(components);
-            addWordToolStripMenuItem = new ToolStripMenuItem();
-            deleteWordToolStripMenuItem = new ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)inMemoryDatabaseBindingSource).BeginInit();
             mainMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)_languagesGridView).BeginInit();
             ((System.ComponentModel.ISupportInitialize)_alphaRootsGridView).BeginInit();
-            _rootGridMenu.SuspendLayout();
-            _rootRowMenu.SuspendLayout();
-            _stemRowMenu.SuspendLayout();
-            _wordMenu.SuspendLayout();
             SuspendLayout();
             // 
             // inMemoryDatabaseBindingSource
@@ -175,100 +157,6 @@ namespace Comparatist
             _alphaRootsGridView.Size = new Size(800, 426);
             _alphaRootsGridView.TabIndex = 10;
             // 
-            // _rootGridMenu
-            // 
-            _rootGridMenu.Items.AddRange(new ToolStripItem[] { _addRootMenuItem });
-            _rootGridMenu.Name = "_rootGridMenu";
-            _rootGridMenu.Size = new Size(125, 26);
-            // 
-            // _addRootMenuItem
-            // 
-            _addRootMenuItem.Name = "_addRootMenuItem";
-            _addRootMenuItem.Size = new Size(124, 22);
-            _addRootMenuItem.Text = "Add Root";
-            _addRootMenuItem.Click += AddRoot;
-            // 
-            // _rootRowMenu
-            // 
-            _rootRowMenu.Items.AddRange(new ToolStripItem[] { _addRootRowMenuItem, _editRootRowMenuItem, _deleteRootRowMenuItem, addStemToolStripMenuItem });
-            _rootRowMenu.Name = "_rootRowMenu";
-            _rootRowMenu.Size = new Size(136, 92);
-            // 
-            // _addRootRowMenuItem
-            // 
-            _addRootRowMenuItem.Name = "_addRootRowMenuItem";
-            _addRootRowMenuItem.Size = new Size(135, 22);
-            _addRootRowMenuItem.Text = "Add Root";
-            _addRootRowMenuItem.Click += AddRoot;
-            // 
-            // _editRootRowMenuItem
-            // 
-            _editRootRowMenuItem.Name = "_editRootRowMenuItem";
-            _editRootRowMenuItem.Size = new Size(135, 22);
-            _editRootRowMenuItem.Text = "Edit Root";
-            _editRootRowMenuItem.Click += EditRoot;
-            // 
-            // _deleteRootRowMenuItem
-            // 
-            _deleteRootRowMenuItem.Name = "_deleteRootRowMenuItem";
-            _deleteRootRowMenuItem.Size = new Size(135, 22);
-            _deleteRootRowMenuItem.Text = "Delete Root";
-            _deleteRootRowMenuItem.Click += DeleteRoot;
-            // 
-            // addStemToolStripMenuItem
-            // 
-            addStemToolStripMenuItem.Name = "addStemToolStripMenuItem";
-            addStemToolStripMenuItem.Size = new Size(135, 22);
-            addStemToolStripMenuItem.Text = "Add Stem";
-            addStemToolStripMenuItem.Click += AddStem;
-            // 
-            // _stemRowMenu
-            // 
-            _stemRowMenu.Items.AddRange(new ToolStripItem[] { addStemToolStripMenuItem1, editStemToolStripMenuItem, deleteStemToolStripMenuItem });
-            _stemRowMenu.Name = "_stemRowMenu";
-            _stemRowMenu.Size = new Size(138, 70);
-            // 
-            // addStemToolStripMenuItem1
-            // 
-            addStemToolStripMenuItem1.Name = "addStemToolStripMenuItem1";
-            addStemToolStripMenuItem1.Size = new Size(137, 22);
-            addStemToolStripMenuItem1.Text = "Add Stem";
-            addStemToolStripMenuItem1.Click += AddStemWithRoot;
-            // 
-            // editStemToolStripMenuItem
-            // 
-            editStemToolStripMenuItem.Name = "editStemToolStripMenuItem";
-            editStemToolStripMenuItem.Size = new Size(137, 22);
-            editStemToolStripMenuItem.Text = "Edit Stem";
-            editStemToolStripMenuItem.Click += EditStem;
-            // 
-            // deleteStemToolStripMenuItem
-            // 
-            deleteStemToolStripMenuItem.Name = "deleteStemToolStripMenuItem";
-            deleteStemToolStripMenuItem.Size = new Size(137, 22);
-            deleteStemToolStripMenuItem.Text = "Delete Stem";
-            deleteStemToolStripMenuItem.Click += DeleteStem;
-            // 
-            // _wordMenu
-            // 
-            _wordMenu.Items.AddRange(new ToolStripItem[] { addWordToolStripMenuItem, deleteWordToolStripMenuItem });
-            _wordMenu.Name = "_wordMenu";
-            _wordMenu.Size = new Size(160, 48);
-            // 
-            // addWordToolStripMenuItem
-            // 
-            addWordToolStripMenuItem.Name = "addWordToolStripMenuItem";
-            addWordToolStripMenuItem.Size = new Size(159, 22);
-            addWordToolStripMenuItem.Text = "Add / Edit Word";
-            addWordToolStripMenuItem.Click += AddOrEditWord;
-            // 
-            // deleteWordToolStripMenuItem
-            // 
-            deleteWordToolStripMenuItem.Name = "deleteWordToolStripMenuItem";
-            deleteWordToolStripMenuItem.Size = new Size(159, 22);
-            deleteWordToolStripMenuItem.Text = "Delete Word";
-            deleteWordToolStripMenuItem.Click += DeleteWord;
-            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -286,10 +174,6 @@ namespace Comparatist
             mainMenu.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)_languagesGridView).EndInit();
             ((System.ComponentModel.ISupportInitialize)_alphaRootsGridView).EndInit();
-            _rootGridMenu.ResumeLayout(false);
-            _rootRowMenu.ResumeLayout(false);
-            _stemRowMenu.ResumeLayout(false);
-            _wordMenu.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -309,19 +193,5 @@ namespace Comparatist
         private DataGridView _languagesGridView;
         private TreeView _semanticTreeView;
         private DataGridView _alphaRootsGridView;
-        private ContextMenuStrip _rootGridMenu;
-        private ToolStripMenuItem _addRootMenuItem;
-        private ContextMenuStrip _rootRowMenu;
-        private ToolStripMenuItem _addRootRowMenuItem;
-        private ToolStripMenuItem _editRootRowMenuItem;
-        private ToolStripMenuItem _deleteRootRowMenuItem;
-        private ToolStripMenuItem addStemToolStripMenuItem;
-        private ContextMenuStrip _stemRowMenu;
-        private ToolStripMenuItem addStemToolStripMenuItem1;
-        private ToolStripMenuItem editStemToolStripMenuItem;
-        private ToolStripMenuItem deleteStemToolStripMenuItem;
-        private ContextMenuStrip _wordMenu;
-        private ToolStripMenuItem addWordToolStripMenuItem;
-        private ToolStripMenuItem deleteWordToolStripMenuItem;
     }
 }

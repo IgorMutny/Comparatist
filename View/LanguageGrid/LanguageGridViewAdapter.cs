@@ -60,12 +60,15 @@ namespace Comparatist.View.LanguageGrid
             });
 
             foreach (var language in languages)
-            {
-                int rowIndex = _grid.Rows.Add();
-                var cell = _grid.Rows[rowIndex].Cells[0];
-                cell.Value = language.Value;
-                cell.Tag = language;
-            }
+                AddRow(language);
+        }
+
+        private void AddRow(Language language)
+        {
+            int rowIndex = _grid.Rows.Add();
+            var cell = _grid.Rows[rowIndex].Cells[0];
+            cell.Value = language.Value;
+            cell.Tag = language;
         }
 
         private void AddLanguage()

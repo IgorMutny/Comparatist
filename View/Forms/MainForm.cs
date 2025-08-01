@@ -3,6 +3,7 @@ using Comparatist.Services.Infrastructure;
 using Comparatist.View.CategoryTree;
 using Comparatist.View.LanguageGrid;
 using Comparatist.View.Utities;
+using Comparatist.View.WordGrid;
 
 namespace Comparatist
 {
@@ -15,10 +16,12 @@ namespace Comparatist
         private LanguageGridViewAdapter _languageGridViewAdapter;
         private LanguageGridPresenter _languageGridPresenter;
 
-        private CategoryTreePresenter _categoryTreePresenter;
         private CategoryTreeViewAdapter _categoryTreeViewAdapter;
+        private CategoryTreePresenter _categoryTreePresenter;
 
-        private AlphaRootsService _alphaRootsService;
+        private WordGridViewAdapter _wordGridViewAdapter;
+        private WordGridPresenter _wordGridPresenter;
+        
         private IProjectService _service;
 
         public MainForm()
@@ -35,12 +38,8 @@ namespace Comparatist
             _categoryTreeViewAdapter = new(_semanticTreeView);
             _categoryTreePresenter = new(_service, _categoryTreeViewAdapter);
 
-            _alphaRootsService = new(
-                _alphaRootsGridView,
-                _rootGridMenu,
-                _rootRowMenu,
-                _stemRowMenu,
-                _wordMenu);
+            _wordGridViewAdapter = new(_alphaRootsGridView);
+            _wordGridPresenter = new(_service, _wordGridViewAdapter);
         }
 
         private void Open(object sender, EventArgs e) => _fileService.Open();
@@ -52,23 +51,12 @@ namespace Comparatist
         private void SelectSemanticGroups(object sender, EventArgs e) => SelectContent(ContentHolderTypes.SemanticGroups);
         private void SelectLanguages(object sender, EventArgs e) => SelectContent(ContentHolderTypes.Languages);
 
-        private void AddRoot(object sender, EventArgs e) => _alphaRootsService.AddRoot();
-        private void EditRoot(object sender, EventArgs e) => _alphaRootsService.EditRoot();
-        private void DeleteRoot(object sender, EventArgs e) => _alphaRootsService.DeleteRoot();
-
-        private void AddStem(object sender, EventArgs e) => _alphaRootsService.AddStem();
-        private void AddStemWithRoot(object sender, EventArgs e) => _alphaRootsService.AddStem();
-        private void EditStem(object sender, EventArgs e) => _alphaRootsService.EditStem();
-        private void DeleteStem(object sender, EventArgs e) => _alphaRootsService.DeleteStem();
-
-        private void AddOrEditWord(object sender, EventArgs e) => _alphaRootsService.AddOrEditWord();
-        private void DeleteWord(object sender, EventArgs e) => _alphaRootsService.DeleteWord();
+ 
 
         private void RefreshAllContent()
         {
             ShowActiveContentHolder();
             SetCheckedRepositoryMenu();
-            _alphaRootsService.Refresh();
         }
 
         private void SetCheckedRepositoryMenu()
