@@ -2,13 +2,15 @@
 {
     public static class TreeNodeExtensions
     {
-        public static bool IsDescendantOf(this TreeNode node, TreeNode possibleAncestor)
+        public static bool IsSameOrDescendantOf(this TreeNode node, TreeNode possibleAncestor)
         {
-            var current = node.Parent;
+            var current = node;
+
             while (current != null)
             {
                 if (current == possibleAncestor)
                     return true;
+
                 current = current.Parent;
             }
             return false;

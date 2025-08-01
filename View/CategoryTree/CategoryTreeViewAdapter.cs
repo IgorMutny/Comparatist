@@ -9,6 +9,7 @@ namespace Comparatist.View.CategoryTree
         private TreeView _tree;
         private DisposableMenu _treeMenu;
         private DisposableMenu _nodeMenu;
+        private CategoryTreeDragDropHelper _dragDropHelper;
 
         public event Action<string, CachedCategoryNode?>? AddNodeRequest;
         public event Action<CachedCategoryNode, string>? EditNodeRequest;
@@ -18,6 +19,7 @@ namespace Comparatist.View.CategoryTree
         public CategoryTreeViewAdapter(TreeView tree)
         {
             _tree = tree;
+            _dragDropHelper = new CategoryTreeDragDropHelper(tree, MoveNode);
 
             _treeMenu = new DisposableMenu(
                 ("Add category", AddNode));
@@ -33,17 +35,17 @@ namespace Comparatist.View.CategoryTree
         private void SetupTree()
         {
             _tree.AllowDrop = true;
-            _tree.ItemDrag += OnItemDrag;
-            _tree.DragOver += OnDragOver;
-            _tree.DragDrop += OnDragDrop;
+            _tree.ItemDrag += _dragDropHelper.OnItemDrag;
+            _tree.DragOver += _dragDropHelper.OnDragOver;
+            _tree.DragDrop += _dragDropHelper.OnDragDrop;
             _tree.MouseUp += OnMouseUp;
         }
 
         protected override void Unsubscribe()
         {
-            _tree.ItemDrag -= OnItemDrag;
-            _tree.DragOver -= OnDragOver;
-            _tree.DragDrop -= OnDragDrop;
+            _tree.ItemDrag -= _dragDropHelper.OnItemDrag;
+            _tree.DragOver -= _dragDropHelper.OnDragOver;
+            _tree.DragDrop -= _dragDropHelper.OnDragDrop;
             _tree.MouseUp -= OnMouseUp;
             _treeMenu.Dispose();
         }
@@ -111,11 +113,16 @@ namespace Comparatist.View.CategoryTree
             EditNodeRequest?.Invoke(node, name);
         }
 
-        private void SetAsChildOf(CachedCategoryNode sourceTag, TreeNode target)
+        private void MoveNode(CachedCategoryNode sourceTag, CachedCategoryNode? targetTag)
         {
-            if (target.Tag is not CachedCategoryNode targetTag)
-                throw new Exception();
+            if (targetTag == null)
+                SetAsRoot(sourceTag);
+            else
+                SetAsChildOf(sourceTag, targetTag);
+        }
 
+        private void SetAsChildOf(CachedCategoryNode sourceTag, CachedCategoryNode targetTag)
+        {
             var confirmation = MessageBox.Show(
                 $"Set category {sourceTag.Category.Value} as a child of {targetTag.Category.Value}?",
                 "Move category",
@@ -151,60 +158,6 @@ namespace Comparatist.View.CategoryTree
                 DeleteNodeRequest?.Invoke(node);
         }
 
-        private void OnItemDrag(object? sender, ItemDragEventArgs e)
-        {
-            if (e.Item is not TreeNode item)
-                throw new Exception();
-
-            _tree.DoDragDrop(item, DragDropEffects.Move);
-        }
-
-        private void OnDragOver(object? sender, DragEventArgs e)
-        {
-            if (e.Data?.GetData(typeof(TreeNode)) is not TreeNode sourceNode)
-            {
-                e.Effect = DragDropEffects.None;
-                return;
-            }
-
-            var targetPoint = _tree.PointToClient(new Point(e.X, e.Y));
-            var targetNode = _tree.GetNodeAt(targetPoint);
-
-            if (targetNode == null)
-            {
-                e.Effect = DragDropEffects.Move;
-                return;
-            }
-
-            if (targetNode.IsDescendantOf(sourceNode) || targetNode == sourceNode)
-            {
-                e.Effect = DragDropEffects.None;
-            }
-            else
-            {
-                e.Effect = DragDropEffects.Move;
-            }
-        }
-
-        private void OnDragDrop(object? sender, DragEventArgs e)
-        {
-            if (e.Data?.GetData(typeof(TreeNode)) is not TreeNode source)
-                throw new Exception();
-
-            var targetPoint = _tree.PointToClient(new Point(e.X, e.Y));
-            var target = _tree.GetNodeAt(targetPoint);
-
-            if (source.Tag is not CachedCategoryNode sourceTag)
-                throw new Exception();
-
-            if (target.IsDescendantOf(source))
-                throw new Exception();
-
-            if (target == null)
-                SetAsRoot(sourceTag);
-            else
-                SetAsChildOf(sourceTag, target);
-        }
         private void OnMouseUp(object? sender, MouseEventArgs e)
         {
             if (e.Button != MouseButtons.Right)
