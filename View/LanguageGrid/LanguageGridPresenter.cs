@@ -2,11 +2,11 @@
 using Comparatist.Services.Infrastructure;
 using Comparatist.View.Infrastructure;
 
-namespace Comparatist.View.CategoryTree
+namespace Comparatist.View.LanguageGrid
 {
-    internal class CategoryTreePresenter : Presenter<CategoryTreeViewAdapter>
+    internal class LanguageGridPresenter : Presenter<LanguageGridViewAdapter>
     {
-        public CategoryTreePresenter(IProjectService service, CategoryTreeViewAdapter view) :
+        public LanguageGridPresenter(IProjectService service, LanguageGridViewAdapter view) :
             base(service, view)
         { }
 
@@ -25,30 +25,30 @@ namespace Comparatist.View.CategoryTree
             View.DeleteRequest -= OnDeleteRequest;
         }
 
-        private void OnAddRequest(Category category)
+        private void OnAddRequest(Language language)
         {
-            Execute(() => Service.AddCategory(category));
+            Execute(() => Service.AddLanguage(language));
             Render();
         }
 
-        private void OnUpdateRequest(Category category)
+        private void OnUpdateRequest(Language language)
         {
-            Execute(() => Service.UpdateCategory(category));
+            Execute(() => Service.UpdateLanguage(language));
             Render();
         }
 
-        private void OnDeleteRequest(Category category)
+        private void OnDeleteRequest(Language language)
         {
-            Execute(() => Service.DeleteCategory(category));
+            Execute(() => Service.DeleteLanguage(language));
             Render();
         }
 
         private void Render()
         {
-            var nodes = Execute(Service.GetTree);
+            var languages = Execute(Service.GetAllLanguages);
 
-            if (nodes != null)
-                View.Render(nodes.ToList());
+            if (languages != null)
+                View.Render(languages.ToList());
         }
     }
 }

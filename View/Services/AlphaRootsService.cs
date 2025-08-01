@@ -1,6 +1,7 @@
 ﻿using Comparatist.Core.Infrastructure;
 using Comparatist.Services.TableCache;
 using Comparatist.View.Tags;
+using Comparatist.View.Utities;
 
 namespace Comparatist
 {

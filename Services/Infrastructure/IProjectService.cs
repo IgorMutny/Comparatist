@@ -20,6 +20,7 @@ namespace Comparatist.Services.Infrastructure
         Result<CachedBlock> GetBlock(Guid rootId);
         Result<CachedRow> GetRow(Guid stemId);
         Result<IEnumerable<CachedCategoryNode>> GetTree();
+        Result<IEnumerable<Language>> GetAllLanguages();
         Result LoadDatabase(string path);
         Result SaveDatabase(string path);
         Result UpdateCategory(Category category);

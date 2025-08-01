@@ -43,10 +43,6 @@ namespace Comparatist
             _showSemanticMenuItem = new ToolStripMenuItem();
             _showLanguageMenuItem = new ToolStripMenuItem();
             _languagesGridView = new DataGridView();
-            contextMenuStripLanguages = new ContextMenuStrip(components);
-            addLanguageToolStripMenuItem = new ToolStripMenuItem();
-            editLanguageToolStripMenuItem = new ToolStripMenuItem();
-            removeLanguageToolStripMenuItem = new ToolStripMenuItem();
             _semanticTreeView = new TreeView();
             _alphaRootsGridView = new DataGridView();
             _rootGridMenu = new ContextMenuStrip(components);
@@ -66,7 +62,6 @@ namespace Comparatist
             ((System.ComponentModel.ISupportInitialize)inMemoryDatabaseBindingSource).BeginInit();
             mainMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)_languagesGridView).BeginInit();
-            contextMenuStripLanguages.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)_alphaRootsGridView).BeginInit();
             _rootGridMenu.SuspendLayout();
             _rootRowMenu.SuspendLayout();
@@ -153,7 +148,6 @@ namespace Comparatist
             // _languagesGridView
             // 
             _languagesGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            _languagesGridView.ContextMenuStrip = contextMenuStripLanguages;
             _languagesGridView.Dock = DockStyle.Fill;
             _languagesGridView.Location = new Point(0, 24);
             _languagesGridView.MultiSelect = false;
@@ -163,33 +157,6 @@ namespace Comparatist
             _languagesGridView.Size = new Size(800, 426);
             _languagesGridView.TabIndex = 7;
             _languagesGridView.Visible = false;
-            // 
-            // contextMenuStripLanguages
-            // 
-            contextMenuStripLanguages.Items.AddRange(new ToolStripItem[] { addLanguageToolStripMenuItem, editLanguageToolStripMenuItem, removeLanguageToolStripMenuItem });
-            contextMenuStripLanguages.Name = "Languages Menu";
-            contextMenuStripLanguages.Size = new Size(173, 70);
-            // 
-            // addLanguageToolStripMenuItem
-            // 
-            addLanguageToolStripMenuItem.Name = "addLanguageToolStripMenuItem";
-            addLanguageToolStripMenuItem.Size = new Size(172, 22);
-            addLanguageToolStripMenuItem.Text = "Add Language";
-            addLanguageToolStripMenuItem.Click += AddLanguage;
-            // 
-            // editLanguageToolStripMenuItem
-            // 
-            editLanguageToolStripMenuItem.Name = "editLanguageToolStripMenuItem";
-            editLanguageToolStripMenuItem.Size = new Size(172, 22);
-            editLanguageToolStripMenuItem.Text = "Edit Language";
-            editLanguageToolStripMenuItem.Click += EditLanguage;
-            // 
-            // removeLanguageToolStripMenuItem
-            // 
-            removeLanguageToolStripMenuItem.Name = "removeLanguageToolStripMenuItem";
-            removeLanguageToolStripMenuItem.Size = new Size(172, 22);
-            removeLanguageToolStripMenuItem.Text = "Remove Language";
-            removeLanguageToolStripMenuItem.Click += DeleteLanguage;
             // 
             // _semanticTreeView
             // 
@@ -318,7 +285,6 @@ namespace Comparatist
             mainMenu.ResumeLayout(false);
             mainMenu.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)_languagesGridView).EndInit();
-            contextMenuStripLanguages.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)_alphaRootsGridView).EndInit();
             _rootGridMenu.ResumeLayout(false);
             _rootRowMenu.ResumeLayout(false);
@@ -341,10 +307,6 @@ namespace Comparatist
         private ToolStripMenuItem _showSemanticMenuItem;
         private ToolStripMenuItem _showLanguageMenuItem;
         private DataGridView _languagesGridView;
-        private ContextMenuStrip contextMenuStripLanguages;
-        private ToolStripMenuItem addLanguageToolStripMenuItem;
-        private ToolStripMenuItem editLanguageToolStripMenuItem;
-        private ToolStripMenuItem removeLanguageToolStripMenuItem;
         private TreeView _semanticTreeView;
         private DataGridView _alphaRootsGridView;
         private ContextMenuStrip _rootGridMenu;

@@ -44,6 +44,11 @@ namespace Comparatist.Services.Infrastructure
             return Execute(_categoryTree.GetTree);
         }
 
+        public Result<IEnumerable<Language>> GetAllLanguages()
+        {
+            return Execute(_database.Languages.GetAll);
+        }
+
         public Result<IEnumerable<CachedBlock>> GetAllBlocksByAlphabet()
         {
             return Execute(_tableCache.GetAllBlocksByAlphabet);

@@ -1,4 +1,4 @@
-namespace Comparatist
+namespace Comparatist.View.Utities
 {
     public enum ContentHolderTypes
     {

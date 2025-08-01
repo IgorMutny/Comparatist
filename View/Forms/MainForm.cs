@@ -1,7 +1,8 @@
 using Comparatist.Core.Infrastructure;
 using Comparatist.Services.Infrastructure;
-using Comparatist.Services.TableCache;
 using Comparatist.View.CategoryTree;
+using Comparatist.View.LanguageGrid;
+using Comparatist.View.Utities;
 
 namespace Comparatist
 {
@@ -10,9 +11,13 @@ namespace Comparatist
         private Database _db = new();
         private ContentHolderTypes _currentContentHolder = ContentHolderTypes.AlphaRoots;
         private FileService _fileService;
-        private LanguagesService _languagesService;
+        
+        private LanguageGridViewAdapter _languageGridViewAdapter;
+        private LanguageGridPresenter _languageGridPresenter;
+
         private CategoryTreePresenter _categoryTreePresenter;
         private CategoryTreeViewAdapter _categoryTreeViewAdapter;
+
         private AlphaRootsService _alphaRootsService;
         private IProjectService _service;
 
@@ -23,7 +28,9 @@ namespace Comparatist
 
             _service = new ProjectService();
             _fileService = new FileService(_db, RefreshAllContent);
-            _languagesService = new(_languagesGridView, _db.Languages);
+
+            _languageGridViewAdapter = new(_languagesGridView);
+            _languageGridPresenter = new(_service, _languageGridViewAdapter);
 
             _categoryTreeViewAdapter = new(_semanticTreeView);
             _categoryTreePresenter = new(_service, _categoryTreeViewAdapter);
@@ -45,16 +52,6 @@ namespace Comparatist
         private void SelectSemanticGroups(object sender, EventArgs e) => SelectContent(ContentHolderTypes.SemanticGroups);
         private void SelectLanguages(object sender, EventArgs e) => SelectContent(ContentHolderTypes.Languages);
 
-        private void AddLanguage(object sender, EventArgs e) => _languagesService.Add();
-        private void EditLanguage(object sender, EventArgs e) => _languagesService.Edit();
-        private void DeleteLanguage(object sender, EventArgs e) => _languagesService.Delete();
-
-        //private void AddHeadGroup(object sender, EventArgs e) => _semanticTreeService.AddHead();
-        //private void AddChildGroup(object sender, EventArgs e) => _semanticTreeService.AddChild();
-        //private void EditGroup(object sender, EventArgs e) => _semanticTreeService.Edit();
-        //private void MoveGroup(object sender, EventArgs e) => _semanticTreeService.Move();
-        //private void DeleteGroup(object sender, EventArgs e) => _semanticTreeService.Delete();
-
         private void AddRoot(object sender, EventArgs e) => _alphaRootsService.AddRoot();
         private void EditRoot(object sender, EventArgs e) => _alphaRootsService.EditRoot();
         private void DeleteRoot(object sender, EventArgs e) => _alphaRootsService.DeleteRoot();
@@ -71,8 +68,6 @@ namespace Comparatist
         {
             ShowActiveContentHolder();
             SetCheckedRepositoryMenu();
-            //_semanticTreeService.Refresh();
-            _languagesService.Refresh();
             _alphaRootsService.Refresh();
         }
 

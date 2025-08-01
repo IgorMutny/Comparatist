@@ -1,4 +1,4 @@
-﻿namespace Comparatist.View.Infrastructure
+﻿namespace Comparatist.View.Utities
 {
     internal class DisposableMenu : IDisposable
     {

@@ -1,4 +1,4 @@
-﻿namespace Comparatist.View.Extensions
+﻿namespace Comparatist.View.Utities
 {
     public static class TreeNodeExtensions
     {
