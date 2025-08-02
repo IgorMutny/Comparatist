@@ -2,7 +2,6 @@
 using Comparatist.Core.Records;
 using Comparatist.Services.CascadeDelete;
 using Comparatist.Services.CategoryTree;
-using Comparatist.Services.RecordOrdering;
 using Comparatist.Services.TableCache;
 
 namespace Comparatist.Services.Infrastructure
@@ -12,7 +11,6 @@ namespace Comparatist.Services.Infrastructure
         private CascadeDeleteService _cascadeDelete;
         private TableCacheService _tableCache;
         private CategoryTreeService _categoryTree;
-        private RecordOrderingService _recordOrdering;
         private IDatabase _database;
 
         public ProjectService()
@@ -21,7 +19,6 @@ namespace Comparatist.Services.Infrastructure
             _cascadeDelete = new CascadeDeleteService(_database);
             _tableCache = new TableCacheService(_database);
             _categoryTree = new CategoryTreeService(_database);
-            _recordOrdering = new RecordOrderingService(_database);
         }
 
         public Result LoadDatabase(string path)
@@ -212,17 +209,6 @@ namespace Comparatist.Services.Infrastructure
             {
                 _cascadeDelete.Delete(word);
                 _tableCache.DeleteWord(word);
-            });
-        }
-
-        public Result Reorder<T>(IEnumerable<T> records) where T : IOrderableRecord
-        {
-            return Execute(() =>
-            {
-                _recordOrdering.Reorder(records);
-                
-                if (typeof(T) == typeof(Category))
-                    _categoryTree.RebuildCache();
             });
         }
 
