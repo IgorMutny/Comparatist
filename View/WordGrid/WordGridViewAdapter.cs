@@ -1,7 +1,7 @@
 ﻿using Comparatist.Core.Records;
 using Comparatist.Services.TableCache;
 using Comparatist.View.Infrastructure;
-using Comparatist.View.Utities;
+using Comparatist.View.Utilities;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Comparatist.View.WordGrid

@@ -1,6 +1,6 @@
 ﻿using Comparatist.Core.Records;
 using Comparatist.Services.TableCache;
-using Comparatist.View.Utities;
+using Comparatist.View.Utilities;
 
 namespace Comparatist.View.WordGrid
 {

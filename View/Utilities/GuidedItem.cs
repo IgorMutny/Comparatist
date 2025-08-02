@@ -1,4 +1,4 @@
-﻿namespace Comparatist.View.Utities
+﻿namespace Comparatist.View.Utilities
 {
     internal class GuidedItem
     {

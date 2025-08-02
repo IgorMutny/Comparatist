@@ -1,7 +1,7 @@
 ﻿using Comparatist.Core.Records;
 using Comparatist.Services.CategoryTree;
 using Comparatist.View.Infrastructure;
-using Comparatist.View.Utities;
+using Comparatist.View.Utilities;
 
 namespace Comparatist.View.CategoryTree
 {

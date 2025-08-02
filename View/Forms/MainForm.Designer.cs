@@ -4,15 +4,8 @@ namespace Comparatist
 {
     partial class MainForm
     {
-        /// <summary>
-        ///  Required designer variable.
-        /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        ///  Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -22,176 +15,45 @@ namespace Comparatist
             base.Dispose(disposing);
         }
 
-        #region Windows Form Designer generated code
-
-        /// <summary>
-        ///  Required method for Designer support - do not modify
-        ///  the contents of this method with the code editor.
-        /// </summary>
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            inMemoryDatabaseBindingSource = new BindingSource(components);
-            mainMenu = new MenuStrip();
-            fileToolStripMenuItem = new ToolStripMenuItem();
-            openToolStripMenuItem = new ToolStripMenuItem();
-            saveAsToolStripMenuItem1 = new ToolStripMenuItem();
-            saveToolStripMenuItem = new ToolStripMenuItem();
-            exitToolStripMenuItem = new ToolStripMenuItem();
-            repositoriesToolStripMenuItem = new ToolStripMenuItem();
-            _showAlphaRootsMenuItem = new ToolStripMenuItem();
-            _showSemanticMenuItem = new ToolStripMenuItem();
-            _showLanguageMenuItem = new ToolStripMenuItem();
-            _languagesGridView = new DataGridView();
-            _semanticTreeView = new TreeView();
-            _alphaRootsGridView = new DataGridView();
-            ((System.ComponentModel.ISupportInitialize)inMemoryDatabaseBindingSource).BeginInit();
-            mainMenu.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)_languagesGridView).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)_alphaRootsGridView).BeginInit();
+            _mainMenuStrip = new MenuStrip();
+            _languageGridView = new DataGridView();
+            _categoryTreeView = new TreeView();
+            _wordGridView = new DataGridView();
             SuspendLayout();
-            // 
-            // inMemoryDatabaseBindingSource
-            // 
-            inMemoryDatabaseBindingSource.DataSource = typeof(Database);
-            // 
-            // mainMenu
-            // 
-            mainMenu.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, repositoriesToolStripMenuItem });
-            mainMenu.Location = new Point(0, 0);
-            mainMenu.Name = "mainMenu";
-            mainMenu.Size = new Size(800, 24);
-            mainMenu.TabIndex = 6;
-            mainMenu.Text = "menuStrip1";
-            // 
-            // fileToolStripMenuItem
-            // 
-            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { openToolStripMenuItem, saveAsToolStripMenuItem1, saveToolStripMenuItem, exitToolStripMenuItem });
-            fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            fileToolStripMenuItem.Size = new Size(37, 20);
-            fileToolStripMenuItem.Text = "File";
-            // 
-            // openToolStripMenuItem
-            // 
-            openToolStripMenuItem.Name = "openToolStripMenuItem";
-            openToolStripMenuItem.Size = new Size(123, 22);
-            openToolStripMenuItem.Text = "Open...";
-            openToolStripMenuItem.Click += Open;
-            // 
-            // saveAsToolStripMenuItem1
-            // 
-            saveAsToolStripMenuItem1.Name = "saveAsToolStripMenuItem1";
-            saveAsToolStripMenuItem1.Size = new Size(123, 22);
-            saveAsToolStripMenuItem1.Text = "Save As...";
-            saveAsToolStripMenuItem1.Click += SaveAs;
-            // 
-            // saveToolStripMenuItem
-            // 
-            saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            saveToolStripMenuItem.Size = new Size(123, 22);
-            saveToolStripMenuItem.Text = "Save";
-            saveToolStripMenuItem.Click += Save;
-            // 
-            // exitToolStripMenuItem
-            // 
-            exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            exitToolStripMenuItem.Size = new Size(123, 22);
-            exitToolStripMenuItem.Text = "Exit";
-            exitToolStripMenuItem.Click += Exit;
-            // 
-            // repositoriesToolStripMenuItem
-            // 
-            repositoriesToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { _showAlphaRootsMenuItem, _showSemanticMenuItem, _showLanguageMenuItem });
-            repositoriesToolStripMenuItem.Name = "repositoriesToolStripMenuItem";
-            repositoriesToolStripMenuItem.Size = new Size(83, 20);
-            repositoriesToolStripMenuItem.Text = "Repositories";
-            // 
-            // _showAlphaRootsMenuItem
-            // 
-            _showAlphaRootsMenuItem.Name = "_showAlphaRootsMenuItem";
-            _showAlphaRootsMenuItem.Size = new Size(169, 22);
-            _showAlphaRootsMenuItem.Text = "Roots by alphabet";
-            _showAlphaRootsMenuItem.Click += SelectAlphaRoots;
-            // 
-            // _showSemanticMenuItem
-            // 
-            _showSemanticMenuItem.Name = "_showSemanticMenuItem";
-            _showSemanticMenuItem.Size = new Size(169, 22);
-            _showSemanticMenuItem.Text = "Semantic Groups";
-            _showSemanticMenuItem.Click += SelectSemanticGroups;
-            // 
-            // _showLanguageMenuItem
-            // 
-            _showLanguageMenuItem.Name = "_showLanguageMenuItem";
-            _showLanguageMenuItem.Size = new Size(169, 22);
-            _showLanguageMenuItem.Text = "Languages";
-            _showLanguageMenuItem.Click += SelectLanguages;
-            // 
-            // _languagesGridView
-            // 
-            _languagesGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            _languagesGridView.Dock = DockStyle.Fill;
-            _languagesGridView.Location = new Point(0, 24);
-            _languagesGridView.MultiSelect = false;
-            _languagesGridView.Name = "_languagesGridView";
-            _languagesGridView.ReadOnly = true;
-            _languagesGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            _languagesGridView.Size = new Size(800, 426);
-            _languagesGridView.TabIndex = 7;
-            _languagesGridView.Visible = false;
-            // 
-            // _semanticTreeView
-            // 
-            _semanticTreeView.Dock = DockStyle.Fill;
-            _semanticTreeView.Location = new Point(0, 24);
-            _semanticTreeView.Name = "_semanticTreeView";
-            _semanticTreeView.Size = new Size(800, 426);
-            _semanticTreeView.TabIndex = 9;
-            // 
-            // _alphaRootsGridView
-            // 
-            _alphaRootsGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            _alphaRootsGridView.Dock = DockStyle.Fill;
-            _alphaRootsGridView.Location = new Point(0, 24);
-            _alphaRootsGridView.Name = "_alphaRootsGridView";
-            _alphaRootsGridView.Size = new Size(800, 426);
-            _alphaRootsGridView.TabIndex = 10;
-            // 
-            // MainForm
-            // 
+ 
+            _mainMenuStrip.Location = new Point(0, 0);
+            _mainMenuStrip.Size = new Size(800, 24);
+
+            _languageGridView.Location = new Point(0, 24);
+            _languageGridView.Size = new Size(800, 426);
+            _languageGridView.Visible = false;
+
+            _categoryTreeView.Location = new Point(0, 24);
+            _categoryTreeView.Size = new Size(800, 426);
+            
+            _wordGridView.Location = new Point(0, 24);
+            _wordGridView.Size = new Size(800, 426);
+
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
-            Controls.Add(_alphaRootsGridView);
-            Controls.Add(_semanticTreeView);
-            Controls.Add(_languagesGridView);
-            Controls.Add(mainMenu);
-            MainMenuStrip = mainMenu;
+            Controls.Add(_wordGridView);
+            Controls.Add(_categoryTreeView);
+            Controls.Add(_languageGridView);
+            Controls.Add(_mainMenuStrip);
+            MainMenuStrip = _mainMenuStrip;
             Name = "MainForm";
             Text = "Comparatist";
-            ((System.ComponentModel.ISupportInitialize)inMemoryDatabaseBindingSource).EndInit();
-            mainMenu.ResumeLayout(false);
-            mainMenu.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)_languagesGridView).EndInit();
-            ((System.ComponentModel.ISupportInitialize)_alphaRootsGridView).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
 
-        #endregion
-        private BindingSource inMemoryDatabaseBindingSource;
-        private MenuStrip mainMenu;
-        private ToolStripMenuItem fileToolStripMenuItem;
-        private ToolStripMenuItem openToolStripMenuItem;
-        private ToolStripMenuItem saveAsToolStripMenuItem1;
-        private ToolStripMenuItem saveToolStripMenuItem;
-        private ToolStripMenuItem exitToolStripMenuItem;
-        private ToolStripMenuItem repositoriesToolStripMenuItem;
-        private ToolStripMenuItem _showAlphaRootsMenuItem;
-        private ToolStripMenuItem _showSemanticMenuItem;
-        private ToolStripMenuItem _showLanguageMenuItem;
-        private DataGridView _languagesGridView;
-        private TreeView _semanticTreeView;
-        private DataGridView _alphaRootsGridView;
+        private MenuStrip _mainMenuStrip;
+        private DataGridView _languageGridView;
+        private TreeView _categoryTreeView;
+        private DataGridView _wordGridView;
     }
 }

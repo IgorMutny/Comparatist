@@ -1,18 +1,19 @@
 using Comparatist.Core.Infrastructure;
 using Comparatist.Services.Infrastructure;
 using Comparatist.View.CategoryTree;
+using Comparatist.View.Infrastructure;
 using Comparatist.View.LanguageGrid;
-using Comparatist.View.Utities;
+using Comparatist.View.MainMenu;
+using Comparatist.View.Utilities;
 using Comparatist.View.WordGrid;
 
 namespace Comparatist
 {
     public partial class MainForm : Form
     {
-        private Database _db = new();
-        private ContentHolderTypes _currentContentHolder = ContentHolderTypes.AlphaRoots;
-        private FileService _fileService;
-        
+        private MainMenuViewAdapter _mainMenuViewAdapter;
+        private MainMenuPresenter _mainMenuPresenter;
+
         private LanguageGridViewAdapter _languageGridViewAdapter;
         private LanguageGridPresenter _languageGridPresenter;
 
@@ -26,68 +27,37 @@ namespace Comparatist
 
         public MainForm()
         {
-            _db = new();
             InitializeComponent();
 
             _service = new ProjectService();
-            _fileService = new FileService(_db, RefreshAllContent);
 
-            _languageGridViewAdapter = new(_languagesGridView);
+            _mainMenuViewAdapter = new(_mainMenuStrip);
+            _mainMenuPresenter = new(_service, _mainMenuViewAdapter);
+            _mainMenuViewAdapter.ExitRequest += Close;
+
+            _languageGridViewAdapter = new(_languageGridView);
             _languageGridPresenter = new(_service, _languageGridViewAdapter);
 
-            _categoryTreeViewAdapter = new(_semanticTreeView);
+            _categoryTreeViewAdapter = new(_categoryTreeView);
             _categoryTreePresenter = new(_service, _categoryTreeViewAdapter);
 
-            _wordGridViewAdapter = new(_alphaRootsGridView);
+            _wordGridViewAdapter = new(_wordGridView);
             _wordGridPresenter = new(_service, _wordGridViewAdapter);
-        }
 
-        private void Open(object sender, EventArgs e) => _fileService.Open();
-        private void SaveAs(object sender, EventArgs e) => _fileService.SaveAs();
-        private void Save(object sender, EventArgs e) => _fileService.Save();
-        private void Exit(object sender, EventArgs e) => Close();
+            _mainMenuViewAdapter.RegisterViewAdapter(
+                ContentTypes.Languages,
+                _languageGridViewAdapter,
+                "Languages");
 
-        private void SelectAlphaRoots(object sender, EventArgs e) => SelectContent(ContentHolderTypes.AlphaRoots);
-        private void SelectSemanticGroups(object sender, EventArgs e) => SelectContent(ContentHolderTypes.SemanticGroups);
-        private void SelectLanguages(object sender, EventArgs e) => SelectContent(ContentHolderTypes.Languages);
+            _mainMenuViewAdapter.RegisterViewAdapter(
+                ContentTypes.Categories,
+                _categoryTreeViewAdapter,
+                "Categories");
 
- 
-
-        private void RefreshAllContent()
-        {
-            ShowActiveContentHolder();
-            SetCheckedRepositoryMenu();
-        }
-
-        private void SetCheckedRepositoryMenu()
-        {
-            _showAlphaRootsMenuItem.Checked = _currentContentHolder == ContentHolderTypes.AlphaRoots;
-            _showSemanticMenuItem.Checked = _currentContentHolder == ContentHolderTypes.SemanticGroups;
-            _showLanguageMenuItem.Checked = _currentContentHolder == ContentHolderTypes.Languages;
-        }
-
-        private void ShowActiveContentHolder()
-        {
-            if (_currentContentHolder == ContentHolderTypes.AlphaRoots)
-                _wordGridViewAdapter.Show();
-            else
-                _wordGridViewAdapter.Hide();
-
-            if (_currentContentHolder == ContentHolderTypes.Languages)
-                _languageGridViewAdapter.Show();
-            else
-                _languageGridViewAdapter.Hide();
-
-            if (_currentContentHolder == ContentHolderTypes.SemanticGroups)
-                _categoryTreeViewAdapter.Show();
-            else
-                _categoryTreeViewAdapter.Hide();
-        }
-
-        private void SelectContent(ContentHolderTypes type)
-        {
-            _currentContentHolder = type;
-            RefreshAllContent();
+            _mainMenuViewAdapter.RegisterViewAdapter(
+                ContentTypes.Words,
+                _wordGridViewAdapter,
+                "Roots by alphabet");
         }
     }
 }

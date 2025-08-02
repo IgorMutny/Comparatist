@@ -4,7 +4,7 @@ using Comparatist.View.Infrastructure;
 
 namespace Comparatist.View.CategoryTree
 {
-    internal class CategoryTreePresenter : Presenter<CategoryTreeViewAdapter, TreeView>
+    internal class CategoryTreePresenter : Presenter<CategoryTreeViewAdapter>
     {
         public CategoryTreePresenter(IProjectService service, CategoryTreeViewAdapter view) :
             base(service, view)

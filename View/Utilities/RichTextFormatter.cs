@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace Comparatist.View.Utities
+namespace Comparatist.View.Utilities
 {
     public static class RichTextFormatter
     {

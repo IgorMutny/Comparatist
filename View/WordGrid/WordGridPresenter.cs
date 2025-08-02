@@ -4,7 +4,7 @@ using Comparatist.View.Infrastructure;
 
 namespace Comparatist.View.WordGrid
 {
-    internal class WordGridPresenter : Presenter<WordGridViewAdapter, DataGridView>
+    internal class WordGridPresenter : Presenter<WordGridViewAdapter>
     {
         public WordGridPresenter(IProjectService service, WordGridViewAdapter view) :
             base(service, view)

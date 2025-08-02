@@ -1,6 +1,6 @@
 ﻿namespace Comparatist.View.Infrastructure
 {
-    internal abstract class ViewAdapter<T>: IDisposable where T : Control
+    internal abstract class ViewAdapter<T>: IViewAdapter where T : Control
     {
         protected T Control { get; private set; }
 

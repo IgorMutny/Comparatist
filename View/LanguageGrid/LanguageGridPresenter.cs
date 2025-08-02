@@ -4,7 +4,7 @@ using Comparatist.View.Infrastructure;
 
 namespace Comparatist.View.LanguageGrid
 {
-    internal class LanguageGridPresenter : Presenter<LanguageGridViewAdapter, DataGridView>
+    internal class LanguageGridPresenter : Presenter<LanguageGridViewAdapter>
     {
         public LanguageGridPresenter(IProjectService service, LanguageGridViewAdapter view) :
             base(service, view)
