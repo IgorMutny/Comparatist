@@ -63,6 +63,7 @@ namespace Comparatist.View.WordGrid
             Control.Visible = false;
             Control.CellPainting += OnCellPainting;
             Control.MouseUp += OnMouseUp;
+            Control.MouseDoubleClick += OnDoubleClick;
         }
 
         public void Render(IEnumerable<CachedBlock> blocks) =>
@@ -72,6 +73,7 @@ namespace Comparatist.View.WordGrid
         {
             Control.CellPainting -= OnCellPainting;
             Control.MouseUp -= OnMouseUp;
+            Control.MouseDoubleClick -= OnDoubleClick;
         }
 
         private void AddRoot()
@@ -259,10 +261,31 @@ namespace Comparatist.View.WordGrid
                     _stemMenu.Show(Control, point);
                 else if (selectedCell.Tag is Word)
                     _wordMenu.Show(Control, point);
+                else
+                    _gridMenu.Show(Control, point);
             }
             else
             {
                 _gridMenu.Show(Control, point);
+            }
+        }
+
+        private void OnDoubleClick(object? sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Left)
+                return;
+
+            Control.ClearSelection();
+            var point = new Point(e.X, e.Y);
+            var hit = Control.HitTest(e.X, e.Y);
+
+            if (hit.Type == DataGridViewHitTestType.Cell)
+            {
+                var selectedCell = Control.Rows[hit.RowIndex].Cells[hit.ColumnIndex];
+                selectedCell.Selected = true;
+
+                if (selectedCell.Tag is Root root)
+                    _renderHelper.HandleDoubleClick(root, hit.RowIndex);
             }
         }
     }

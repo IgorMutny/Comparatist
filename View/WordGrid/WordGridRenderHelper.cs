@@ -7,6 +7,9 @@ namespace Comparatist.View.WordGrid
     {
         private DataGridView _grid;
 
+        private Dictionary<Guid, CachedBlock> _blocks = new();
+        private List<Guid> _expandedRootIds = new();
+
         public WordGridRenderHelper(DataGridView grid)
         {
             _grid = grid;
@@ -18,6 +21,14 @@ namespace Comparatist.View.WordGrid
             _grid.Rows.Clear();
             AddColumns(languages);
             AddBlocks(blocks);
+        }
+
+        public void HandleDoubleClick(Root root, int rowIndex)
+        {
+            if (_expandedRootIds.Contains(root.Id))
+                Collapse(root, rowIndex);
+            else
+                Expand(root, rowIndex);
         }
 
         private void AddColumns(IEnumerable<Language> languages)
@@ -53,41 +64,31 @@ namespace Comparatist.View.WordGrid
 
         private void AddBlocks(IEnumerable<CachedBlock> blocks)
         {
+            _blocks.Clear();
+
             foreach (var block in blocks)
                 AddBlock(block);
         }
 
         private void AddBlock(CachedBlock block)
         {
-            AddBlockHeaderRow(block.Root);
+            _blocks.Add(block.Root.Id, block);
+            var isExpanded = _expandedRootIds.Contains(block.Root.Id);
+            var index = _grid.Rows.Add();
+            AddBlockHeaderRow(block.Root, index, isExpanded);
 
-            if (block.Rows.Count == 0)
-                AddNoStemRow(block.Root);
-            else
-                foreach (var row in block.Rows.Values)
-                    AddStemRow(row);
+            if (isExpanded)
+                Expand(block.Root, index);
 
-            AddEmptyRow(block.Root);
+            AddEmptyRow();
         }
 
-        private void AddBlockHeaderRow(Root root)
+        private void AddBlockHeaderRow(Root root, int rowIndex, bool isExpanded)
         {
-            int index = _grid.Rows.Add();
-            var row = _grid.Rows[index];
+            var row = _grid.Rows[rowIndex];
             row.Cells[0].Value = $"[b]{root.Value}[/b] {root.Translation}";
-
-            for (int i = 0; i < _grid.Columns.Count; i++)
-                row.Cells[i].Tag = root;
-        }
-
-        private void AddStemRow(CachedRow cachedRow)
-        {
-            int index = _grid.Rows.Add();
-            var row = _grid.Rows[index];
-            FillRowHeader(row, cachedRow.Stem);
-
-            foreach (DataGridViewColumn column in _grid.Columns)
-                FillCell(cachedRow, row, column);
+            row.Cells[0].Tag = root;
+            FillCellsInRootRow(root, isExpanded, row);
         }
 
         private void FillRowHeader(DataGridViewRow row, Stem stem)
@@ -132,22 +133,70 @@ namespace Comparatist.View.WordGrid
             };
         }
 
-        private void AddNoStemRow(Root root)
+        private void AddEmptyRow()
         {
             var index = _grid.Rows.Add();
-            var row = _grid.Rows[index];
-            row.Cells[0].Value = "→ [i]no stems[/i]";
-
-            foreach (DataGridViewCell cell in _grid.Rows[index].Cells)
-                cell.Tag = root;
         }
 
-        private void AddEmptyRow(Root root)
+        private void Expand(Root root, int rowIndex)
         {
-            var index = _grid.Rows.Add();
+            if (!_blocks.TryGetValue(root.Id, out var block))
+                return;
 
-            foreach (DataGridViewCell cell in _grid.Rows[index].Cells)
-                cell.Tag = root;
+            _expandedRootIds.Add(root.Id);
+            int index = rowIndex + 1;
+
+            if (block.Rows.Count == 0)
+            {
+                AddNoStemRow(block.Root, index);
+            }
+            else
+            {
+                var rows = block.Rows.Values.ToList();
+
+                for (int i = rows.Count - 1; i >= 0; i--)
+                    AddStemRow(rows[i], index);
+            }
+
+            FillCellsInRootRow(root, true, _grid.Rows[rowIndex]);
+        }
+
+        private void Collapse(Root root, int rowIndex)
+        {
+
+        }
+
+        private void AddStemRow(CachedRow cachedRow, int index)
+        {
+            _grid.Rows.Insert(index);
+            var row = _grid.Rows[index];
+            FillRowHeader(row, cachedRow.Stem);
+
+            foreach (DataGridViewColumn column in _grid.Columns)
+                FillCell(cachedRow, row, column);
+        }
+
+        private void AddNoStemRow(Root root, int index)
+        {
+            _grid.Rows.Insert(index);
+            var row = _grid.Rows[index];
+            row.Cells[0].Value = "→ [i]no stems[/i]";
+        }
+
+        private void FillCellsInRootRow(Root root, bool isExpanded, DataGridViewRow row)
+        {
+            if (_grid.Columns.Count <= 1)
+                return;
+
+            for (int i = 1; i < _grid.Columns.Count; i++)
+            {
+                row.Cells[i].Tag = root;
+
+                if (!isExpanded)
+                    row.Cells[i].Value = "↓ ↓ ↓";
+                else
+                    row.Cells[i].Value = "↑ ↑ ↑";
+            }
         }
     }
 }
