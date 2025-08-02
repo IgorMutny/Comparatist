@@ -65,7 +65,7 @@ namespace Comparatist.View.CategoryTree
 
         private TreeNode CreateTreeNode(CachedCategoryNode node)
         {
-            var treeNode = new TreeNode(node.Category.Value) { Tag = node };
+            var treeNode = new TreeNode(node.Category.Value) { Tag = node.Category };
 
             foreach (var child in node.Children)
                 treeNode.Nodes.Add(CreateTreeNode(child));
@@ -86,11 +86,11 @@ namespace Comparatist.View.CategoryTree
 
         private void AddChildNode()
         {
-            if (Control.SelectedNode?.Tag is not CachedCategoryNode parentNode)
+            if (Control.SelectedNode?.Tag is not Category parentCategory)
                 return;
 
             var name = InputBox.Show(
-                $"Enter the name of a child of {parentNode.Category.Value}:",
+                $"Enter the name of a child of {parentCategory.Value}:",
                 "Add category");
 
             if (string.IsNullOrWhiteSpace(name))
@@ -100,7 +100,7 @@ namespace Comparatist.View.CategoryTree
             {
                 Id = Guid.Empty,
                 Value = name,
-                ParentId = parentNode.Category.Id
+                ParentId = parentCategory.Id
             };
 
             AddRequest?.Invoke(category);
@@ -108,75 +108,75 @@ namespace Comparatist.View.CategoryTree
 
         private void EditNode()
         {
-            if (Control.SelectedNode?.Tag is not CachedCategoryNode node)
+            if (Control.SelectedNode?.Tag is not Category category)
                 return;
 
             var name = InputBox.Show(
-                $"Enter a new name for {node.Category.Value}:",
+                $"Enter a new name for {category.Value}:",
                 "Edit category",
-                node.Category.Value);
+                category.Value);
 
             if (string.IsNullOrWhiteSpace(name))
                 return;
 
-            var category = (Category)node.Category.Clone();
-            category.Value = name;
-            UpdateRequest?.Invoke(category);
+            var updatedCategory = (Category)category.Clone();
+            updatedCategory.Value = name;
+            UpdateRequest?.Invoke(updatedCategory);
         }
 
-        private void MoveNode(CachedCategoryNode sourceTag, CachedCategoryNode? targetTag)
+        private void MoveNode(Category source, Category? target)
         {
-            if (targetTag == null)
-                SetAsRoot(sourceTag);
+            if (target == null)
+                SetAsRoot(source);
             else
-                SetAsChildOf(sourceTag, targetTag);
+                SetAsChildOf(source, target);
         }
 
-        private void SetAsChildOf(CachedCategoryNode sourceTag, CachedCategoryNode targetTag)
+        private void SetAsRoot(Category source)
         {
             var confirmation = MessageBox.Show(
-                $"Set category {sourceTag.Category.Value} as a child of {targetTag.Category.Value}?",
-                "Move category",
-                MessageBoxButtons.OKCancel);
-
-            if (confirmation == DialogResult.OK)
-            {
-                var category = (Category)sourceTag.Category.Clone();
-                category.ParentId = targetTag.Category.Id;
-                UpdateRequest?.Invoke(category);
-            }
-        }
-
-        private void SetAsRoot(CachedCategoryNode sourceTag)
-        {
-            var confirmation = MessageBox.Show(
-                                $"Set category {sourceTag.Category.Value} as root category?",
+                                $"Set category {source.Value} as root category?",
                                 "Move category",
                                 MessageBoxButtons.OKCancel);
 
             if (confirmation == DialogResult.OK)
             {
-                var category = (Category)sourceTag.Category.Clone();
-                category.ParentId = Guid.Empty;
-                UpdateRequest?.Invoke(category);
+                var updatedCategory = (Category)source.Clone();
+                updatedCategory.ParentId = Guid.Empty;
+                UpdateRequest?.Invoke(updatedCategory);
+            }
+        }
+
+        private void SetAsChildOf(Category source, Category target)
+        {
+            var confirmation = MessageBox.Show(
+                $"Set category {source.Value} as a child of {target.Value}?",
+                "Move category",
+                MessageBoxButtons.OKCancel);
+
+            if (confirmation == DialogResult.OK)
+            {
+                var updatedCategory = (Category)source.Clone();
+                updatedCategory.ParentId = target.Id;
+                UpdateRequest?.Invoke(updatedCategory);
             }
         }
 
         private void DeleteNode()
         {
-            if (Control.SelectedNode?.Tag is not CachedCategoryNode node)
+            if (Control.SelectedNode?.Tag is not Category category)
                 return;
 
             var result = MessageBox.Show(
-                $"Delete {node.Category.Value}? All child categories will be also deleted!",
+                $"Delete {category.Value}? All child categories will be also deleted!",
                 "Delete category",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Warning);
 
             if (result == DialogResult.Yes)
             {
-                var category = (Category)node.Category.Clone();
-                DeleteRequest?.Invoke(category);
+                var deletedCategory = (Category)category.Clone();
+                DeleteRequest?.Invoke(deletedCategory);
             }
         }
 

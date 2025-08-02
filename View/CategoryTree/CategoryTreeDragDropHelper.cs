@@ -1,4 +1,4 @@
-﻿using Comparatist.Services.CategoryTree;
+﻿using Comparatist.Core.Records;
 using Comparatist.View.Utities;
 
 namespace Comparatist.View.CategoryTree
@@ -6,11 +6,11 @@ namespace Comparatist.View.CategoryTree
     internal class CategoryTreeDragDropHelper
     {
         private TreeView _tree;
-        private Action<CachedCategoryNode, CachedCategoryNode?> _dropAction;
+        private Action<Category, Category?> _dropAction;
 
         public CategoryTreeDragDropHelper(
             TreeView tree,
-            Action<CachedCategoryNode, CachedCategoryNode?> dropAction)
+            Action<Category, Category?> dropAction)
         {
             _tree = tree;
             _dropAction = dropAction;
@@ -47,7 +47,7 @@ namespace Comparatist.View.CategoryTree
         public void OnDragDrop(object? sender, DragEventArgs e)
         {
             if (e.Data?.GetData(typeof(TreeNode)) is not TreeNode source
-                || source.Tag is not CachedCategoryNode sourceTag)
+                || source.Tag is not Category sourceCategory)
             {
                 return;
             }
@@ -58,10 +58,10 @@ namespace Comparatist.View.CategoryTree
             if (target.IsSameOrDescendantOf(source))
                 return;
 
-            if (target.Tag is not CachedCategoryNode targetTag)
-                _dropAction(sourceTag, null);
+            if (target == null || target.Tag is not Category targetCategory)
+                _dropAction(sourceCategory, null);
             else
-                _dropAction(sourceTag, targetTag);
+                _dropAction(sourceCategory, targetCategory);
         }
     }
 }
