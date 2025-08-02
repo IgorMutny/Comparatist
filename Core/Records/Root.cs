@@ -3,7 +3,7 @@
 namespace Comparatist.Core.Records
 {
     [MessagePackObject]
-    public class Root: IRecord
+    public class Root: IRecord, INativeRecord, ICheckableRecord
     {
         [Key(0)] public Guid Id { get; set; }
         [Key(1)] public string Value { get; set; } = string.Empty;

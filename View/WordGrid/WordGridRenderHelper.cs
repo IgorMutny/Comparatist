@@ -112,9 +112,17 @@ namespace Comparatist.View.WordGrid
         private void AddBlockHeaderRow(Root root, int rowIndex, bool isExpanded)
         {
             var row = _grid.Rows[rowIndex];
-            row.Cells[0].Value = $"[b]{root.Value}[/b] {root.Translation}";
-            row.Cells[0].Tag = root;
+            FillBlockHeaderCell(root, row);
             FillCellsInRootRow(row, isExpanded);
+        }
+
+        private void FillBlockHeaderCell(Root root, DataGridViewRow row)
+        {
+            var cell = row.Cells[0];
+            cell.Value = $"[b]{root.Value}[/b] {root.Translation}";
+            cell.Tag = root;
+            ColorizeCell(root, cell);
+            ColorizeCellText(root, cell);
         }
 
         private void FillRowHeader(DataGridViewRow row, Stem stem)
@@ -122,6 +130,8 @@ namespace Comparatist.View.WordGrid
             var cell = row.Cells[0];
             cell.Value = $"→ [b]{stem.Value}[/b] {stem.Translation}";
             cell.Tag = stem;
+            ColorizeCell(stem, cell);
+            ColorizeCellText(stem, cell);
         }
 
         private void FillCell(CachedRow cachedRow, DataGridViewRow row, DataGridViewColumn column)
@@ -142,8 +152,10 @@ namespace Comparatist.View.WordGrid
         {
             var cell = row.Cells[columnIndex];
             cell.Value = $"[b]{word.Value}[/b] {word.Translation}";
-            cell.Style.BackColor = _grid.DefaultCellStyle.BackColor;
             cell.Tag = word;
+
+            ColorizeCell(word, cell);
+            ColorizeCellText(word, cell);
         }
 
         private void FillEmptyCell(DataGridViewRow row, int columnIndex, Guid languageId, Guid stemId)
@@ -233,6 +245,21 @@ namespace Comparatist.View.WordGrid
                 else
                     row.Cells[i].Value = "↑ ↑ ↑";
             }
+        }
+
+        private void ColorizeCell(INativeRecord record, DataGridViewCell cell)
+        {
+            if (record.IsNative)
+                cell.Style.BackColor = _grid.DefaultCellStyle.BackColor;
+            else
+                cell.Style.BackColor = Color.LemonChiffon;
+        }
+        private void ColorizeCellText(ICheckableRecord record, DataGridViewCell cell)
+        {
+            if (record.IsChecked)
+                cell.Style.ForeColor = _grid.DefaultCellStyle.ForeColor;
+            else
+                cell.Style.ForeColor = Color.DarkGray;
         }
     }
 }

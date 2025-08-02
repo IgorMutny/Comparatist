@@ -2,6 +2,7 @@
 using Comparatist.Services.TableCache;
 using Comparatist.View.Infrastructure;
 using Comparatist.View.Utities;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Comparatist.View.WordGrid
 {
@@ -77,11 +78,15 @@ namespace Comparatist.View.WordGrid
             Control.CellPainting -= OnCellPainting;
             Control.MouseUp -= OnMouseUp;
             Control.MouseDoubleClick -= OnDoubleClick;
+            _gridMenu.Dispose();
+            _rootMenu.Dispose();
+            _stemMenu.Dispose();
+            _wordMenu.Dispose();
         }
 
         private void AddRoot()
         {
-            var form = new RootEditForm("Add Root", new Root(), AllCategories);
+            var form = new RootEditForm("Add root", new Root(), AllCategories);
 
             if (form.ShowDialog() == DialogResult.OK)
             {
@@ -92,10 +97,10 @@ namespace Comparatist.View.WordGrid
 
         private void EditRoot()
         {
-            if (Control.SelectedCells.Count == 0 || Control.SelectedCells[0].Tag is not Root root)
+            if (!TryGetSelected(out Root root))
                 return;
 
-            var form = new RootEditForm("Edit Root", root, AllCategories);
+            var form = new RootEditForm("Edit root", root, AllCategories);
 
             if (form.ShowDialog() == DialogResult.OK)
             {
@@ -106,7 +111,7 @@ namespace Comparatist.View.WordGrid
 
         private void DeleteRoot()
         {
-            if (Control.SelectedCells.Count == 0 || Control.SelectedCells[0].Tag is not Root root)
+            if (!TryGetSelected(out Root root))
                 return;
 
             var result = MessageBox.Show(
@@ -124,19 +129,29 @@ namespace Comparatist.View.WordGrid
 
         private void AddStem()
         {
-            if (Control.SelectedCells.Count == 0)
-                return;
-
             var selectedRootIds = new List<Guid>();
+            bool isNative;
 
-            if (Control.SelectedCells[0].Tag is Root root)
+            if (TryGetSelected(out Root root))
+            {
                 selectedRootIds.Add(root.Id);
-            else if (Control.SelectedCells[0].Tag is Stem stem)
+                isNative = root.IsNative;
+            }
+            else if (TryGetSelected(out Stem stem))
+            {
                 selectedRootIds.AddRange(stem.RootIds);
+                isNative = stem.IsNative;
+            }
             else
+            {
                 return;
+            }
 
-            var form = new StemEditForm("Add Stem", new Stem(), AllRoots, selectedRootIds);
+            var form = new StemEditForm(
+                "Add stem",
+                new Stem { IsNative = isNative },
+                AllRoots,
+                selectedRootIds);
 
             if (form.ShowDialog() == DialogResult.OK)
             {
@@ -147,10 +162,10 @@ namespace Comparatist.View.WordGrid
 
         private void EditStem()
         {
-            if (Control.SelectedCells.Count == 0 || Control.SelectedCells[0].Tag is not Stem stem)
+            if (!TryGetSelected(out Stem stem))
                 return;
 
-            var form = new StemEditForm("Add Stem", stem, AllRoots, stem.RootIds);
+            var form = new StemEditForm("Edit stem", stem, AllRoots, stem.RootIds);
 
             if (form.ShowDialog() == DialogResult.OK)
             {
@@ -161,7 +176,7 @@ namespace Comparatist.View.WordGrid
 
         private void DeleteStem()
         {
-            if (Control.SelectedCells.Count == 0 || Control.SelectedCells[0].Tag is not Stem stem)
+            if (!TryGetSelected(out Stem stem))
                 return;
 
             var result = MessageBox.Show(
@@ -179,7 +194,7 @@ namespace Comparatist.View.WordGrid
 
         private void AddOrEditWord()
         {
-            if (Control.SelectedCells.Count == 0 || Control.SelectedCells[0].Tag is not Word word)
+            if (!TryGetSelected(out Word word))
                 return;
 
             var cell = Control.SelectedCells[0];
@@ -189,6 +204,7 @@ namespace Comparatist.View.WordGrid
             if (row.Cells[0].Tag is not Stem stem || column.Tag is not Language language)
                 return;
 
+            word.IsNative = stem.IsNative;
             var form = new WordEditForm(word, stem, language);
 
             if (form.ShowDialog() == DialogResult.OK)
@@ -203,7 +219,7 @@ namespace Comparatist.View.WordGrid
 
         private void DeleteWord()
         {
-            if (Control.SelectedCells.Count == 0 || Control.SelectedCells[0].Tag is not Word word)
+            if (!TryGetSelected(out Word word))
                 return;
 
             var result = MessageBox.Show(
@@ -227,28 +243,22 @@ namespace Comparatist.View.WordGrid
             if (e.Button != MouseButtons.Right)
                 return;
 
-            Control.ClearSelection();
+            SelectCellUnderCursor(e);
+            TryGetSelected(out IRecord tag);
+            var menu = GetMenuFor(tag);
             var point = new Point(e.X, e.Y);
-            var hit = Control.HitTest(e.X, e.Y);
+            menu?.Show(Control, point);
+        }
 
-            if (hit.Type == DataGridViewHitTestType.Cell)
+        private DisposableMenu? GetMenuFor(object? tag)
+        {
+            return tag switch
             {
-                var selectedCell = Control.Rows[hit.RowIndex].Cells[hit.ColumnIndex];
-                selectedCell.Selected = true;
-
-                if (selectedCell.Tag is Root)
-                    _rootMenu.Show(Control, point);
-                else if (selectedCell.Tag is Stem)
-                    _stemMenu.Show(Control, point);
-                else if (selectedCell.Tag is Word)
-                    _wordMenu.Show(Control, point);
-                else
-                    _gridMenu.Show(Control, point);
-            }
-            else
-            {
-                _gridMenu.Show(Control, point);
-            }
+                Root => _rootMenu,
+                Stem => _stemMenu,
+                Word => _wordMenu,
+                _ => _gridMenu
+            };
         }
 
         private void OnDoubleClick(object? sender, MouseEventArgs e)
@@ -256,6 +266,14 @@ namespace Comparatist.View.WordGrid
             if (e.Button != MouseButtons.Left)
                 return;
 
+            SelectCellUnderCursor(e);
+
+            if (TryGetSelected(out Root root))
+                _renderHelper.HandleDoubleClick(root, Control.SelectedCells[0].RowIndex);
+        }
+
+        private void SelectCellUnderCursor(MouseEventArgs e)
+        {
             Control.ClearSelection();
             var point = new Point(e.X, e.Y);
             var hit = Control.HitTest(e.X, e.Y);
@@ -264,10 +282,20 @@ namespace Comparatist.View.WordGrid
             {
                 var selectedCell = Control.Rows[hit.RowIndex].Cells[hit.ColumnIndex];
                 selectedCell.Selected = true;
-
-                if (selectedCell.Tag is Root root)
-                    _renderHelper.HandleDoubleClick(root, hit.RowIndex);
             }
+        }
+        private bool TryGetSelected<T>([NotNullWhen(true)] out T result) where T : IRecord
+        {
+            result = default!;
+
+            if (Control.SelectedCells.Count == 0)
+                return false;
+
+            if (Control.SelectedCells[0].Tag is not T tag)
+                return false;
+
+            result = tag;
+            return true;
         }
     }
 }
