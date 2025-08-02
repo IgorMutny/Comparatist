@@ -1,4 +1,5 @@
 ﻿using Comparatist.Core.Records;
+using Comparatist.View.Utilities;
 using System.Text;
 
 namespace Comparatist
@@ -21,6 +22,9 @@ namespace Comparatist
             _commentTextBox.Text = stem.Comment;
             _nativeBox.Checked = stem.IsNative;
             _checkedBox.Checked = stem.IsChecked;
+            _valueTextBox.EnableAutoReplace();
+            _translationTextBox.EnableAutoReplace();
+            _commentTextBox.EnableAutoReplace();
 
             _allRoots = allRoots;
             _selectedRootIds = selectedRootIds;

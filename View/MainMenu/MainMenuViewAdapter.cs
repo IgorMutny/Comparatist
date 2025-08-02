@@ -1,4 +1,6 @@
-﻿using Comparatist.View.Infrastructure;
+﻿using Comparatist.View.Autoreplace;
+using Comparatist.View.Forms;
+using Comparatist.View.Infrastructure;
 
 namespace Comparatist.View.MainMenu
 {
@@ -40,6 +42,8 @@ namespace Comparatist.View.MainMenu
             var exitItem = AddMenuItem("Exit", Exit, fileItem);
 
             _adaptersItem = AddMenuItem("Content", null, Control);
+
+            var autoreplaceItem = AddMenuItem("Autoreplace settings", ShowAutoReplace, Control);
         }
 
         private ToolStripMenuItem AddMenuItem(string text, Action? action, ToolStripMenuItem parent)
@@ -115,6 +119,11 @@ namespace Comparatist.View.MainMenu
 
             foreach (var pair in _adapterItems)
                 pair.Value.Checked = pair.Key == type;
+        }
+
+        private void ShowAutoReplace()
+        {
+            AutoReplaceManager.Instance.ShowForm();
         }
 
         private void Exit()

@@ -11,6 +11,8 @@
             var buttonCancel = CreateCancelButton();
 
             textBox.Text = defaultText;
+            textBox.EnableAutoReplace();
+
             buttonOK.Enabled = !string.IsNullOrWhiteSpace(textBox.Text);
             textBox.TextChanged += (_, _) => buttonOK.Enabled = !string.IsNullOrWhiteSpace(textBox.Text);
             form.Controls.AddRange([label, textBox, buttonOK, buttonCancel]);

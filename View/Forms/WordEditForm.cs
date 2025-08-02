@@ -1,4 +1,5 @@
 ﻿using Comparatist.Core.Records;
+using Comparatist.View.Utilities;
 
 namespace Comparatist
 {
@@ -23,6 +24,9 @@ namespace Comparatist
             _languageTextBox.Text = language.Value;
             _checkedBox.Checked = word.IsChecked;
             _nativeBox.Checked = word.IsNative;
+            _valueTextBox.EnableAutoReplace();
+            _translationTextBox.EnableAutoReplace();
+            _commentTextBox.EnableAutoReplace();
         }
 
         public Word GetResult()
