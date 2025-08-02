@@ -1,6 +1,7 @@
 ﻿using Comparatist.Core.Records;
 using Comparatist.View.Infrastructure;
 using Comparatist.View.Utilities;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Comparatist.View.LanguageGrid
 {
@@ -8,13 +9,17 @@ namespace Comparatist.View.LanguageGrid
     {
         private DisposableMenu _gridMenu;
         private DisposableMenu _languageMenu;
+        private LanguageGridDragDropHelper _dragDropHelper;
 
         public event Action<Language>? AddRequest;
         public event Action<Language>? UpdateRequest;
         public event Action<Language>? DeleteRequest;
+        public event Action<IEnumerable<Language>>? ReorderRequest;
 
-        public LanguageGridViewAdapter(DataGridView grid): base(grid)
+        public LanguageGridViewAdapter(DataGridView grid) : base(grid)
         {
+            _dragDropHelper = new(Control, RequestReorder);
+
             _gridMenu = new DisposableMenu(
                 ("Add language", AddLanguage));
 
@@ -33,14 +38,23 @@ namespace Comparatist.View.LanguageGrid
             Control.RowHeadersVisible = false;
             Control.AutoGenerateColumns = false;
             Control.MultiSelect = false;
+            Control.AllowDrop = true;
             Control.ReadOnly = true;
             Control.Visible = false;
             Control.MouseUp += OnMouseUp;
+            Control.MouseMove += _dragDropHelper.OnMouseMove;
+            Control.MouseDown += _dragDropHelper.OnMouseDown;
+            Control.DragOver += _dragDropHelper.OnDragOver;
+            Control.DragDrop += _dragDropHelper.OnDragDrop;
         }
 
         protected override void Unsubscribe()
         {
             Control.MouseUp -= OnMouseUp;
+            Control.MouseDown -= _dragDropHelper.OnMouseDown;
+            Control.MouseMove -= _dragDropHelper.OnMouseMove;
+            Control.DragOver -= _dragDropHelper.OnDragOver;
+            Control.DragDrop -= _dragDropHelper.OnDragDrop;
             _gridMenu.Dispose();
             _languageMenu.Dispose();
         }
@@ -144,6 +158,11 @@ namespace Comparatist.View.LanguageGrid
             {
                 _gridMenu.Show(Control, point);
             }
+        }
+
+        private void RequestReorder(IEnumerable<Language> languages)
+        {
+            ReorderRequest?.Invoke(languages);
         }
     }
 }

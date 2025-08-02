@@ -15,6 +15,7 @@ namespace Comparatist.View.LanguageGrid
             View.AddRequest += OnAddRequest;
             View.UpdateRequest += OnUpdateRequest;
             View.DeleteRequest += OnDeleteRequest;
+            View.ReorderRequest += OnReorderRequest;
             UpdateView();
         }
 
@@ -23,6 +24,7 @@ namespace Comparatist.View.LanguageGrid
             View.AddRequest -= OnAddRequest;
             View.UpdateRequest -= OnUpdateRequest;
             View.DeleteRequest -= OnDeleteRequest;
+            View.ReorderRequest -= OnReorderRequest;
         }
 
         private void OnAddRequest(Language language)
@@ -40,6 +42,12 @@ namespace Comparatist.View.LanguageGrid
         private void OnDeleteRequest(Language language)
         {
             Execute(() => Service.DeleteLanguage(language));
+            UpdateView();
+        }
+
+        private void OnReorderRequest(IEnumerable<Language> languages)
+        {
+            Execute(() => Service.Reorder(languages));
             UpdateView();
         }
 

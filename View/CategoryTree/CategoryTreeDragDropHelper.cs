@@ -43,7 +43,6 @@ namespace Comparatist.View.CategoryTree
                 e.Effect = DragDropEffects.Move;
         }
 
-
         public void OnDragDrop(object? sender, DragEventArgs e)
         {
             if (e.Data?.GetData(typeof(TreeNode)) is not TreeNode source

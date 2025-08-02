@@ -16,6 +16,7 @@ namespace Comparatist.Services.Infrastructure
         Result DeleteRoot(Root root);
         Result DeleteStem(Stem stem);
         Result DeleteWord(Word word);
+        Result Reorder<T>(IEnumerable<T> records) where T : IOrderableRecord;
         Result<IEnumerable<CachedBlock>> GetAllBlocksByAlphabet();
         Result<CachedBlock> GetBlock(Guid rootId);
         Result<CachedRow> GetRow(Guid stemId);
