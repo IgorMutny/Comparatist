@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Comparatist.Core.Records;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Comparatist
 {
-    partial class CategorySelectionForm
+    partial class RecordSelectionForm<T> where T: IRecord
     {
         private CheckedListBox _checkedListBox;
         private Button _okButton;

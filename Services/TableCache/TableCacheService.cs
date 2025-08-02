@@ -105,6 +105,15 @@ namespace Comparatist.Services.TableCache
                 throw new InvalidOperationException($"Stem {stem.Id} not found in cache");
 
             row.Stem = stem;
+
+            foreach (var rootId in stem.RootIds)
+            {
+                if (!_cache.Blocks.TryGetValue(rootId, out var block))
+                    throw new InvalidOperationException($"Root {rootId} not found in cache");
+
+                if (!block.Rows.ContainsKey(stem.Id))
+                    block.Rows.Add(stem.Id, row);
+            }
         }
 
         public void UpdateWord(Word word)
@@ -115,36 +124,30 @@ namespace Comparatist.Services.TableCache
             row.Cells[word.LanguageId] = word;
         }
 
-        public void DeleteRoot(Guid rootId)
+        public void DeleteRoot(Root root)
         {
-            if (!_cache.Blocks.ContainsKey(rootId))
-                throw new InvalidOperationException($"Root {rootId} not found in cache");
+            if (!_cache.Blocks.ContainsKey(root.Id))
+                throw new InvalidOperationException($"Root {root.Id} not found in cache");
 
-            _cache.Blocks.Remove(rootId);
+            _cache.Blocks.Remove(root.Id);
         }
 
-        public void DeleteStem(Guid stemId)
+        public void DeleteStem(Stem stem)
         {
-            if (!_cache.Rows.Remove(stemId))
-                throw new InvalidOperationException($"Stem {stemId} not found in cache");
-
-            if (!_database.Stems.TryGet(stemId, out var stem))
-                throw new InvalidOperationException($"Stem {stemId} not found in database");
+            if (!_cache.Rows.Remove(stem.Id))
+                throw new InvalidOperationException($"Stem {stem.Id} not found in cache");
 
             foreach (var rootId in stem.RootIds)
             {
                 if (!_cache.Blocks.TryGetValue(rootId, out var block))
                     throw new InvalidOperationException($"Root {rootId} not found in cache");
 
-                block.Rows.Remove(stemId);
+                block.Rows.Remove(stem.Id);
             }
         }
 
-        public void DeleteWord(Guid wordId)
+        public void DeleteWord(Word word)
         {
-            if (!_database.Words.TryGet(wordId, out var word))
-                throw new InvalidOperationException($"Word {word.Id} not found in database");
-
             if (!_cache.Rows.TryGetValue(word.StemId, out var row))
                 throw new InvalidOperationException($"Stem {word.StemId} not found in cache");
 

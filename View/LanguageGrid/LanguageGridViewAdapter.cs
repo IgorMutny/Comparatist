@@ -4,9 +4,8 @@ using Comparatist.View.Utities;
 
 namespace Comparatist.View.LanguageGrid
 {
-    internal class LanguageGridViewAdapter : ViewAdapter
+    internal class LanguageGridViewAdapter : ViewAdapter<DataGridView>
     {
-        private DataGridView _grid;
         private DisposableMenu _gridMenu;
         private DisposableMenu _languageMenu;
 
@@ -14,10 +13,8 @@ namespace Comparatist.View.LanguageGrid
         public event Action<Language>? UpdateRequest;
         public event Action<Language>? DeleteRequest;
 
-        public LanguageGridViewAdapter(DataGridView grid)
+        public LanguageGridViewAdapter(DataGridView grid): base(grid)
         {
-            _grid = grid;
-
             _gridMenu = new DisposableMenu(
                 ("Add language", AddLanguage));
 
@@ -31,29 +28,29 @@ namespace Comparatist.View.LanguageGrid
 
         private void SetupGrid()
         {
-            _grid.Dock = DockStyle.Fill;
-            _grid.AllowUserToAddRows = false;
-            _grid.RowHeadersVisible = false;
-            _grid.AutoGenerateColumns = false;
-            _grid.MultiSelect = false;
-            _grid.ReadOnly = true;
-            _grid.Visible = false;
-            _grid.MouseUp += OnMouseUp;
+            Control.Dock = DockStyle.Fill;
+            Control.AllowUserToAddRows = false;
+            Control.RowHeadersVisible = false;
+            Control.AutoGenerateColumns = false;
+            Control.MultiSelect = false;
+            Control.ReadOnly = true;
+            Control.Visible = false;
+            Control.MouseUp += OnMouseUp;
         }
 
         protected override void Unsubscribe()
         {
-            _grid.MouseUp -= OnMouseUp;
+            Control.MouseUp -= OnMouseUp;
             _gridMenu.Dispose();
             _languageMenu.Dispose();
         }
 
         public void Render(IEnumerable<Language> languages)
         {
-            _grid.Rows.Clear();
-            _grid.Columns.Clear();
+            Control.Rows.Clear();
+            Control.Columns.Clear();
 
-            _grid.Columns.Add(new DataGridViewTextBoxColumn
+            Control.Columns.Add(new DataGridViewTextBoxColumn
             {
                 HeaderText = "Language",
                 Width = 200
@@ -65,8 +62,8 @@ namespace Comparatist.View.LanguageGrid
 
         private void AddRow(Language language)
         {
-            int rowIndex = _grid.Rows.Add();
-            var cell = _grid.Rows[rowIndex].Cells[0];
+            int rowIndex = Control.Rows.Add();
+            var cell = Control.Rows[rowIndex].Cells[0];
             cell.Value = language.Value;
             cell.Tag = language;
         }
@@ -84,10 +81,10 @@ namespace Comparatist.View.LanguageGrid
 
         private void EditLanguage()
         {
-            if (_grid.SelectedCells.Count == 0)
+            if (Control.SelectedCells.Count == 0)
                 return;
 
-            var cell = _grid.SelectedCells[0];
+            var cell = Control.SelectedCells[0];
 
             if (cell.Tag is not Language language)
                 return;
@@ -107,10 +104,10 @@ namespace Comparatist.View.LanguageGrid
 
         private void DeleteLanguage()
         {
-            if (_grid.SelectedCells.Count == 0)
+            if (Control.SelectedCells.Count == 0)
                 return;
 
-            var cell = _grid.SelectedCells[0];
+            var cell = Control.SelectedCells[0];
 
             if (cell.Tag is not Language language)
                 return;
@@ -133,19 +130,19 @@ namespace Comparatist.View.LanguageGrid
             if (e.Button != MouseButtons.Right)
                 return;
 
-            _grid.ClearSelection();
+            Control.ClearSelection();
             var point = new Point(e.X, e.Y);
-            var hit = _grid.HitTest(e.X, e.Y);
+            var hit = Control.HitTest(e.X, e.Y);
 
             if (hit.Type == DataGridViewHitTestType.Cell)
             {
-                var selectedCell = _grid.Rows[hit.RowIndex].Cells[hit.ColumnIndex];
+                var selectedCell = Control.Rows[hit.RowIndex].Cells[hit.ColumnIndex];
                 selectedCell.Selected = true;
-                _languageMenu.Show(_grid, point);
+                _languageMenu.Show(Control, point);
             }
             else
             {
-                _gridMenu.Show(_grid, point);
+                _gridMenu.Show(Control, point);
             }
         }
     }

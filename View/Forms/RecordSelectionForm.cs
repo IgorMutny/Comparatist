@@ -1,11 +1,11 @@
 ﻿using Comparatist.Core.Records;
-using Comparatist.View.Tags;
+using Comparatist.View.Utities;
 
 namespace Comparatist
 {
-    public partial class RootSelectionForm : Form
+    public partial class RecordSelectionForm<T> : Form where T : IRecord
     {
-        private List<RootTag> _roots;
+        private IEnumerable<T> _allRecords;
         private List<Guid> _selectedIds;
 
         public List<Guid> SelectedIds
@@ -13,20 +13,19 @@ namespace Comparatist
             get
             {
                 var result = new List<Guid>();
-                foreach (var item in _checkedListBox.CheckedItems)
-                {
-                    if (item is Root root)
-                        result.Add(root.Id);
-                }
+
+                foreach (GuidedItem item in _checkedListBox.CheckedItems)
+                    result.Add(item.Id);
+
                 return result;
             }
         }
 
-        public RootSelectionForm(List<RootTag> roots, List<Guid> selectedIds)
+        public RecordSelectionForm(IEnumerable<T> allCategories, List<Guid> selectedIds)
         {
             InitializeComponent();
 
-            _roots = roots;
+            _allRecords = allCategories;
             _selectedIds = selectedIds;
 
             _checkedListBox.Dock = DockStyle.Fill;
@@ -37,13 +36,12 @@ namespace Comparatist
 
         private void PopulateList()
         {
-            _checkedListBox.DisplayMember = nameof(Root.Value);
-
-            foreach (var root in _roots)
+            foreach (var record in _allRecords)
             {
-                int index = _checkedListBox.Items.Add(root);
+                var item = new GuidedItem { Text = record.Value, Id = record.Id };
+                int index = _checkedListBox.Items.Add(item);
 
-                if (_selectedIds.Contains(root.Id))
+                if (_selectedIds.Contains(record.Id))
                     _checkedListBox.SetItemChecked(index, true);
             }
         }

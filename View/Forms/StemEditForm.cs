@@ -1,50 +1,47 @@
-﻿using Comparatist.View.Tags;
+﻿using Comparatist.Core.Records;
 using System.Text;
 
 namespace Comparatist
 {
     public partial class StemEditForm : Form
     {
-        private List<RootTag> _allRoots;
+        private IEnumerable<Root> _allRoots;
         private List<Guid> _selectedRootIds;
-        private StemTag _baseTag;
+        private Stem _stem;
 
-        public StemEditForm(string header,
-            StemTag baseTag,
-            List<RootTag> allRoots,
-            IReadOnlyList<Guid> selectedRootIds)
+        public StemEditForm(string header, Stem stem, IEnumerable<Root> allRoots, List<Guid> selectedRootIds)
         {
             InitializeComponent();
 
             Text = header;
 
-            _baseTag = baseTag;
+            _stem = stem;
+            _valueTextBox.Text = stem.Value;
+            _translationTextBox.Text = stem.Translation;
+            _commentTextBox.Text = stem.Comment;
+            _nativeBox.Checked = stem.IsNative;
+            _checkedBox.Checked = stem.IsChecked;
+
             _allRoots = allRoots;
-            _selectedRootIds = (List<Guid>)selectedRootIds;
-            _valueTextBox.Text = baseTag.Value;
-            _translationTextBox.Text = baseTag.Translation;
-            _commentTextBox.Text = baseTag.Comment;
-            _nativeBox.Checked = baseTag.IsNative;
-            _checkedBox.Checked = baseTag.IsChecked;
+            _selectedRootIds = selectedRootIds;
             _rootSelectionButton.Click += OnRootSelectionClicked;
-
-            UpdateRootList();
+            UpdateRootsTextBox();
         }
 
-        public StemTag GetResult()
+        public Stem GetResult()
         {
-            return new StemTag(
-                id: _baseTag.Id,
-                value: _valueTextBox.Text,
-                translation: _translationTextBox.Text,
-                comment: _commentTextBox.Text,
-                isNative: _nativeBox.Checked,
-                isChecked: _checkedBox.Checked,
-                rootIds: _selectedRootIds
-                );
+            return new Stem {
+                Id = _stem.Id,
+                Value = _valueTextBox.Text,
+                Translation = _translationTextBox.Text,
+                Comment = _commentTextBox.Text,
+                IsNative = _nativeBox.Checked,
+                IsChecked = _checkedBox.Checked,
+                RootIds = _selectedRootIds
+            };
         }
 
-        private void UpdateRootList()
+        private void UpdateRootsTextBox()
         {
             var values = new List<string>();
 
@@ -63,12 +60,12 @@ namespace Comparatist
 
         private void OnRootSelectionClicked(object? sender, EventArgs e)
         {
-            var dialog = new RootSelectionForm(_allRoots, _selectedRootIds);
+            var dialog = new RecordSelectionForm<Root>(_allRoots, _selectedRootIds);
 
             if (dialog.ShowDialog(this) == DialogResult.OK)
             {
                 _selectedRootIds = dialog.SelectedIds;
-                UpdateRootList();
+                UpdateRootsTextBox();
             }
         }
     }

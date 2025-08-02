@@ -5,9 +5,8 @@ using Comparatist.View.Utities;
 
 namespace Comparatist.View.CategoryTree
 {
-    internal class CategoryTreeViewAdapter : ViewAdapter
+    internal class CategoryTreeViewAdapter : ViewAdapter<TreeView>
     {
-        private TreeView _tree;
         private DisposableMenu _treeMenu;
         private DisposableMenu _nodeMenu;
         private CategoryTreeDragDropHelper _dragDropHelper;
@@ -16,9 +15,8 @@ namespace Comparatist.View.CategoryTree
         public event Action<Category>? UpdateRequest;
         public event Action<Category>? DeleteRequest;
 
-        public CategoryTreeViewAdapter(TreeView tree)
+        public CategoryTreeViewAdapter(TreeView tree) : base(tree)
         {
-            _tree = tree;
             _dragDropHelper = new CategoryTreeDragDropHelper(tree, MoveNode);
 
             _treeMenu = new DisposableMenu(
@@ -34,35 +32,35 @@ namespace Comparatist.View.CategoryTree
 
         private void SetupTree()
         {
-            _tree.Dock = DockStyle.Fill;
-            _tree.AllowDrop = true;
-            _tree.Visible = false;
-            _tree.ItemDrag += _dragDropHelper.OnItemDrag;
-            _tree.DragOver += _dragDropHelper.OnDragOver;
-            _tree.DragDrop += _dragDropHelper.OnDragDrop;
-            _tree.MouseUp += OnMouseUp;
+            Control.Dock = DockStyle.Fill;
+            Control.AllowDrop = true;
+            Control.Visible = false;
+            Control.ItemDrag += _dragDropHelper.OnItemDrag;
+            Control.DragOver += _dragDropHelper.OnDragOver;
+            Control.DragDrop += _dragDropHelper.OnDragDrop;
+            Control.MouseUp += OnMouseUp;
         }
 
         protected override void Unsubscribe()
         {
-            _tree.ItemDrag -= _dragDropHelper.OnItemDrag;
-            _tree.DragOver -= _dragDropHelper.OnDragOver;
-            _tree.DragDrop -= _dragDropHelper.OnDragDrop;
-            _tree.MouseUp -= OnMouseUp;
+            Control.ItemDrag -= _dragDropHelper.OnItemDrag;
+            Control.DragOver -= _dragDropHelper.OnDragOver;
+            Control.DragDrop -= _dragDropHelper.OnDragDrop;
+            Control.MouseUp -= OnMouseUp;
             _treeMenu.Dispose();
             _nodeMenu.Dispose();
         }
 
         public void Render(IReadOnlyList<CachedCategoryNode> rootNodes)
         {
-            _tree.BeginUpdate();
-            _tree.Nodes.Clear();
+            Control.BeginUpdate();
+            Control.Nodes.Clear();
 
             foreach (var root in rootNodes)
-                _tree.Nodes.Add(CreateTreeNode(root));
+                Control.Nodes.Add(CreateTreeNode(root));
 
-            _tree.EndUpdate();
-            _tree.ExpandAll();
+            Control.EndUpdate();
+            Control.ExpandAll();
         }
 
         private TreeNode CreateTreeNode(CachedCategoryNode node)
@@ -88,7 +86,7 @@ namespace Comparatist.View.CategoryTree
 
         private void AddChildNode()
         {
-            if (_tree.SelectedNode?.Tag is not CachedCategoryNode parentNode)
+            if (Control.SelectedNode?.Tag is not CachedCategoryNode parentNode)
                 return;
 
             var name = InputBox.Show(
@@ -110,7 +108,7 @@ namespace Comparatist.View.CategoryTree
 
         private void EditNode()
         {
-            if (_tree.SelectedNode?.Tag is not CachedCategoryNode node)
+            if (Control.SelectedNode?.Tag is not CachedCategoryNode node)
                 return;
 
             var name = InputBox.Show(
@@ -166,7 +164,7 @@ namespace Comparatist.View.CategoryTree
 
         private void DeleteNode()
         {
-            if (_tree.SelectedNode?.Tag is not CachedCategoryNode node)
+            if (Control.SelectedNode?.Tag is not CachedCategoryNode node)
                 return;
 
             var result = MessageBox.Show(
@@ -188,17 +186,17 @@ namespace Comparatist.View.CategoryTree
                 return;
 
             var point = new Point(e.X, e.Y);
-            var node = _tree.GetNodeAt(point);
+            var node = Control.GetNodeAt(point);
 
             if (node == null)
             {
-                _tree.SelectedNode = null;
-                _treeMenu.Show(_tree, point);
+                Control.SelectedNode = null;
+                _treeMenu.Show(Control, point);
             }
             else
             {
-                _tree.SelectedNode = node;
-                _nodeMenu.Show(_tree, point);
+                Control.SelectedNode = node;
+                _nodeMenu.Show(Control, point);
             }
         }
     }

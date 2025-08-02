@@ -2,25 +2,29 @@
 
 namespace Comparatist.View.Infrastructure
 {
-    internal abstract class Presenter<T> : IDisposable where T : ViewAdapter
+    internal abstract class Presenter<TAdapter, TControl> : IDisposable 
+        where TAdapter : ViewAdapter<TControl> where TControl: Control
     {
         protected IProjectService Service { get; }
-        protected T View { get; }
+        protected TAdapter View { get; }
 
-        public Presenter(IProjectService service, T view)
+        public Presenter(IProjectService service, TAdapter view)
         {
             Service = service;
             View = view;
+            View.RenderRequest += UpdateView;
             Subscribe();
         }
 
         public void Dispose()
         {
+            View.RenderRequest -= UpdateView;
             Unsubscribe();
         }
 
         protected abstract void Subscribe();
         protected abstract void Unsubscribe();
+        protected abstract void UpdateView();
 
         protected void Execute(Func<Result> func)
         {

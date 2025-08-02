@@ -49,6 +49,11 @@ namespace Comparatist.Services.Infrastructure
             return Execute(_database.Languages.GetAll);
         }
 
+        public Result<IEnumerable<Category>> GetAllCategories()
+        {
+            return Execute(_database.Categories.GetAll);
+        }
+
         public Result<IEnumerable<CachedBlock>> GetAllBlocksByAlphabet()
         {
             return Execute(_tableCache.GetAllBlocksByAlphabet);
@@ -147,7 +152,7 @@ namespace Comparatist.Services.Infrastructure
             return Execute(() =>
             {
                 _cascadeDelete.Delete(root);
-                _tableCache.DeleteRoot(root.Id);
+                _tableCache.DeleteRoot(root);
             });
         }
 
@@ -174,7 +179,7 @@ namespace Comparatist.Services.Infrastructure
             return Execute(() =>
             {
                 _cascadeDelete.Delete(stem);
-                _tableCache.DeleteStem(stem.Id);
+                _tableCache.DeleteStem(stem);
             });
         }
 
@@ -201,7 +206,7 @@ namespace Comparatist.Services.Infrastructure
             return Execute(() =>
             {
                 _cascadeDelete.Delete(word);
-                _tableCache.DeleteWord(word.Id);
+                _tableCache.DeleteWord(word);
             });
         }
 

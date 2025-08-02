@@ -1,41 +1,43 @@
-﻿using Comparatist.View.Tags;
+﻿using Comparatist.Core.Records;
 
 namespace Comparatist
 {
     public partial class WordEditForm : Form
     {
-        private WordTag _baseTag;
-        private StemTag _stemTag;
-        private LanguageTag _languageTag;
+        private Word _word;
+        private Stem _stem;
+        private Language _language;
 
-        public WordEditForm(WordTag baseTag, StemTag stemTag, LanguageTag languageTag)
+        public WordEditForm(Word word, Stem stem, Language language)
         {
             InitializeComponent();
 
-            _baseTag = baseTag;
-            _stemTag = stemTag;
-            _languageTag = languageTag;
-            _valueTextBox.Text = baseTag.Value;
-            _translationTextBox.Text = baseTag.Translation;
-            _commentTextBox.Text = baseTag.Comment;
-            _stemTextBox.Text = stemTag.Value;
-            _languageTextBox.Text = languageTag.Value;
-            _checkedBox.Checked = baseTag.IsChecked;
-            _nativeBox.Checked = baseTag.IsNative;
+            _word = word;
+            _stem = stem;
+            _language = language;
+
+            _valueTextBox.Text = word.Value;
+            _translationTextBox.Text = word.Translation;
+            _commentTextBox.Text = word.Comment;
+            _stemTextBox.Text = stem.Value;
+            _languageTextBox.Text = language.Value;
+            _checkedBox.Checked = word.IsChecked;
+            _nativeBox.Checked = word.IsNative;
         }
 
-        public WordTag GetResult()
+        public Word GetResult()
         {
-            return new WordTag(
-                id: _baseTag.Id,
-                value: _valueTextBox.Text,
-                translation: _translationTextBox.Text,
-                comment: _commentTextBox.Text,
-                isNative: _nativeBox.Checked,
-                isChecked: _checkedBox.Checked,
-                stemId: _stemTag.Id,
-                languageId: _languageTag.Id
-                );
+            return new Word
+            {
+                Id = _word.Id,
+                Value = _valueTextBox.Text,
+                Translation = _translationTextBox.Text,
+                Comment = _commentTextBox.Text,
+                IsNative = _nativeBox.Checked,
+                IsChecked = _checkedBox.Checked,
+                StemId = _stem.Id,
+                LanguageId = _language.Id
+            };
         }
     }
 }

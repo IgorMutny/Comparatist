@@ -1,47 +1,48 @@
-﻿using Comparatist.View.Tags;
+﻿using Comparatist.Core.Records;
 using System.Text;
 
 namespace Comparatist
 {
     public partial class RootEditForm : Form
     {
-        private List<CategoryTag> _allCategories;
+        private IEnumerable<Category> _allCategories;
         private List<Guid> _selectedCategoryIds;
-        private RootTag _baseTag;
+        private Root _root;
 
-        public RootEditForm(string header, RootTag baseTag, List<CategoryTag> allCategories)
+        public RootEditForm(string header, Root root, IEnumerable<Category> allCategories)
         {
             InitializeComponent();
 
             Text = header;
 
-            _baseTag = baseTag;
+            _root = root;
+            _valueTextBox.Text = root.Value;
+            _translationTextBox.Text = root.Translation;
+            _commentTextBox.Text = root.Comment;
+            _nativeBox.Checked = root.IsNative;
+            _checkedBox.Checked = root.IsChecked;
+
             _allCategories = allCategories;
-            _selectedCategoryIds = (List<Guid>)baseTag.CategoryIds;
-            _valueTextBox.Text = baseTag.Value;
-            _translationTextBox.Text = baseTag.Translation;
-            _commentTextBox.Text = baseTag.Comment;
-            _nativeBox.Checked = baseTag.IsNative;
-            _checkedBox.Checked = baseTag.IsChecked;
+            _selectedCategoryIds = root.CategoryIds;
             _groupSelectionButton.Click += OnCategorySelectionClicked;
-
-            UpdateGroupList();
+            UpdateCategoriesTextBox();
         }
 
-        public RootTag GetResult()
+        public Root GetResult()
         {
-            return new RootTag(
-                id: _baseTag.Id,
-                value: _valueTextBox.Text,
-                translation: _translationTextBox.Text,
-                comment: _commentTextBox.Text,
-                isNative: _nativeBox.Checked,
-                isChecked: _checkedBox.Checked,
-                categoryIds: _selectedCategoryIds
-                );
+            return new Root
+            {
+                Id = _root.Id,
+                Value = _valueTextBox.Text,
+                Translation = _translationTextBox.Text,
+                Comment = _commentTextBox.Text,
+                IsNative = _nativeBox.Checked,
+                IsChecked = _checkedBox.Checked,
+                CategoryIds = _selectedCategoryIds
+            };
         }
 
-        private void UpdateGroupList()
+        private void UpdateCategoriesTextBox()
         {
             var values = new List<string>();
 
@@ -60,12 +61,12 @@ namespace Comparatist
 
         private void OnCategorySelectionClicked(object? sender, EventArgs e)
         {
-            var dialog = new CategorySelectionForm(_allCategories, _selectedCategoryIds);
+            var dialog = new RecordSelectionForm<Category>(_allCategories, _selectedCategoryIds);
 
             if (dialog.ShowDialog(this) == DialogResult.OK)
             {
                 _selectedCategoryIds = dialog.SelectedIds;
-                UpdateGroupList();
+                UpdateCategoriesTextBox();
             }
         }
     }

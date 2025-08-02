@@ -4,7 +4,7 @@ using Comparatist.View.Infrastructure;
 
 namespace Comparatist.View.CategoryTree
 {
-    internal class CategoryTreePresenter : Presenter<CategoryTreeViewAdapter>
+    internal class CategoryTreePresenter : Presenter<CategoryTreeViewAdapter, TreeView>
     {
         public CategoryTreePresenter(IProjectService service, CategoryTreeViewAdapter view) :
             base(service, view)
@@ -15,7 +15,7 @@ namespace Comparatist.View.CategoryTree
             View.AddRequest += OnAddRequest;
             View.UpdateRequest += OnUpdateRequest;
             View.DeleteRequest += OnDeleteRequest;
-            Render();
+            UpdateView();
         }
 
         protected override void Unsubscribe()
@@ -28,22 +28,22 @@ namespace Comparatist.View.CategoryTree
         private void OnAddRequest(Category category)
         {
             Execute(() => Service.AddCategory(category));
-            Render();
+            UpdateView();
         }
 
         private void OnUpdateRequest(Category category)
         {
             Execute(() => Service.UpdateCategory(category));
-            Render();
+            UpdateView();
         }
 
         private void OnDeleteRequest(Category category)
         {
             Execute(() => Service.DeleteCategory(category));
-            Render();
+            UpdateView();
         }
 
-        private void Render()
+        protected override void UpdateView()
         {
             var nodes = Execute(Service.GetTree);
 

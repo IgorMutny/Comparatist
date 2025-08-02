@@ -4,7 +4,7 @@ using Comparatist.View.Infrastructure;
 
 namespace Comparatist.View.LanguageGrid
 {
-    internal class LanguageGridPresenter : Presenter<LanguageGridViewAdapter>
+    internal class LanguageGridPresenter : Presenter<LanguageGridViewAdapter, DataGridView>
     {
         public LanguageGridPresenter(IProjectService service, LanguageGridViewAdapter view) :
             base(service, view)
@@ -15,7 +15,7 @@ namespace Comparatist.View.LanguageGrid
             View.AddRequest += OnAddRequest;
             View.UpdateRequest += OnUpdateRequest;
             View.DeleteRequest += OnDeleteRequest;
-            Render();
+            UpdateView();
         }
 
         protected override void Unsubscribe()
@@ -28,22 +28,22 @@ namespace Comparatist.View.LanguageGrid
         private void OnAddRequest(Language language)
         {
             Execute(() => Service.AddLanguage(language));
-            Render();
+            UpdateView();
         }
 
         private void OnUpdateRequest(Language language)
         {
             Execute(() => Service.UpdateLanguage(language));
-            Render();
+            UpdateView();
         }
 
         private void OnDeleteRequest(Language language)
         {
             Execute(() => Service.DeleteLanguage(language));
-            Render();
+            UpdateView();
         }
 
-        private void Render()
+        protected override void UpdateView()
         {
             var languages = Execute(Service.GetAllLanguages);
 

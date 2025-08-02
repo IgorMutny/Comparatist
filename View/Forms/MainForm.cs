@@ -68,9 +68,20 @@ namespace Comparatist
 
         private void ShowActiveContentHolder()
         {
-            _alphaRootsGridView.Visible = _currentContentHolder == ContentHolderTypes.AlphaRoots;
-            _languagesGridView.Visible = _currentContentHolder == ContentHolderTypes.Languages;
-            _semanticTreeView.Visible = _currentContentHolder == ContentHolderTypes.SemanticGroups;
+            if (_currentContentHolder == ContentHolderTypes.AlphaRoots)
+                _wordGridViewAdapter.Show();
+            else
+                _wordGridViewAdapter.Hide();
+
+            if (_currentContentHolder == ContentHolderTypes.Languages)
+                _languageGridViewAdapter.Show();
+            else
+                _languageGridViewAdapter.Hide();
+
+            if (_currentContentHolder == ContentHolderTypes.SemanticGroups)
+                _categoryTreeViewAdapter.Show();
+            else
+                _categoryTreeViewAdapter.Hide();
         }
 
         private void SelectContent(ContentHolderTypes type)
