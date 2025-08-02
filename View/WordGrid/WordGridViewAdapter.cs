@@ -48,9 +48,9 @@ namespace Comparatist.View.WordGrid
             SetupGrid();
         }
 
-        public IEnumerable<Category> AllCategories { get; set; } = Enumerable.Empty<Category>();
-        public IEnumerable<Language> AllLanguages { get; set; } = Enumerable.Empty<Language>();
-        public IEnumerable<Root> AllRoots { get; set; } = Enumerable.Empty<Root>();
+        public IEnumerable<Category> AllCategories { private get; set; } = Enumerable.Empty<Category>();
+        public IEnumerable<Language> AllLanguages { private get; set; } = Enumerable.Empty<Language>();
+        private IEnumerable<Root> AllRoots { get; set; } = Enumerable.Empty<Root>();
 
         private void SetupGrid()
         {
@@ -66,8 +66,11 @@ namespace Comparatist.View.WordGrid
             Control.MouseDoubleClick += OnDoubleClick;
         }
 
-        public void Render(IEnumerable<CachedBlock> blocks) =>
+        public void Render(IEnumerable<CachedBlock> blocks)
+        {
+            AllRoots = blocks.Select(x => x.Root);
             _renderHelper.Render(blocks, AllLanguages);
+        }
 
         protected override void Unsubscribe()
         {
@@ -216,30 +219,8 @@ namespace Comparatist.View.WordGrid
             }
         }
 
-        private void OnCellPainting(object? sender, DataGridViewCellPaintingEventArgs e)
-        {
-            if (e.RowIndex < 0 || e.ColumnIndex < 0) return;
-            var value = e.FormattedValue?.ToString();
-            if (string.IsNullOrEmpty(value)) return;
-
-            e.Handled = true;
-            e.PaintBackground(e.CellBounds, true);
-
-            var formatted = RichTextFormatter.Parse(value);
-            var x = e.CellBounds.X + 2;
-            var y = e.CellBounds.Y + 2;
-
-            if (e.CellStyle != null && e.Graphics != null)
-            {
-                foreach (var (text, style) in formatted)
-                {
-                    using var font = new Font(e.CellStyle.Font, style);
-                    var size = TextRenderer.MeasureText(text, font);
-                    TextRenderer.DrawText(e.Graphics, text, font, new Point(x, y), e.CellStyle.ForeColor);
-                    x += size.Width;
-                }
-            }
-        }
+        private void OnCellPainting(object? sender, DataGridViewCellPaintingEventArgs e) =>
+            _renderHelper.OnCellPainting(e);
 
         private void OnMouseUp(object? sender, MouseEventArgs e)
         {

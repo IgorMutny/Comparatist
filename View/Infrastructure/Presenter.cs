@@ -44,7 +44,7 @@ namespace Comparatist.View.Infrastructure
             else
             {
                 View.ShowError(result.Message);
-                return default(TValue);
+                return default;
             }
         }
     }

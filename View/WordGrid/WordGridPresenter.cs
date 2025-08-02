@@ -99,7 +99,6 @@ namespace Comparatist.View.WordGrid
             if (blocks != null && languages != null && categories != null)
             {
                 View.AllCategories = categories;
-                View.AllRoots = blocks.Select(x => x.Root);
                 View.AllLanguages = languages;
                 View.Render(blocks);
             }

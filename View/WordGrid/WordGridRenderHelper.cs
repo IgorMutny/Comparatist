@@ -1,5 +1,6 @@
 ﻿using Comparatist.Core.Records;
 using Comparatist.Services.TableCache;
+using Comparatist.View.Utities;
 
 namespace Comparatist.View.WordGrid
 {
@@ -29,6 +30,31 @@ namespace Comparatist.View.WordGrid
                 Collapse(root, rowIndex);
             else
                 Expand(root, rowIndex);
+        }
+
+        public void OnCellPainting(DataGridViewCellPaintingEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.ColumnIndex < 0) return;
+            var value = e.FormattedValue?.ToString();
+            if (string.IsNullOrEmpty(value)) return;
+
+            e.Handled = true;
+            e.PaintBackground(e.CellBounds, true);
+
+            var formatted = RichTextFormatter.Parse(value);
+            var x = e.CellBounds.X + 2;
+            var y = e.CellBounds.Y + 2;
+
+            if (e.CellStyle != null && e.Graphics != null)
+            {
+                foreach (var (text, style) in formatted)
+                {
+                    using var font = new Font(e.CellStyle.Font, style);
+                    var size = TextRenderer.MeasureText(text, font);
+                    TextRenderer.DrawText(e.Graphics, text, font, new Point(x, y), e.CellStyle.ForeColor);
+                    x += size.Width;
+                }
+            }
         }
 
         private void AddColumns(IEnumerable<Language> languages)
@@ -88,7 +114,7 @@ namespace Comparatist.View.WordGrid
             var row = _grid.Rows[rowIndex];
             row.Cells[0].Value = $"[b]{root.Value}[/b] {root.Translation}";
             row.Cells[0].Tag = root;
-            FillCellsInRootRow(root, isExpanded, row);
+            FillCellsInRootRow(row, isExpanded);
         }
 
         private void FillRowHeader(DataGridViewRow row, Stem stem)
@@ -152,18 +178,28 @@ namespace Comparatist.View.WordGrid
             }
             else
             {
-                var rows = block.Rows.Values.ToList();
+                var rows = block.Rows.Values.OrderBy(e => e.Stem.Value).ToList();
 
                 for (int i = rows.Count - 1; i >= 0; i--)
                     AddStemRow(rows[i], index);
             }
 
-            FillCellsInRootRow(root, true, _grid.Rows[rowIndex]);
+            FillCellsInRootRow(_grid.Rows[rowIndex], true);
         }
 
         private void Collapse(Root root, int rowIndex)
         {
+            if (!_blocks.TryGetValue(root.Id, out var block))
+                return;
 
+            _expandedRootIds.Remove(root.Id);
+            int index = rowIndex + 1;
+            var rowCount = block.Rows.Count > 0 ? block.Rows.Count : 1;
+
+            for (int i = 0; i < rowCount; i++)
+                _grid.Rows.RemoveAt(index);
+
+            FillCellsInRootRow(_grid.Rows[rowIndex], false);
         }
 
         private void AddStemRow(CachedRow cachedRow, int index)
@@ -183,14 +219,14 @@ namespace Comparatist.View.WordGrid
             row.Cells[0].Value = "→ [i]no stems[/i]";
         }
 
-        private void FillCellsInRootRow(Root root, bool isExpanded, DataGridViewRow row)
+        private void FillCellsInRootRow(DataGridViewRow row, bool isExpanded)
         {
             if (_grid.Columns.Count <= 1)
                 return;
 
             for (int i = 1; i < _grid.Columns.Count; i++)
             {
-                row.Cells[i].Tag = root;
+                row.Cells[i].Tag = row.Cells[0].Tag;
 
                 if (!isExpanded)
                     row.Cells[i].Value = "↓ ↓ ↓";
