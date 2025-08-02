@@ -10,6 +10,10 @@ namespace Comparatist.View.WordGrid
 
         private Dictionary<Guid, CachedBlock> _blocks = new();
         private List<Guid> _expandedRootIds = new();
+        private int _selectedRowIndex = 0;
+        private int _selectedColumnIndex = 0;
+        private int _firstRenderedRowIndex = 0;
+        private int _firstRenderedColumnIndex = 0;
 
         public WordGridRenderHelper(DataGridView grid)
         {
@@ -18,10 +22,12 @@ namespace Comparatist.View.WordGrid
 
         public void Render(IEnumerable<CachedBlock> blocks, IEnumerable<Language> languages)
         {
+            SaveSelection();
             _grid.Columns.Clear();
             _grid.Rows.Clear();
             AddColumns(languages);
             AddBlocks(blocks);
+            RestoreSelection();
         }
 
         public void HandleDoubleClick(Root root, int rowIndex)
@@ -260,6 +266,34 @@ namespace Comparatist.View.WordGrid
                 cell.Style.ForeColor = _grid.DefaultCellStyle.ForeColor;
             else
                 cell.Style.ForeColor = Color.DarkGray;
+        }
+
+        private void SaveSelection()
+        {
+            try
+            {
+                if (_grid.SelectedCells.Count > 0)
+                {
+                    var cell = _grid.SelectedCells[0];
+                    _selectedColumnIndex = cell.ColumnIndex;
+                    _selectedRowIndex = cell.RowIndex;
+                }
+
+                _firstRenderedRowIndex = _grid.FirstDisplayedScrollingRowIndex;
+                _firstRenderedColumnIndex = _grid.FirstDisplayedScrollingColumnIndex;
+            }
+            catch { }
+        }
+
+        private void RestoreSelection()
+        {
+            try
+            {
+                _grid.Rows[_selectedRowIndex].Cells[_selectedColumnIndex].Selected = true;
+                _grid.FirstDisplayedScrollingRowIndex = _firstRenderedRowIndex;
+                _grid.FirstDisplayedScrollingColumnIndex = _firstRenderedColumnIndex;
+            }
+            catch { }
         }
     }
 }
