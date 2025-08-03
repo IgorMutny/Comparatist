@@ -20,13 +20,17 @@ namespace Comparatist.View.WordGrid
             _grid = grid;
         }
 
-        public void Render(IEnumerable<CachedBlock> blocks, IEnumerable<Language> languages)
+        public void Render(IEnumerable<CachedSection> sections, IEnumerable<Language> languages)
         {
             SaveSelection();
+
+            _blocks.Clear();
             _grid.Columns.Clear();
             _grid.Rows.Clear();
+
             AddColumns(languages);
-            AddBlocks(blocks);
+            AddSections(sections);
+
             RestoreSelection();
         }
 
@@ -94,10 +98,30 @@ namespace Comparatist.View.WordGrid
             _grid.Columns.Add(column);
         }
 
+        private void AddSections(IEnumerable<CachedSection> sections)
+        {
+            foreach (var section in sections)
+                AddSection(section);
+        }
+
+        private void AddSection(CachedSection section)
+        {
+            int index = _grid.Rows.Add();
+            var row = _grid.Rows[index];
+            FillSectionHeaderCell(section.Category, row);
+            AddBlocks(section.Blocks);
+
+            foreach (var child in section.Children)
+                AddSection(child);
+        }
+
+        private void FillSectionHeaderCell(Category category, DataGridViewRow row)
+        {
+            row.Cells[0].Value = category.Value.ToUpper();
+        }
+
         private void AddBlocks(IEnumerable<CachedBlock> blocks)
         {
-            _blocks.Clear();
-
             foreach (var block in blocks)
                 AddBlock(block);
         }

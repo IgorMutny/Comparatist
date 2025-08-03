@@ -1,6 +1,8 @@
-﻿using Comparatist.View.Autoreplace;
+﻿using Comparatist.Services.Infrastructure;
+using Comparatist.View.Autoreplace;
 using Comparatist.View.Forms;
 using Comparatist.View.Infrastructure;
+using Comparatist.View.WordGrid;
 
 namespace Comparatist.View.MainMenu
 {
@@ -10,6 +12,7 @@ namespace Comparatist.View.MainMenu
 
         private Dictionary<ContentTypes, IViewAdapter> _adapters = new();
         private Dictionary<ContentTypes, ToolStripMenuItem> _adapterItems = new();
+        private Dictionary<SortingTypes, ToolStripMenuItem> _sortingItems = new();
         private string _filePath = string.Empty;
         private ToolStripMenuItem _adaptersItem = new();
 
@@ -38,12 +41,29 @@ namespace Comparatist.View.MainMenu
             var loadItem = AddMenuItem("Load...", Load, fileItem);
             var saveAsItem = AddMenuItem("Save as...", SaveAs, fileItem);
             var saveItem = AddMenuItem("Save", Save, fileItem);
+
             fileItem.DropDownItems.Add(new ToolStripSeparator());
             var exitItem = AddMenuItem("Exit", Exit, fileItem);
 
             _adaptersItem = AddMenuItem("Content", null, Control);
 
-            var autoreplaceItem = AddMenuItem("Autoreplace settings", ShowAutoReplace, Control);
+            var settingsItem = AddMenuItem("Settings", null, Control);
+
+            var alphabetItem = AddMenuItem(
+                "Roots by alphabet",
+                () => SwitchRootSortingType(SortingTypes.Alphabet),
+                settingsItem);
+
+            var categories = AddMenuItem(
+                "Roots by categories",
+                () => SwitchRootSortingType(SortingTypes.Categories),
+                settingsItem);
+
+            _sortingItems.Add(SortingTypes.Alphabet, alphabetItem);
+            _sortingItems.Add(SortingTypes.Categories, categories);
+
+            fileItem.DropDownItems.Add(new ToolStripSeparator());
+            var autoreplaceItem = AddMenuItem("Autoreplace settings", ShowAutoReplace, settingsItem);
         }
 
         private ToolStripMenuItem AddMenuItem(string text, Action? action, ToolStripMenuItem parent)
@@ -124,6 +144,17 @@ namespace Comparatist.View.MainMenu
         private void ShowAutoReplace()
         {
             AutoReplaceManager.Instance.ShowForm();
+        }
+
+        private void SwitchRootSortingType(SortingTypes type)
+        {
+            foreach (var pair in _sortingItems)
+                pair.Value.Checked = pair.Key == type;
+
+            var adapter = _adapters[ContentTypes.Words] as WordGridViewAdapter;
+
+            if (adapter != null)
+                adapter.SortingType = type;
         }
 
         private void Exit()

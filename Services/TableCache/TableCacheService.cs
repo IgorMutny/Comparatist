@@ -20,11 +20,18 @@ namespace Comparatist.Services.TableCache
             _isDirty = true;
         }
 
-        public IEnumerable<CachedBlock> GetTable()
+        public IEnumerable<CachedSection> GetTable()
         {
             UpdateCacheIfDirty();
 
-            return _cache.Blocks.Select(pair => (CachedBlock)pair.Value.Clone());
+            var section = new CachedSection { Category = new() };
+
+            section.Blocks = _cache.Blocks
+                .Select(pair => (CachedBlock)pair.Value.Clone())
+                .OrderBy(e => e.Root.Value)
+                .ToList();
+
+            return new List<CachedSection> { section };
         }
 
         public void RebuildCache()

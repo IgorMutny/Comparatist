@@ -13,7 +13,7 @@ namespace Comparatist.Services.Infrastructure
         Result<IEnumerable<Language>> GetAllLanguages();
         Result<IEnumerable<Category>> GetAllCategories();
         Result<IEnumerable<CachedCategoryNode>> GetCategoryTree();
-        Result<IEnumerable<CachedBlock>> GetWordTable();
+        Result<IEnumerable<CachedSection>> GetWordTable(SortingTypes sortingType);
         Result LoadDatabase(string path);
         Result SaveDatabase(string path);
     }

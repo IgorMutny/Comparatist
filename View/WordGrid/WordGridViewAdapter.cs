@@ -1,4 +1,5 @@
 ﻿using Comparatist.Core.Records;
+using Comparatist.Services.Infrastructure;
 using Comparatist.Services.TableCache;
 using Comparatist.View.Infrastructure;
 using Comparatist.View.Utilities;
@@ -13,6 +14,7 @@ namespace Comparatist.View.WordGrid
         private DisposableMenu _stemMenu;
         private DisposableMenu _wordMenu;
         private WordGridRenderHelper _renderHelper;
+        private SortingTypes _sortingTypes;
 
         public event Action<Root>? AddRootRequest;
         public event Action<Root>? UpdateRootRequest;
@@ -49,6 +51,19 @@ namespace Comparatist.View.WordGrid
             SetupGrid();
         }
 
+        public SortingTypes SortingType
+        {
+            get => _sortingTypes;
+            set
+            {
+                if (value != _sortingTypes)
+                {
+                    _sortingTypes = value;
+                    Show();
+                }
+            }
+        }
+
         public IEnumerable<Category> AllCategories { private get; set; } = Enumerable.Empty<Category>();
         public IEnumerable<Language> AllLanguages { private get; set; } = Enumerable.Empty<Language>();
         private IEnumerable<Root> AllRoots { get; set; } = Enumerable.Empty<Root>();
@@ -67,10 +82,10 @@ namespace Comparatist.View.WordGrid
             Control.MouseDoubleClick += OnDoubleClick;
         }
 
-        public void Render(IEnumerable<CachedBlock> blocks)
+        public void Render(IEnumerable<CachedSection> sections)
         {
-            AllRoots = blocks.Select(x => x.Root);
-            _renderHelper.Render(blocks, AllLanguages);
+            AllRoots = GetAllRootsFromSections(sections);
+            _renderHelper.Render(sections, AllLanguages);
         }
 
         protected override void Unsubscribe()
@@ -287,6 +302,32 @@ namespace Comparatist.View.WordGrid
 
             result = tag;
             return true;
+        }
+
+        private IEnumerable<Root> GetAllRootsFromSections(IEnumerable<CachedSection> sections)
+        {
+            var allRoots = new List<Root>();
+
+            foreach (var section in sections)
+            {
+                var roots = GetRootsFromSection(section);
+                allRoots.AddRange(roots);
+            }
+
+            return allRoots;
+        }
+
+        private IEnumerable<Root> GetRootsFromSection(CachedSection section)
+        {
+            var roots = new List<Root>();
+
+            foreach (var block in section.Blocks)
+                roots.Add(block.Root);
+
+            foreach (var child in section.Children)
+                roots.AddRange(GetRootsFromSection(child));
+
+            return roots;
         }
     }
 }

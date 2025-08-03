@@ -60,9 +60,13 @@ namespace Comparatist.Services.Infrastructure
             return Execute(_categoryTree.GetTree);
         }
 
-        public Result<IEnumerable<CachedBlock>> GetWordTable()
+        public Result<IEnumerable<CachedSection>> GetWordTable(SortingTypes sortingType)
         {
-            return Execute(_tableCache.GetTable);
+            switch (sortingType)
+            {
+                case SortingTypes.Alphabet: return Execute(_tableCache.GetTable);
+                default: throw new ArgumentException($"Sorting type {sortingType} is not supported");
+            }
         }
 
         public Result Add<T>(T record) where T : class, IRecord

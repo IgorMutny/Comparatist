@@ -92,15 +92,15 @@ namespace Comparatist.View.WordGrid
 
         protected override void UpdateView()
         {
-            var blocks = Execute(Service.GetWordTable);
+            var sections = Execute(() => Service.GetWordTable(View.SortingType));
             var languages = Execute(Service.GetAllLanguages);
             var categories = Execute(Service.GetAllCategories);
 
-            if (blocks != null && languages != null && categories != null)
+            if (sections != null && languages != null && categories != null)
             {
                 View.AllCategories = categories;
                 View.AllLanguages = languages;
-                View.Render(blocks);
+                View.Render(sections);
             }
         }
     }
