@@ -121,10 +121,7 @@ namespace Comparatist.View.WordGrid
                 MessageBoxIcon.Warning);
 
             if (result == DialogResult.Yes)
-            {
-                var deletedRoot = (Root)root.Clone();
-                DeleteRootRequest?.Invoke(deletedRoot);
-            }
+                DeleteRootRequest?.Invoke(root);
         }
 
         private void AddStem()
@@ -186,10 +183,7 @@ namespace Comparatist.View.WordGrid
                 MessageBoxIcon.Warning);
 
             if (result == DialogResult.Yes)
-            {
-                var deletedStem = (Stem)stem.Clone();
-                DeleteStemRequest?.Invoke(deletedStem);
-            }
+                DeleteStemRequest?.Invoke(stem);
         }
 
         private void AddOrEditWord()
@@ -229,10 +223,7 @@ namespace Comparatist.View.WordGrid
                 MessageBoxIcon.Warning);
 
             if (result == DialogResult.Yes)
-            {
-                var deletedWord = (Word)word.Clone();
-                DeleteWordRequest?.Invoke(deletedWord);
-            }
+                DeleteWordRequest?.Invoke(word);
         }
 
         private void OnCellPainting(object? sender, DataGridViewCellPaintingEventArgs e) =>
