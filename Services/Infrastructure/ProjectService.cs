@@ -1,6 +1,7 @@
 ﻿using Comparatist.Core.Infrastructure;
 using Comparatist.Core.Records;
 using Comparatist.Services.CascadeDelete;
+using Comparatist.Services.CategoryTableComposing;
 using Comparatist.Services.CategoryTree;
 using Comparatist.Services.TableCache;
 
@@ -11,6 +12,7 @@ namespace Comparatist.Services.Infrastructure
         private CascadeDeleteService _cascadeDelete;
         private TableCacheService _tableCache;
         private CategoryTreeService _categoryTree;
+        private CategoryTableComposingService _categoryTableComposing;
         private IDatabase _database;
 
         public ProjectService()
@@ -19,6 +21,7 @@ namespace Comparatist.Services.Infrastructure
             _cascadeDelete = new CascadeDeleteService(_database);
             _tableCache = new TableCacheService(_database);
             _categoryTree = new CategoryTreeService(_database);
+            _categoryTableComposing = new CategoryTableComposingService();
         }
 
         public Result LoadDatabase(string path)
@@ -28,6 +31,7 @@ namespace Comparatist.Services.Infrastructure
                 _database.Load(path);
                 _tableCache.RebuildCache();
                 _categoryTree.RebuildCache();
+                RebuildCategoryTableCache();
             });
         }
 
@@ -65,6 +69,7 @@ namespace Comparatist.Services.Infrastructure
             switch (sortingType)
             {
                 case SortingTypes.Alphabet: return Execute(_tableCache.GetTable);
+                case SortingTypes.Categories: return Execute(_categoryTableComposing.GetTable);
                 default: throw new ArgumentException($"Sorting type {sortingType} is not supported");
             }
         }
@@ -84,6 +89,8 @@ namespace Comparatist.Services.Infrastructure
                     case Category: _categoryTree.MarkDirty(); break;
                     case Language: _tableCache.MarkDirty(); break;
                 }
+
+                RebuildCategoryTableCache();
             });
         }
 
@@ -101,6 +108,8 @@ namespace Comparatist.Services.Infrastructure
                     case Category: _categoryTree.MarkDirty(); break;
                     case Language: _tableCache.MarkDirty(); break;
                 }
+
+                RebuildCategoryTableCache();
             });
         }
 
@@ -123,6 +132,8 @@ namespace Comparatist.Services.Infrastructure
                     case Category: _categoryTree.MarkDirty(); break;
                     case Language: _tableCache.MarkDirty(); break;
                 }
+
+                RebuildCategoryTableCache();
             });
         }
 
@@ -140,6 +151,8 @@ namespace Comparatist.Services.Infrastructure
                     case Category: _categoryTree.MarkDirty(); break;
                     case Language: _tableCache.MarkDirty(); break;
                 }
+
+                RebuildCategoryTableCache();
             });
         }
 
@@ -167,6 +180,11 @@ namespace Comparatist.Services.Infrastructure
             {
                 return new Result<T>(false, default, e.Message);
             }
+        }
+
+        private void RebuildCategoryTableCache()
+        {
+            _categoryTableComposing.RebuildCache(_categoryTree.GetTree(), _tableCache.GetTable());
         }
     }
 }
