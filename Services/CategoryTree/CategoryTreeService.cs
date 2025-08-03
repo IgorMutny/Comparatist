@@ -56,6 +56,8 @@ namespace Comparatist.Services.CategoryTree
                 }
             }
 
+            _cache.RootNodes = _cache.RootNodes.OrderBy(e => e.Category.Order).ToList();
+
             foreach (var node in _cache.AllNodes.Values)
                 if (node.Children.Count > 1)
                     node.Children = node.Children.OrderBy(child => child.Category.Order).ToList();

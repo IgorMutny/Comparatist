@@ -14,6 +14,7 @@ namespace Comparatist.View.CategoryTree
         {
             View.AddRequest += OnAddRequest;
             View.UpdateRequest += OnUpdateRequest;
+            View.UpdateManyRequest += OnUpdateManyRequest;
             View.DeleteRequest += OnDeleteRequest;
             UpdateView();
         }
@@ -22,6 +23,7 @@ namespace Comparatist.View.CategoryTree
         {
             View.AddRequest -= OnAddRequest;
             View.UpdateRequest -= OnUpdateRequest;
+            View.UpdateManyRequest -= OnUpdateManyRequest;
             View.DeleteRequest -= OnDeleteRequest;
         }
 
@@ -34,6 +36,12 @@ namespace Comparatist.View.CategoryTree
         private void OnUpdateRequest(Category category)
         {
             Execute(() => Service.Update(category));
+            UpdateView();
+        }
+
+        private void OnUpdateManyRequest(IEnumerable<Category> categories)
+        {
+            Execute(() => Service.UpdateMany(categories));
             UpdateView();
         }
 

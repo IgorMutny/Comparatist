@@ -1,7 +1,6 @@
 ﻿using Comparatist.Core.Records;
 using Comparatist.View.Infrastructure;
 using Comparatist.View.Utilities;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Comparatist.View.LanguageGrid
 {
@@ -10,7 +9,7 @@ namespace Comparatist.View.LanguageGrid
         private DisposableMenu _gridMenu;
         private DisposableMenu _languageMenu;
         private LanguageGridDragDropHelper _dragDropHelper;
-        private List<Language>? _cache;
+        private List<Language> _cache = new();
 
         public event Action<Language>? AddRequest;
         public event Action<Language>? UpdateRequest;
@@ -80,7 +79,7 @@ namespace Comparatist.View.LanguageGrid
         {
             int rowIndex = Control.Rows.Add();
             var cell = Control.Rows[rowIndex].Cells[0];
-            cell.Value = $"{language.Value} {language.Order}";
+            cell.Value = language.Value;
             cell.Tag = language;
         }
 
@@ -90,7 +89,7 @@ namespace Comparatist.View.LanguageGrid
 
             if (!string.IsNullOrWhiteSpace(input))
             {
-                var language = new Language { Id = Guid.Empty, Value = input };
+                var language = new Language { Id = Guid.Empty, Value = input, Order = _cache.Count };
                 AddRequest?.Invoke(language);
             }
         }
@@ -113,7 +112,6 @@ namespace Comparatist.View.LanguageGrid
             if (string.IsNullOrWhiteSpace(input))
                 return;
 
-            language = (Language)language.Clone();
             language.Value = input;
             UpdateRequest?.Invoke(language);
         }
@@ -127,7 +125,7 @@ namespace Comparatist.View.LanguageGrid
             _cache.RemoveAt(sourceIndex);
             _cache.Insert(targetIndex, movedLanguage);
 
-            for(int i = 0; i < _cache.Count; i++)
+            for (int i = 0; i < _cache.Count; i++)
                 _cache[i].Order = i;
 
             UpdateManyRequest?.Invoke(_cache);
@@ -150,10 +148,7 @@ namespace Comparatist.View.LanguageGrid
                 MessageBoxIcon.Warning);
 
             if (result == DialogResult.Yes)
-            {
-                language = (Language)language.Clone();
                 DeleteRequest?.Invoke(language);
-            }
         }
 
         private void OnMouseUp(object? sender, MouseEventArgs e)

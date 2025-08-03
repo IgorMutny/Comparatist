@@ -2,6 +2,8 @@
 using Comparatist.Services.CategoryTree;
 using Comparatist.View.Infrastructure;
 using Comparatist.View.Utilities;
+using Comparatist.View.Utilities.Comparatist.View.Utilities;
+using System.Text;
 
 namespace Comparatist.View.CategoryTree
 {
@@ -10,9 +12,11 @@ namespace Comparatist.View.CategoryTree
         private DisposableMenu _treeMenu;
         private DisposableMenu _nodeMenu;
         private CategoryTreeDragDropHelper _dragDropHelper;
+        private List<Category> _cache = new();
 
         public event Action<Category>? AddRequest;
         public event Action<Category>? UpdateRequest;
+        public event Action<IEnumerable<Category>>? UpdateManyRequest;
         public event Action<Category>? DeleteRequest;
 
         public CategoryTreeViewAdapter(TreeView tree) : base(tree)
@@ -55,6 +59,7 @@ namespace Comparatist.View.CategoryTree
         {
             Control.BeginUpdate();
             Control.Nodes.Clear();
+            _cache = new();
 
             foreach (var root in rootNodes)
                 Control.Nodes.Add(CreateTreeNode(root));
@@ -65,7 +70,8 @@ namespace Comparatist.View.CategoryTree
 
         private TreeNode CreateTreeNode(CachedCategoryNode node)
         {
-            var treeNode = new TreeNode(node.Category.Value) { Tag = node.Category };
+            var treeNode = new TreeNode($"{node.Category.Value} {node.Category.Order}") { Tag = node.Category };
+            _cache?.Add(node.Category);
 
             foreach (var child in node.Children)
                 treeNode.Nodes.Add(CreateTreeNode(child));
@@ -80,7 +86,7 @@ namespace Comparatist.View.CategoryTree
             if (string.IsNullOrWhiteSpace(name))
                 return;
 
-            var category = new Category { Value = name, ParentId = Guid.Empty };
+            var category = new Category { Value = name, ParentId = Guid.Empty, Order = _cache.Count };
             AddRequest?.Invoke(category);
         }
 
@@ -100,7 +106,8 @@ namespace Comparatist.View.CategoryTree
             {
                 Id = Guid.Empty,
                 Value = name,
-                ParentId = parentCategory.Id
+                ParentId = parentCategory.Id,
+                Order = parentCategory.Order + 1
             };
 
             AddRequest?.Invoke(category);
@@ -119,17 +126,47 @@ namespace Comparatist.View.CategoryTree
             if (string.IsNullOrWhiteSpace(name))
                 return;
 
-            var updatedCategory = (Category)category.Clone();
-            updatedCategory.Value = name;
-            UpdateRequest?.Invoke(updatedCategory);
+            category.Value = name;
+            UpdateRequest?.Invoke(category);
         }
 
         private void MoveNode(Category source, Category? target)
         {
             if (target == null)
+            {
                 SetAsRoot(source);
+            }
             else
-                SetAsChildOf(source, target);
+            {
+                var position = DropPositionBox.Show($"Move {source.Value} to {target.Value}:", "Move category");
+                switch (position)
+                {
+                    case DropPositions.Inside:
+                        SetAsChildOf(source, target); break;
+                    case DropPositions.Before:
+                        PlaceBefore(source, target); break;
+                    case DropPositions.After:
+                        PlaceAfter(source, target); break;
+                }
+            }
+        }
+
+        private void PlaceAfter(Category source, Category target)
+        {
+            source.ParentId = target.ParentId;
+            _cache.Remove(source);
+            var newOrder = Math.Min(target.Order, _cache.Count);
+            _cache.Insert(newOrder, source);
+            ReorderCache();
+        }
+
+        private void PlaceBefore(Category source, Category target)
+        {
+            source.ParentId = target.ParentId;
+            _cache.Remove(source);
+            var newOrder = Math.Min(target.Order, _cache.Count);
+            _cache.Insert(newOrder, source);
+            ReorderCache();
         }
 
         private void SetAsRoot(Category source)
@@ -141,25 +178,23 @@ namespace Comparatist.View.CategoryTree
 
             if (confirmation == DialogResult.OK)
             {
-                var updatedCategory = (Category)source.Clone();
-                updatedCategory.ParentId = Guid.Empty;
-                UpdateRequest?.Invoke(updatedCategory);
+                source.ParentId = Guid.Empty;
+                UpdateRequest?.Invoke(source);
             }
+        }
+
+        private void ReorderCache()
+        {
+            for (int i = 0; i < _cache.Count; i++)
+                _cache[i].Order = i;
+
+            UpdateManyRequest?.Invoke(_cache);
         }
 
         private void SetAsChildOf(Category source, Category target)
         {
-            var confirmation = MessageBox.Show(
-                $"Set category {source.Value} as a child of {target.Value}?",
-                "Move category",
-                MessageBoxButtons.OKCancel);
-
-            if (confirmation == DialogResult.OK)
-            {
-                var updatedCategory = (Category)source.Clone();
-                updatedCategory.ParentId = target.Id;
-                UpdateRequest?.Invoke(updatedCategory);
-            }
+            source.ParentId = target.Id;
+            UpdateRequest?.Invoke(source);
         }
 
         private void DeleteNode()
@@ -174,10 +209,7 @@ namespace Comparatist.View.CategoryTree
                 MessageBoxIcon.Warning);
 
             if (result == DialogResult.Yes)
-            {
-                var deletedCategory = (Category)category.Clone();
-                DeleteRequest?.Invoke(deletedCategory);
-            }
+                DeleteRequest?.Invoke(category);
         }
 
         private void OnMouseUp(object? sender, MouseEventArgs e)
