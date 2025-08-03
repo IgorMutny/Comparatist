@@ -38,61 +38,61 @@ namespace Comparatist.View.WordGrid
 
         private void OnAddRootRequest(Root root)
         {
-            Execute(() => Service.AddRoot(root));
+            Execute(() => Service.Add(root));
             UpdateView();
         }
 
         private void OnUpdateRootRequest(Root root)
         {
-            Execute(() => Service.UpdateRoot(root));
+            Execute(() => Service.Update(root));
             UpdateView();
         }
 
         private void OnDeleteRootRequest(Root root)
         {
-            Execute(() => Service.DeleteRoot(root));
+            Execute(() => Service.Delete(root));
             UpdateView();
         }
 
         private void OnAddStemRequest(Stem stem)
         {
-            Execute(() => Service.AddStem(stem));
+            Execute(() => Service.Add(stem));
             UpdateView();
         }
 
         private void OnUpdateStemRequest(Stem stem)
         {
-            Execute(() => Service.UpdateStem(stem));
+            Execute(() => Service.Update(stem));
             UpdateView();
         }
 
         private void OnDeleteStemRequest(Stem stem)
         {
-            Execute(() => Service.DeleteStem(stem));
+            Execute(() => Service.Delete(stem));
             UpdateView();
         }
 
         private void OnAddWordRequest(Word word)
         {
-            Execute(() => Service.AddWord(word));
+            Execute(() => Service.Add(word));
             UpdateView();
         }
 
         private void OnUpdateWordRequest(Word word)
         {
-            Execute(() => Service.UpdateWord(word));
+            Execute(() => Service.Update(word));
             UpdateView();
         }
 
         private void OnDeleteWordRequest(Word word)
         {
-            Execute(() => Service.DeleteWord(word));
+            Execute(() => Service.Delete(word));
             UpdateView();
         }
 
         protected override void UpdateView()
         {
-            var blocks = Execute(Service.GetAllBlocksByAlphabet);
+            var blocks = Execute(Service.GetWordTable);
             var languages = Execute(Service.GetAllLanguages);
             var categories = Execute(Service.GetAllCategories);
 

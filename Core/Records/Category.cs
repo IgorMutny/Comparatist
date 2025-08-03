@@ -8,6 +8,7 @@ namespace Comparatist.Core.Records
         [Key(0)] public Guid Id { get; set; }
         [Key(1)] public string Value { get; set; } = string.Empty;
         [Key(2)] public Guid ParentId { get; set; } = Guid.Empty;
+        [Key(3)] public int Order { get; set; } = 0;
 
         public object Clone()
         {

@@ -20,33 +20,11 @@ namespace Comparatist.Services.TableCache
             _isDirty = true;
         }
 
-        public IEnumerable<CachedBlock> GetAllBlocksByAlphabet()
+        public IEnumerable<CachedBlock> GetTable()
         {
             UpdateCacheIfDirty();
 
-            return _cache.Blocks
-                .Select(pair => (CachedBlock)pair.Value.Clone())
-                .OrderBy(e => e.Root.Value);
-        }
-
-        public CachedBlock GetBlock(Guid rootId)
-        {
-            UpdateCacheIfDirty();
-
-            if (_cache.Blocks.TryGetValue(rootId, out var b))
-                return (CachedBlock)b.Clone();
-            else
-                throw new InvalidOperationException($"Root {rootId} not found in cache");
-        }
-
-        public CachedRow GetRow(Guid stemId)
-        {
-            UpdateCacheIfDirty();
-
-            if (_cache.Rows.TryGetValue(stemId, out var r))
-                return (CachedRow)r.Clone();
-            else
-                throw new InvalidOperationException($"Stem {stemId} not found in cache");
+            return _cache.Blocks.Select(pair => (CachedBlock)pair.Value.Clone());
         }
 
         public void RebuildCache()
@@ -54,22 +32,55 @@ namespace Comparatist.Services.TableCache
             _cache.Blocks.Clear();
             _cache.Rows.Clear();
 
-            foreach (var root in _database.Roots.GetAll())
+            foreach (var root in _database.GetRepository<Root>().GetAll())
                 AddRoot(root);
 
-            foreach (var stem in _database.Stems.GetAll())
+            foreach (var stem in _database.GetRepository<Stem>().GetAll())
                 AddStem(stem);
 
-            foreach (var word in _database.Words.GetAll())
+            foreach (var word in _database.GetRepository<Word>().GetAll())
                 AddWord(word);
         }
 
-        public void AddRoot(Root root)
+        public void Add<T>(T entity) where T : IRecord
+        {
+            switch (entity)
+            {
+                case Root root: AddRoot(root); break;
+                case Stem stem: AddStem(stem); break;
+                case Word word: AddWord(word); break;
+                default: break;
+            }
+        }
+
+        public void Update<T>(T entity) where T : IRecord
+        {
+            switch (entity)
+            {
+                case Root root: UpdateRoot(root); break;
+                case Stem stem: UpdateStem(stem); break;
+                case Word word: UpdateWord(word); break;
+                default: break;
+            }
+        }
+
+        public void Delete<T>(T entity) where T : IRecord
+        {
+            switch (entity)
+            {
+                case Root root: DeleteRoot(root); break;
+                case Stem stem: DeleteStem(stem); break;
+                case Word word: DeleteWord(word); break;
+                default: break;
+            }
+        }
+
+        private void AddRoot(Root root)
         {
             _cache.Blocks.Add(root.Id, new CachedBlock { Root = root });
         }
 
-        public void AddStem(Stem stem)
+        private void AddStem(Stem stem)
         {
             var row = new CachedRow { Stem = stem };
             _cache.Rows.Add(stem.Id, row);
@@ -83,7 +94,7 @@ namespace Comparatist.Services.TableCache
             }
         }
 
-        public void AddWord(Word word)
+        private void AddWord(Word word)
         {
             if (!_cache.Rows.TryGetValue(word.StemId, out var row))
                 throw new InvalidOperationException($"Stem {word.StemId} not found in cache");
@@ -91,7 +102,7 @@ namespace Comparatist.Services.TableCache
             row.Cells.Add(word.LanguageId, word);
         }
 
-        public void UpdateRoot(Root root)
+        private void UpdateRoot(Root root)
         {
             if (!_cache.Blocks.TryGetValue(root.Id, out var block))
                 throw new InvalidOperationException($"Root {root.Id} not found in cache");
@@ -99,7 +110,7 @@ namespace Comparatist.Services.TableCache
             block.Root = root;
         }
 
-        public void UpdateStem(Stem stem)
+        private void UpdateStem(Stem stem)
         {
             if (!_cache.Rows.TryGetValue(stem.Id, out var row))
                 throw new InvalidOperationException($"Stem {stem.Id} not found in cache");
@@ -116,7 +127,7 @@ namespace Comparatist.Services.TableCache
             }
         }
 
-        public void UpdateWord(Word word)
+        private void UpdateWord(Word word)
         {
             if (!_cache.Rows.TryGetValue(word.StemId, out var row))
                 throw new InvalidOperationException($"Stem {word.StemId} not found in cache");
@@ -124,7 +135,7 @@ namespace Comparatist.Services.TableCache
             row.Cells[word.LanguageId] = word;
         }
 
-        public void DeleteRoot(Root root)
+        private void DeleteRoot(Root root)
         {
             if (!_cache.Blocks.ContainsKey(root.Id))
                 throw new InvalidOperationException($"Root {root.Id} not found in cache");
@@ -132,7 +143,7 @@ namespace Comparatist.Services.TableCache
             _cache.Blocks.Remove(root.Id);
         }
 
-        public void DeleteStem(Stem stem)
+        private void DeleteStem(Stem stem)
         {
             if (!_cache.Rows.Remove(stem.Id))
                 throw new InvalidOperationException($"Stem {stem.Id} not found in cache");
@@ -146,7 +157,7 @@ namespace Comparatist.Services.TableCache
             }
         }
 
-        public void DeleteWord(Word word)
+        private void DeleteWord(Word word)
         {
             if (!_cache.Rows.TryGetValue(word.StemId, out var row))
                 throw new InvalidOperationException($"Stem {word.StemId} not found in cache");

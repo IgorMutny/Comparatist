@@ -1,5 +1,3 @@
-using Comparatist.Services.TableCache;
-
 namespace Comparatist
 {
     internal static class Program

@@ -1,4 +1,5 @@
 ﻿using Comparatist.Core.Infrastructure;
+using Comparatist.Core.Records;
 
 namespace Comparatist.Services.CategoryTree
 {
@@ -33,7 +34,7 @@ namespace Comparatist.Services.CategoryTree
             _cache.RootNodes.Clear();
             _cache.AllNodes.Clear();
 
-            foreach (var category in _database.Categories.GetAll())
+            foreach (var category in _database.GetRepository<Category>().GetAll())
                 _cache.AllNodes.Add(category.Id, new CachedCategoryNode { Category = category });
 
             foreach (var node in _cache.AllNodes.Values)
@@ -54,6 +55,10 @@ namespace Comparatist.Services.CategoryTree
                     parentNode.Children.Add(node);
                 }
             }
+
+            foreach (var node in _cache.AllNodes.Values)
+                if (node.Children.Count > 1)
+                    node.Children = node.Children.OrderBy(child => child.Category.Order).ToList();
         }
 
         private void UpdateCacheIfDirty()

@@ -9,19 +9,20 @@ namespace Comparatist.Services.CascadeDelete
 
         protected override IEnumerable<IRecord> Delete(Category record)
         {
-            Database.Categories.Delete(record.Id);
+            var categoryRepo = Database.GetRepository<Category>();
+            var rootRepo = Database.GetRepository<Root>();
 
-            var roots = Database.Roots.GetAll().Where(x => x.CategoryIds.Contains(record.Id));
+            categoryRepo.Delete(record.Id);
 
-            foreach (var root in roots)
+            var updatedRoots = rootRepo.GetAll().Where(x => x.CategoryIds.Contains(record.Id));
+
+            foreach (var root in updatedRoots)
             {
                 root.CategoryIds.Remove(record.Id);
-                Database.Roots.Update(root);
+                rootRepo.Update(root);
             }
 
-            return Database.Categories.GetAll()
-                .Where(x => x.ParentId == record.Id)
-                .ToList();
+            return categoryRepo.GetAll().Where(x => x.ParentId == record.Id).ToList();
         }
     }
 }

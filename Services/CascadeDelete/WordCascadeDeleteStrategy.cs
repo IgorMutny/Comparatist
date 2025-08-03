@@ -9,7 +9,7 @@ namespace Comparatist.Services.CascadeDelete
 
         protected override IEnumerable<IRecord> Delete(Word record)
         {
-            Database.Words.Delete(record.Id);
+            Database.GetRepository<Word>().Delete(record.Id);
             return new List<Word>();
         }
     }

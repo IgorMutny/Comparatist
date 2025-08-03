@@ -9,9 +9,9 @@ namespace Comparatist.Services.CascadeDelete
 
         protected override IEnumerable<IRecord> Delete(Root record)
         {
-            Database.Roots.Delete(record.Id);
+            Database.GetRepository<Root>().Delete(record.Id);
 
-            return Database.Stems.GetAll()
+            return Database.GetRepository<Stem>().GetAll()
                 .Where(x => x.RootIds.Contains(record.Id))
                 .ToList();
         }

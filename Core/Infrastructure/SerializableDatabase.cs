@@ -18,20 +18,22 @@ namespace Comparatist.Core.Infrastructure
         public SerializableDatabase(Database db)
         {
             Metadata = db.Metadata;
-            Categories = ((Repository<Category>)db.Categories).Export().ToList();
-            Languages = ((Repository<Language>)db.Languages).Export().ToList();
-            Roots = ((Repository<Root>)db.Roots).Export().ToList();
-            Stems = ((Repository<Stem>)db.Stems).Export().ToList();
-            Words = ((Repository<Word>)db.Words).Export().ToList();
+            Categories = db.GetRepository<Category>().Export().OfType<Category>().ToList();
+            Languages = db.GetRepository<Language>().Export().OfType<Language>().ToList();
+            Roots = db.GetRepository<Root>().Export().OfType<Root>().ToList();
+            Stems = db.GetRepository<Stem>().Export().OfType<Stem>().ToList();
+            Words = db.GetRepository<Word>().Export().OfType<Word>().ToList();
         }
 
         public void RestoreTo(Database db)
         {
-            ((Repository<Category>)db.Categories).Import(Categories);
-            ((Repository<Language>)db.Languages).Import(Languages);
-            ((Repository<Root>)db.Roots).Import(Roots);
-            ((Repository<Stem>)db.Stems).Import(Stems);
-            ((Repository<Word>)db.Words).Import(Words);
+            db.Metadata.Modified = Metadata.Modified;
+
+            db.GetRepository<Category>().Import(Categories);
+            db.GetRepository<Language>().Import(Languages);
+            db.GetRepository<Root>().Import(Roots);
+            db.GetRepository<Stem>().Import(Stems);
+            db.GetRepository<Word>().Import(Words);
         }
     }
 }

@@ -7,11 +7,23 @@ namespace Comparatist.Core.Infrastructure
     public class Database : IDatabase
     {
         public ProjectMetadata Metadata { get; } = ProjectMetadata.CreateNew();
-        public IRepository<Category> Categories { get; } = new Repository<Category>();
-        public IRepository<Language> Languages { get; } = new Repository<Language>();
-        public IRepository<Root> Roots { get; } = new Repository<Root>();
-        public IRepository<Stem> Stems { get; } = new Repository<Stem>();
-        public IRepository<Word> Words { get; } = new Repository<Word>();
+
+        private Dictionary<Type, IRepository> _repositories = new()
+        {
+            { typeof(Category), new Repository<Category>() },
+            { typeof(Language), new Repository<Language>() },
+            { typeof(Root),     new Repository<Root>()     },
+            { typeof(Stem),     new Repository<Stem>()     },
+            { typeof(Word),     new Repository<Word>()     },
+        };
+
+        public IRepository<T> GetRepository<T>() where T : class, IRecord
+        {
+            if (_repositories.TryGetValue(typeof(T), out var repo) && repo is IRepository<T> typedRepo)
+                return typedRepo;
+
+            throw new InvalidOperationException($"Repository for type {typeof(T).Name} not found.");
+        }
 
         public void Save(string path)
         {
@@ -29,7 +41,7 @@ namespace Comparatist.Core.Infrastructure
 
         public void Load(string path)
         {
-            if (!File.Exists(path)) 
+            if (!File.Exists(path))
                 throw new FileNotFoundException();
 
             using var fs = File.OpenRead(path);
@@ -37,23 +49,10 @@ namespace Comparatist.Core.Infrastructure
             state.RestoreTo(this);
         }
 
-        public IEnumerable<IRecord> GetAllRecords()
-        {
-            return Categories.GetAll()
-                .Concat<IRecord>(Languages.GetAll())
-                .Concat(Roots.GetAll())
-                .Concat(Stems.GetAll())
-                .Concat(Words.GetAll())
-                .ToList();
-        }
-
         public void Clear()
         {
-            Categories.Clear();
-            Languages.Clear();
-            Roots.Clear();
-            Stems.Clear();
-            Words.Clear();
+            foreach (var repo in _repositories.Values)
+                repo.Clear();
         }
     }
 }

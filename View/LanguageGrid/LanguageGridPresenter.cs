@@ -27,19 +27,19 @@ namespace Comparatist.View.LanguageGrid
 
         private void OnAddRequest(Language language)
         {
-            Execute(() => Service.AddLanguage(language));
+            Execute(() => Service.Add(language));
             UpdateView();
         }
 
         private void OnUpdateRequest(Language language)
         {
-            Execute(() => Service.UpdateLanguage(language));
+            Execute(() => Service.Update(language));
             UpdateView();
         }
 
         private void OnDeleteRequest(Language language)
         {
-            Execute(() => Service.DeleteLanguage(language));
+            Execute(() => Service.Delete(language));
             UpdateView();
         }
 

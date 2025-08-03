@@ -9,9 +9,9 @@ namespace Comparatist.Services.CascadeDelete
 
         protected override IEnumerable<IRecord> Delete(Language record)
         {
-            Database.Languages.Delete(record.Id);
+            Database.GetRepository<Language>().Delete(record.Id);
 
-            return Database.Words.GetAll()
+            return Database.GetRepository<Word>().GetAll()
                 .Where(x => x.LanguageId == record.Id)
                 .ToList();
         }

@@ -27,25 +27,25 @@ namespace Comparatist.View.CategoryTree
 
         private void OnAddRequest(Category category)
         {
-            Execute(() => Service.AddCategory(category));
+            Execute(() => Service.Add(category));
             UpdateView();
         }
 
         private void OnUpdateRequest(Category category)
         {
-            Execute(() => Service.UpdateCategory(category));
+            Execute(() => Service.Update(category));
             UpdateView();
         }
 
         private void OnDeleteRequest(Category category)
         {
-            Execute(() => Service.DeleteCategory(category));
+            Execute(() => Service.Delete(category));
             UpdateView();
         }
 
         protected override void UpdateView()
         {
-            var nodes = Execute(Service.GetTree);
+            var nodes = Execute(Service.GetCategoryTree);
 
             if (nodes != null)
                 View.Render(nodes.ToList());

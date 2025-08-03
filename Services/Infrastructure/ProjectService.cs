@@ -39,176 +39,83 @@ namespace Comparatist.Services.Infrastructure
             });
         }
 
-        public Result<IEnumerable<CachedCategoryNode>> GetTree()
-        {
-            return Execute(_categoryTree.GetTree);
-        }
-
         public Result<IEnumerable<Language>> GetAllLanguages()
         {
-            return Execute(() => 
-                (IEnumerable<Language>)_database.Languages.GetAll()
+            return Execute(() =>
+                (IEnumerable<Language>)_database.GetRepository<Language>()
+                    .GetAll()
                     .OrderBy(e => e.Order));
         }
 
         public Result<IEnumerable<Category>> GetAllCategories()
         {
-            return Execute(_database.Categories.GetAll);
+            return Execute(() =>
+                (IEnumerable<Category>)_database.GetRepository<Category>()
+                    .GetAll()
+                    .OrderBy(e => e.Order));
         }
 
-        public Result<IEnumerable<CachedBlock>> GetAllBlocksByAlphabet()
+        public Result<IEnumerable<CachedCategoryNode>> GetCategoryTree()
         {
-            return Execute(_tableCache.GetAllBlocksByAlphabet);
+            return Execute(_categoryTree.GetTree);
         }
 
-        public Result<CachedBlock> GetBlock(Guid rootId)
+        public Result<IEnumerable<CachedBlock>> GetWordTable()
+        {
+            return Execute(_tableCache.GetTable);
+        }
+
+        public Result Add<T>(T record) where T : class, IRecord
         {
             return Execute(() =>
             {
-                return _tableCache.GetBlock(rootId);
+                _database.GetRepository<T>().Add(record);
+
+                switch (record)
+                {
+                    case Root r: _tableCache.Add(r); break;
+                    case Stem s: _tableCache.Add(s); break;
+                    case Word w: _tableCache.Add(w); break;
+
+                    case Category: _categoryTree.MarkDirty(); break;
+                    case Language: _tableCache.MarkDirty(); break;
+                }
             });
         }
 
-        public Result<CachedRow> GetRow(Guid stemId)
+        public Result Update<T>(T record) where T : class, IRecord
         {
             return Execute(() =>
             {
-                return _tableCache.GetRow(stemId);
+                _database.GetRepository<T>().Update(record);
+
+                switch (record)
+                {
+                    case Root r: _tableCache.Update(r); break;
+                    case Stem s: _tableCache.Update(s); break;
+                    case Word w: _tableCache.Update(w); break;
+
+                    case Category: _categoryTree.MarkDirty(); break;
+                    case Language: _tableCache.MarkDirty(); break;
+                }
             });
         }
 
-        public Result AddLanguage(Language language)
+        public Result Delete<T>(T record) where T : class, IRecord
         {
             return Execute(() =>
             {
-                _database.Languages.Add(language);
-                _tableCache.MarkDirty();
-            });
-        }
+                _cascadeDelete.Delete(record);
 
-        public Result UpdateLanguage(Language language)
-        {
-            return Execute(() =>
-            {
-                _database.Languages.Update(language);
-                _tableCache.MarkDirty();
-            });
-        }
+                switch (record)
+                {
+                    case Root r: _tableCache.Delete(r); break;
+                    case Stem s: _tableCache.Delete(s); break;
+                    case Word w: _tableCache.Delete(w); break;
 
-        public Result DeleteLanguage(Language language)
-        {
-            return Execute(() =>
-            {
-                _cascadeDelete.Delete(language);
-                _tableCache.MarkDirty();
-            });
-        }
-
-        public Result AddCategory(Category category)
-        {
-            return Execute(() =>
-            {
-                _database.Categories.Add(category);
-                _categoryTree.MarkDirty();
-            });
-        }
-
-        public Result UpdateCategory(Category category)
-        {
-            return Execute(() =>
-            {
-                _database.Categories.Update(category);
-                _categoryTree.MarkDirty();
-            });
-        }
-
-        public Result DeleteCategory(Category category)
-        {
-            return Execute(() =>
-            {
-                _cascadeDelete.Delete(category);
-                _categoryTree.MarkDirty();
-            });
-        }
-
-        public Result AddRoot(Root root)
-        {
-            return Execute(() =>
-            {
-                _database.Roots.Add(root);
-                _tableCache.AddRoot(root);
-            });
-        }
-
-        public Result UpdateRoot(Root root)
-        {
-            return Execute(() =>
-            {
-                _database.Roots.Update(root);
-                _tableCache.UpdateRoot(root);
-            });
-        }
-
-        public Result DeleteRoot(Root root)
-        {
-            return Execute(() =>
-            {
-                _cascadeDelete.Delete(root);
-                _tableCache.DeleteRoot(root);
-            });
-        }
-
-        public Result AddStem(Stem stem)
-        {
-            return Execute(() =>
-            {
-                _database.Stems.Add(stem);
-                _tableCache.AddStem(stem);
-            });
-        }
-
-        public Result UpdateStem(Stem stem)
-        {
-            return Execute(() =>
-            {
-                _database.Stems.Update(stem);
-                _tableCache.UpdateStem(stem);
-            });
-        }
-
-        public Result DeleteStem(Stem stem)
-        {
-            return Execute(() =>
-            {
-                _cascadeDelete.Delete(stem);
-                _tableCache.DeleteStem(stem);
-            });
-        }
-
-        public Result AddWord(Word word)
-        {
-            return Execute(() =>
-            {
-                _database.Words.Add(word);
-                _tableCache.AddWord(word);
-            });
-        }
-
-        public Result UpdateWord(Word word)
-        {
-            return Execute(() =>
-            {
-                _database.Words.Update(word);
-                _tableCache.UpdateWord(word);
-            });
-        }
-
-        public Result DeleteWord(Word word)
-        {
-            return Execute(() =>
-            {
-                _cascadeDelete.Delete(word);
-                _tableCache.DeleteWord(word);
+                    case Category: _categoryTree.MarkDirty(); break;
+                    case Language: _tableCache.MarkDirty(); break;
+                }
             });
         }
 
@@ -239,3 +146,5 @@ namespace Comparatist.Services.Infrastructure
         }
     }
 }
+
+

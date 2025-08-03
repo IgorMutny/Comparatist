@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Comparatist.Core.Infrastructure
 {
-    public class Repository<T> : IRepository<T> where T : IRecord
+    public class Repository<T> : IRepository<T> where T : class, IRecord
     {
         private Dictionary<Guid, T> _storage = new();
 
@@ -49,17 +49,17 @@ namespace Comparatist.Core.Infrastructure
             return _storage.Values.Select(record => (T)record.Clone());
         }
 
-        public IEnumerable<T> Export()
+        public IEnumerable<IRecord> Export()
         {
             return _storage.Values;
         }
 
-        public void Import(IEnumerable<T> records)
+        public void Import(IEnumerable<IRecord> records)
         {
             Clear();
 
             foreach (var record in records)
-                _storage.Add(record.Id, record);
+                _storage.Add(record.Id, (T)record);
         }
 
         public void Clear()
