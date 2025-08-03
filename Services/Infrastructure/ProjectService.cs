@@ -94,7 +94,28 @@ namespace Comparatist.Services.Infrastructure
                     case Root r: _tableCache.Update(r); break;
                     case Stem s: _tableCache.Update(s); break;
                     case Word w: _tableCache.Update(w); break;
+                    case Category: _categoryTree.MarkDirty(); break;
+                    case Language: _tableCache.MarkDirty(); break;
+                }
+            });
+        }
 
+        public Result UpdateMany<T>(IEnumerable<T> records) where T : class, IRecord
+        {
+            return Execute(() =>
+            {
+                var repo = _database.GetRepository<T>();
+
+                foreach (var record in records)
+                    repo.Update(record);
+
+                var firstRecord = records.FirstOrDefault();
+
+                switch (firstRecord)
+                {
+                    case Root r: _tableCache.MarkDirty(); break;
+                    case Stem s: _tableCache.MarkDirty(); break;
+                    case Word w: _tableCache.MarkDirty(); break;
                     case Category: _categoryTree.MarkDirty(); break;
                     case Language: _tableCache.MarkDirty(); break;
                 }
@@ -112,7 +133,6 @@ namespace Comparatist.Services.Infrastructure
                     case Root r: _tableCache.Delete(r); break;
                     case Stem s: _tableCache.Delete(s); break;
                     case Word w: _tableCache.Delete(w); break;
-
                     case Category: _categoryTree.MarkDirty(); break;
                     case Language: _tableCache.MarkDirty(); break;
                 }

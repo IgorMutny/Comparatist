@@ -10,15 +10,16 @@ namespace Comparatist.View.LanguageGrid
         private DisposableMenu _gridMenu;
         private DisposableMenu _languageMenu;
         private LanguageGridDragDropHelper _dragDropHelper;
+        private List<Language>? _cache;
 
         public event Action<Language>? AddRequest;
         public event Action<Language>? UpdateRequest;
+        public event Action<IEnumerable<Language>>? UpdateManyRequest;
         public event Action<Language>? DeleteRequest;
-        public event Action<IEnumerable<Language>>? ReorderRequest;
 
         public LanguageGridViewAdapter(DataGridView grid) : base(grid)
         {
-            _dragDropHelper = new(Control, RequestReorder);
+            _dragDropHelper = new(Control, Reorder);
 
             _gridMenu = new DisposableMenu(
                 ("Add language", AddLanguage));
@@ -63,6 +64,7 @@ namespace Comparatist.View.LanguageGrid
         {
             Control.Rows.Clear();
             Control.Columns.Clear();
+            _cache = languages.ToList();
 
             Control.Columns.Add(new DataGridViewTextBoxColumn
             {
@@ -78,7 +80,7 @@ namespace Comparatist.View.LanguageGrid
         {
             int rowIndex = Control.Rows.Add();
             var cell = Control.Rows[rowIndex].Cells[0];
-            cell.Value = language.Value;
+            cell.Value = $"{language.Value} {language.Order}";
             cell.Tag = language;
         }
 
@@ -114,6 +116,21 @@ namespace Comparatist.View.LanguageGrid
             language = (Language)language.Clone();
             language.Value = input;
             UpdateRequest?.Invoke(language);
+        }
+
+        private void Reorder(int sourceIndex, int targetIndex)
+        {
+            if (_cache == null)
+                return;
+
+            var movedLanguage = _cache.ElementAt(sourceIndex);
+            _cache.RemoveAt(sourceIndex);
+            _cache.Insert(targetIndex, movedLanguage);
+
+            for(int i = 0; i < _cache.Count; i++)
+                _cache[i].Order = i;
+
+            UpdateManyRequest?.Invoke(_cache);
         }
 
         private void DeleteLanguage()
@@ -158,11 +175,6 @@ namespace Comparatist.View.LanguageGrid
             {
                 _gridMenu.Show(Control, point);
             }
-        }
-
-        private void RequestReorder(IEnumerable<Language> languages)
-        {
-            ReorderRequest?.Invoke(languages);
         }
     }
 }

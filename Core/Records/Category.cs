@@ -16,7 +16,8 @@ namespace Comparatist.Core.Records
             {
                 Id = Id,
                 Value = Value,
-                ParentId = ParentId
+                ParentId = ParentId,
+                Order = Order
             };
         }
     }

@@ -6,10 +6,10 @@ namespace Comparatist.View.LanguageGrid
     internal class LanguageGridDragDropHelper
     {
         private readonly DataGridView _grid;
-        private readonly Action<IEnumerable<Language>> _reorder;
+        private readonly Action<int, int> _reorder;
         private int _draggedRowIndex = -1;
 
-        public LanguageGridDragDropHelper(DataGridView grid, Action<IEnumerable<Language>> reorder)
+        public LanguageGridDragDropHelper(DataGridView grid, Action<int, int> reorder)
         {
             _grid = grid;
             _reorder = reorder;
@@ -53,26 +53,13 @@ namespace Comparatist.View.LanguageGrid
             if (!TryGetDraggedRow(e, out var sourceRow))
                 return;
 
-            var sourceLanguage = sourceRow.Cells[0].Tag as Language;
-            if (sourceLanguage == null)
-                return;
+            var sourceIndex = sourceRow.Index;
 
             var targetIndex = GetTargetRowIndex(e);
             if (targetIndex < 0 || targetIndex >= _grid.Rows.Count)
                 return;
 
-            var languages = _grid.Rows
-                .Cast<DataGridViewRow>()
-                .Select(row => row.Cells[0].Tag)
-                .OfType<Language>()
-                .ToList();
-
-            if (ReferenceEquals(sourceLanguage, languages[targetIndex]))
-                return;
-
-            languages.Remove(sourceLanguage);
-            languages.Insert(targetIndex, sourceLanguage);
-            _reorder.Invoke(languages);
+            _reorder.Invoke(sourceIndex, targetIndex);
         }
 
         private bool TryGetDraggedRow(DragEventArgs e, [NotNullWhen(true)] out DataGridViewRow? row)
