@@ -69,7 +69,7 @@ namespace Comparatist.View.CategoryTree
 
         private TreeNode CreateTreeNode(CachedCategory node)
         {
-            var treeNode = new TreeNode($"{node.Record.Value} {node.Record.Id}") { Tag = node.Record };
+            var treeNode = new TreeNode(node.Record.Value) { Tag = node.Record };
             _cache?.Add(node.Record);
 
             foreach (var child in node.Children)
