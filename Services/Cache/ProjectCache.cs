@@ -11,12 +11,6 @@ namespace Comparatist.Services.Cache
         public readonly Dictionary<Guid, CachedWord> Words = new();
 
         public readonly HashSet<Guid> BaseCategoryIds = new();
-        public readonly CachedCategory Uncategorized = new CachedCategory
-        {
-            Record = new Category
-            {
-                Value = "Uncategorized"
-            }
-        };
+        public readonly HashSet<Guid> UncategorizedRoots = new();
     }
 }

@@ -4,25 +4,20 @@ using Comparatist.Services.Cache;
 using Comparatist.Services.CacheQuery;
 using Comparatist.Services.CacheUpdate;
 using Comparatist.Services.CascadeDelete;
-using Comparatist.Services.CategoryTableComposing;
-using Comparatist.Services.CategoryTree;
-using Comparatist.Services.TableCache;
 
 namespace Comparatist.Services.Infrastructure
 {
     public class ProjectService : IProjectService
     {
-        private CascadeDeleteService _cascadeDelete;
-        private TableCacheService _tableCache;
-        private CategoryTreeService _categoryTree;
-        private CategoryTableComposingService _categoryTableComposing;
-
         private IDatabase _database;
         private ProjectCache _projectCache;
+        private CascadeDeleteService _cascadeDelete;
         private LanguageCacheUpdater _languageCacheUpdater;
         private CategoryCacheUpdater _categoryCacheUpdater;
+        private RootCacheUpdater _rootCacheUpdater;
+        private StemCacheUpdater _stemCacheUpdater;
+        private WordCacheUpdater _wordCacheUpdater;
         private CacheQueryService _cacheQueryService;
-
 
         public ProjectService()
         {
@@ -30,16 +25,26 @@ namespace Comparatist.Services.Infrastructure
             _projectCache = new ProjectCache();
 
             _cascadeDelete = new CascadeDeleteService(_database);
-            _tableCache = new TableCacheService(_database);
-            _categoryTree = new CategoryTreeService(_database);
-            _categoryTableComposing = new CategoryTableComposingService();
-
             _languageCacheUpdater = new LanguageCacheUpdater(_database, _projectCache);
             _categoryCacheUpdater = new CategoryCacheUpdater(_database, _projectCache);
+            _rootCacheUpdater = new RootCacheUpdater(_database, _projectCache);
+            _stemCacheUpdater = new StemCacheUpdater(_database, _projectCache);
+            _wordCacheUpdater = new WordCacheUpdater(_database, _projectCache);
             _languageCacheUpdater.Initialize();
             _categoryCacheUpdater.Initialize();
-
+            _rootCacheUpdater.Initialize();
+            _stemCacheUpdater.Initialize();
+            _wordCacheUpdater.Initialize();
             _cacheQueryService = new CacheQueryService(_projectCache);
+        }
+
+        public void Dispose()
+        {
+            _wordCacheUpdater.Dispose();
+            _stemCacheUpdater.Dispose();
+            _rootCacheUpdater.Dispose();
+            _categoryCacheUpdater.Dispose();
+            _languageCacheUpdater.Dispose();
         }
 
         public Result LoadDatabase(string path)
@@ -47,19 +52,13 @@ namespace Comparatist.Services.Infrastructure
             return Execute(() =>
             {
                 _database.Load(path);
-                _tableCache.RebuildCache();
-                _categoryTree.RebuildCache();
-                RebuildCategoryTableCache();
                 RebuildProjectCache();
             });
         }
 
         public Result SaveDatabase(string path)
         {
-            return Execute(() =>
-            {
-                _database.Save(path);
-            });
+            return Execute(() => _database.Save(path));
         }
 
         public Result<IEnumerable<CachedLanguage>> GetAllLanguages()
@@ -67,12 +66,9 @@ namespace Comparatist.Services.Infrastructure
             return Execute(_cacheQueryService.GetAllLanguages);
         }
 
-        public Result<IEnumerable<Category>> GetAllCategories()
+        public Result<IEnumerable<CachedCategory>> GetAllCategories()
         {
-            return Execute(() =>
-                (IEnumerable<Category>)_database.GetRepository<Category>()
-                    .GetAll()
-                    .OrderBy(e => e.Order));
+            return Execute(_cacheQueryService.GetAllCategories);
         }
 
         public Result<IEnumerable<CachedCategory>> GetCategoryTree()
@@ -82,51 +78,17 @@ namespace Comparatist.Services.Infrastructure
 
         public Result<IEnumerable<CachedCategory>> GetWordTable(SortingTypes sortingType)
         {
-            switch (sortingType)
-            {
-                case SortingTypes.Alphabet: return Execute(_tableCache.GetTable);
-                case SortingTypes.Categories: return Execute(_categoryTableComposing.GetTable);
-                default: throw new ArgumentException($"Sorting type {sortingType} is not supported");
-            }
+            return Execute(() => _cacheQueryService.GetWordTable(sortingType));
         }
 
         public Result Add<T>(T record) where T : class, IRecord
         {
-            return Execute(() =>
-            {
-                _database.GetRepository<T>().Add(record);
-
-                switch (record)
-                {
-                    case Root r: _tableCache.Add(r); break;
-                    case Stem s: _tableCache.Add(s); break;
-                    case Word w: _tableCache.Add(w); break;
-
-                    case Category: _categoryTree.MarkDirty(); break;
-                    case Language: _tableCache.MarkDirty(); break;
-                }
-
-                RebuildCategoryTableCache();
-            });
+            return Execute(() => _database.GetRepository<T>().Add(record));
         }
 
         public Result Update<T>(T record) where T : class, IRecord
         {
-            return Execute(() =>
-            {
-                _database.GetRepository<T>().Update(record);
-
-                switch (record)
-                {
-                    case Root r: _tableCache.Update(r); break;
-                    case Stem s: _tableCache.Update(s); break;
-                    case Word w: _tableCache.Update(w); break;
-                    case Category: _categoryTree.MarkDirty(); break;
-                    case Language: _tableCache.MarkDirty(); break;
-                }
-
-                RebuildCategoryTableCache();
-            });
+            return Execute(() => _database.GetRepository<T>().Update(record));
         }
 
         public Result UpdateMany<T>(IEnumerable<T> records) where T : class, IRecord
@@ -137,39 +99,12 @@ namespace Comparatist.Services.Infrastructure
 
                 foreach (var record in records)
                     repo.Update(record);
-
-                var firstRecord = records.FirstOrDefault();
-
-                switch (firstRecord)
-                {
-                    case Root r: _tableCache.MarkDirty(); break;
-                    case Stem s: _tableCache.MarkDirty(); break;
-                    case Word w: _tableCache.MarkDirty(); break;
-                    case Category: _categoryTree.MarkDirty(); break;
-                    case Language: _tableCache.MarkDirty(); break;
-                }
-
-                RebuildCategoryTableCache();
             });
         }
 
         public Result Delete<T>(T record) where T : class, IRecord
         {
-            return Execute(() =>
-            {
-                _cascadeDelete.Delete(record);
-
-                switch (record)
-                {
-                    case Root r: _tableCache.Delete(r); break;
-                    case Stem s: _tableCache.Delete(s); break;
-                    case Word w: _tableCache.Delete(w); break;
-                    case Category: _categoryTree.MarkDirty(); break;
-                    case Language: _tableCache.MarkDirty(); break;
-                }
-
-                RebuildCategoryTableCache();
-            });
+            return Execute(() => _cascadeDelete.Delete(record));
         }
 
         private Result Execute(Action action)
@@ -202,11 +137,7 @@ namespace Comparatist.Services.Infrastructure
         {
             _languageCacheUpdater.RebuildCache();
             _categoryCacheUpdater.RebuildCache();
-        }
-
-        private void RebuildCategoryTableCache()
-        {
-            _categoryTableComposing.RebuildCache(_categoryTree.GetTree(), _tableCache.GetTable());
+            _rootCacheUpdater.RebuildCache();
         }
     }
 }

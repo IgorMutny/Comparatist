@@ -21,7 +21,6 @@ namespace Comparatist.Services.CacheUpdate
             categoryRepo.RecordAdded += OnAdded;
             categoryRepo.RecordUpdated += OnUpdated;
             categoryRepo.RecordDeleted += OnDeleted;
-            RebuildCache();
         }
 
         public void Dispose()

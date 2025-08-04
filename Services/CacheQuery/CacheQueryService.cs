@@ -1,5 +1,7 @@
 ﻿using Comparatist.Services.Exceptions;
 using Comparatist.Services.Cache;
+using Comparatist.Services.Infrastructure;
+using Comparatist.Core.Records;
 
 namespace Comparatist.Services.CacheQuery
 {
@@ -16,11 +18,58 @@ namespace Comparatist.Services.CacheQuery
         {
             return _cache.Languages
                 .Select(pair => new KeyValuePair<Guid, CachedLanguage>(
-                    pair.Key, 
+                    pair.Key,
                     (CachedLanguage)pair.Value.Clone()))
                 .OrderBy(e => e.Value.Record.Order)
                 .ToDictionary()
                 .Values;
+        }
+
+        public IEnumerable<CachedCategory> GetAllCategories()
+        {
+            return _cache.Categories
+                .Select(pair => new KeyValuePair<Guid, CachedCategory>(
+                    pair.Key, 
+                    (CachedCategory)pair.Value.Clone()))
+                .OrderBy(e => e.Value.Record.Order)
+                .ToDictionary().Values;
+        }
+
+        public IEnumerable<CachedCategory> GetWordTable(SortingTypes type)
+        {
+            return type switch
+            {
+                SortingTypes.Alphabet => GetWordTableByAlphabet(),
+                SortingTypes.Categories => GetWordTableByCategories(),
+                _ => throw new NotSupportedException()
+            };
+
+        }
+
+        private IEnumerable<CachedCategory> GetWordTableByAlphabet()
+        {
+            var allRoots = _cache.Roots
+                .Select(pair => new KeyValuePair<Guid, CachedRoot>(
+                    pair.Key,
+                    (CachedRoot)pair.Value.Clone()))
+                .OrderBy(e => e.Value.Record.Value)
+                .ToDictionary();
+
+            return new List<CachedCategory> { new CachedCategory
+            {
+                Record = new Category { Value = "By alphabet" },
+                Roots = allRoots
+            } };
+        }
+
+        private IEnumerable<CachedCategory> GetWordTableByCategories()
+        {
+            var categories = GetCategoryTree();
+
+            foreach (var category in categories)
+                ReorderRootsRecursively(category);
+
+            return categories;
         }
 
         public IEnumerable<CachedCategory> GetCategoryTree()
@@ -38,17 +87,25 @@ namespace Comparatist.Services.CacheQuery
             result = result.OrderBy(pair => pair.Value.Record.Order).ToDictionary();
 
             foreach (var e in result)
-                ReorderCategoryChildren(e.Value);
+                ReorderCategoryRecursively(e.Value);
 
             return result.Values;
         }
 
-        private void ReorderCategoryChildren(CachedCategory category)
+        private void ReorderCategoryRecursively(CachedCategory category)
         {
             category.Children = category.Children.OrderBy(e => e.Value.Record.Order).ToDictionary();
 
             foreach (var child in category.Children.Values)
-                ReorderCategoryChildren(child);
+                ReorderCategoryRecursively(child);
+        }
+
+        private void ReorderRootsRecursively(CachedCategory category)
+        {
+            category.Roots = category.Roots.OrderBy(e => e.Value.Record.Value).ToDictionary();
+
+            foreach (var child in category.Children.Values)
+                ReorderRootsRecursively(child);
         }
     }
 }

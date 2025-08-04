@@ -22,7 +22,7 @@ namespace Comparatist.Core.Infrastructure
             if (_repositories.TryGetValue(typeof(T), out var repo) && repo is IRepository<T> typedRepo)
                 return typedRepo;
 
-            throw new InvalidOperationException($"Repository for type {typeof(T).Name} not found.");
+            throw new NotSupportedException();
         }
 
         public void Save(string path)

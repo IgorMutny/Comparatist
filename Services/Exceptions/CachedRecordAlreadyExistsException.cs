@@ -6,7 +6,7 @@
         public Guid RecordId { get; }
 
         public CachedRecordAlreadyExistsException(Type recordType, Guid recordId) :
-            base($"{recordType.Name} {recordId} already exists in cache")
+            base($"{recordType.Name} {recordId} already exists in project cache")
         {
             RecordType = recordType;
             RecordId = recordId;

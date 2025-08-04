@@ -98,7 +98,7 @@ namespace Comparatist.View.WordGrid
 
             if (sections != null && languages != null && categories != null)
             {
-                View.AllCategories = categories;
+                View.AllCategories = categories.Select(e => e.Record);
                 View.AllLanguages = languages.Select(e => e.Record);
                 View.Render(sections);
             }
