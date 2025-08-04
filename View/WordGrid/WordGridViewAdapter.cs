@@ -1,4 +1,5 @@
 ﻿using Comparatist.Core.Records;
+using Comparatist.Services.Cache;
 using Comparatist.Services.Infrastructure;
 using Comparatist.Services.TableCache;
 using Comparatist.View.Infrastructure;
@@ -82,7 +83,7 @@ namespace Comparatist.View.WordGrid
             Control.MouseDoubleClick += OnDoubleClick;
         }
 
-        public void Render(IEnumerable<CachedSection> sections)
+        public void Render(IEnumerable<CachedCategory> sections)
         {
             AllRoots = GetAllRootsFromSections(sections);
             _renderHelper.Render(sections, AllLanguages);
@@ -304,7 +305,7 @@ namespace Comparatist.View.WordGrid
             return true;
         }
 
-        private IEnumerable<Root> GetAllRootsFromSections(IEnumerable<CachedSection> sections)
+        private IEnumerable<Root> GetAllRootsFromSections(IEnumerable<CachedCategory> sections)
         {
             var allRoots = new List<Root>();
 
@@ -317,15 +318,15 @@ namespace Comparatist.View.WordGrid
             return allRoots;
         }
 
-        private IEnumerable<Root> GetRootsFromSection(CachedSection section)
+        private IEnumerable<Root> GetRootsFromSection(CachedCategory section)
         {
             var roots = new List<Root>();
 
-            foreach (var block in section.Blocks)
-                roots.Add(block.Root);
+            foreach (var block in section.Roots)
+                roots.Add(block.Value.Record);
 
             foreach (var child in section.Children)
-                roots.AddRange(GetRootsFromSection(child));
+                roots.AddRange(GetRootsFromSection(child.Value));
 
             return roots;
         }

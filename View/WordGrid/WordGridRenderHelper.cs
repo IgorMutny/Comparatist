@@ -1,5 +1,5 @@
 ﻿using Comparatist.Core.Records;
-using Comparatist.Services.TableCache;
+using Comparatist.Services.Cache;
 using Comparatist.View.Utilities;
 
 namespace Comparatist.View.WordGrid
@@ -8,7 +8,7 @@ namespace Comparatist.View.WordGrid
     {
         private DataGridView _grid;
 
-        private Dictionary<Guid, CachedBlock> _blocks = new();
+        private Dictionary<Guid, CachedRoot> _blocks = new();
         private List<Guid> _expandedRootIds = new();
         private int _selectedRowIndex = 0;
         private int _selectedColumnIndex = 0;
@@ -20,7 +20,7 @@ namespace Comparatist.View.WordGrid
             _grid = grid;
         }
 
-        public void Render(IEnumerable<CachedSection> sections, IEnumerable<Language> languages)
+        public void Render(IEnumerable<CachedCategory> sections, IEnumerable<Language> languages)
         {
             SaveSelection();
 
@@ -98,21 +98,21 @@ namespace Comparatist.View.WordGrid
             _grid.Columns.Add(column);
         }
 
-        private void AddSections(IEnumerable<CachedSection> sections)
+        private void AddSections(IEnumerable<CachedCategory> sections)
         {
             foreach (var section in sections)
                 AddSection(section);
         }
 
-        private void AddSection(CachedSection section)
+        private void AddSection(CachedCategory section)
         {
             int index = _grid.Rows.Add();
             var row = _grid.Rows[index];
-            FillSectionHeaderCell(section.Category, row);
-            AddBlocks(section.Blocks);
+            FillSectionHeaderCell(section.Record, row);
+            AddBlocks(section.Roots.Values);
 
             foreach (var child in section.Children)
-                AddSection(child);
+                AddSection(child.Value);
         }
 
         private void FillSectionHeaderCell(Category category, DataGridViewRow row)
@@ -120,21 +120,21 @@ namespace Comparatist.View.WordGrid
             row.Cells[0].Value = category.Value.ToUpper();
         }
 
-        private void AddBlocks(IEnumerable<CachedBlock> blocks)
+        private void AddBlocks(IEnumerable<CachedRoot> blocks)
         {
             foreach (var block in blocks)
                 AddBlock(block);
         }
 
-        private void AddBlock(CachedBlock block)
+        private void AddBlock(CachedRoot block)
         {
-            _blocks.Add(block.Root.Id, block);
-            var isExpanded = _expandedRootIds.Contains(block.Root.Id);
+            _blocks.Add(block.Record.Id, block);
+            var isExpanded = _expandedRootIds.Contains(block.Record.Id);
             var index = _grid.Rows.Add();
-            AddBlockHeaderRow(block.Root, index, isExpanded);
+            AddBlockHeaderRow(block.Record, index, isExpanded);
 
             if (isExpanded)
-                Expand(block.Root, index);
+                Expand(block.Record, index);
 
             AddEmptyRow();
         }
@@ -164,7 +164,7 @@ namespace Comparatist.View.WordGrid
             ColorizeCellText(stem, cell);
         }
 
-        private void FillCell(CachedRow cachedRow, DataGridViewRow row, DataGridViewColumn column)
+        private void FillCell(CachedStem cachedRow, DataGridViewRow row, DataGridViewColumn column)
         {
             if (column.Tag is not Language language)
                 return;
@@ -172,10 +172,10 @@ namespace Comparatist.View.WordGrid
             var languageId = language.Id;
             var columnIndex = column.Index;
 
-            if (cachedRow.Cells.TryGetValue(languageId, out var word) && word != null)
-                FillWordCell(row, columnIndex, word);
+            if (cachedRow.WordsByLanguage.TryGetValue(languageId, out var word) && word != null)
+                FillWordCell(row, columnIndex, word.Record);
             else
-                FillEmptyCell(row, columnIndex, languageId, cachedRow.Stem.Id);
+                FillEmptyCell(row, columnIndex, languageId, cachedRow.Record.Id);
         }
 
         private void FillWordCell(DataGridViewRow row, int columnIndex, Word word)
@@ -214,13 +214,13 @@ namespace Comparatist.View.WordGrid
             _expandedRootIds.Add(root.Id);
             int index = rowIndex + 1;
 
-            if (block.Rows.Count == 0)
+            if (block.Stems.Count == 0)
             {
-                AddNoStemRow(block.Root, index);
+                AddNoStemRow(block.Record, index);
             }
             else
             {
-                var rows = block.Rows.Values.OrderBy(e => e.Stem.Value).ToList();
+                var rows = block.Stems.Values.OrderBy(e => e.Record.Value).ToList();
 
                 for (int i = rows.Count - 1; i >= 0; i--)
                     AddStemRow(rows[i], index);
@@ -236,7 +236,7 @@ namespace Comparatist.View.WordGrid
 
             _expandedRootIds.Remove(root.Id);
             int index = rowIndex + 1;
-            var rowCount = block.Rows.Count > 0 ? block.Rows.Count : 1;
+            var rowCount = block.Stems.Count > 0 ? block.Stems.Count : 1;
 
             for (int i = 0; i < rowCount; i++)
                 _grid.Rows.RemoveAt(index);
@@ -244,11 +244,11 @@ namespace Comparatist.View.WordGrid
             FillCellsInRootRow(_grid.Rows[rowIndex], false);
         }
 
-        private void AddStemRow(CachedRow cachedRow, int index)
+        private void AddStemRow(CachedStem cachedRow, int index)
         {
             _grid.Rows.Insert(index);
             var row = _grid.Rows[index];
-            FillRowHeader(row, cachedRow.Stem);
+            FillRowHeader(row, cachedRow.Record);
 
             foreach (DataGridViewColumn column in _grid.Columns)
                 FillCell(cachedRow, row, column);

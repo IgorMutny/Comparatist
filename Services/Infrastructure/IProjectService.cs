@@ -1,4 +1,5 @@
 ﻿using Comparatist.Core.Records;
+using Comparatist.Services.Cache;
 using Comparatist.Services.CategoryTree;
 using Comparatist.Services.TableCache;
 
@@ -12,8 +13,8 @@ namespace Comparatist.Services.Infrastructure
         Result Delete<T>(T record) where T : class, IRecord;
         Result<IEnumerable<Language>> GetAllLanguages();
         Result<IEnumerable<Category>> GetAllCategories();
-        Result<IEnumerable<CachedCategoryNode>> GetCategoryTree();
-        Result<IEnumerable<CachedSection>> GetWordTable(SortingTypes sortingType);
+        Result<IEnumerable<CachedCategory>> GetCategoryTree();
+        Result<IEnumerable<CachedCategory>> GetWordTable(SortingTypes sortingType);
         Result LoadDatabase(string path);
         Result SaveDatabase(string path);
     }

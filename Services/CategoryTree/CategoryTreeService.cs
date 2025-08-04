@@ -1,5 +1,6 @@
 ﻿using Comparatist.Core.Infrastructure;
 using Comparatist.Core.Records;
+using Comparatist.Services.Cache;
 
 namespace Comparatist.Services.CategoryTree
 {
@@ -8,20 +9,20 @@ namespace Comparatist.Services.CategoryTree
         private readonly Guid NoParentId = Guid.Empty;
 
         private IDatabase _database;
-        private CachedCategoryTree _cache;
+        private List<CachedCategory> _rootNodes = new();
+        private Dictionary<Guid, CachedCategory> _allNodes = new();
         private bool _isDirty = false;
 
         public CategoryTreeService(IDatabase database)
         {
             _database = database;
-            _cache = new();
         }
 
-        public IEnumerable<CachedCategoryNode> GetTree()
+        public IEnumerable<CachedCategory> GetTree()
         {
             UpdateCacheIfDirty();
 
-            return _cache.RootNodes.Select(n => (CachedCategoryNode)n.Clone());
+            return _rootNodes.Select(n => (CachedCategory)n.Clone());
         }
 
         public void MarkDirty()
@@ -31,36 +32,36 @@ namespace Comparatist.Services.CategoryTree
 
         public void RebuildCache()
         {
-            _cache.RootNodes.Clear();
-            _cache.AllNodes.Clear();
+            _rootNodes.Clear();
+            _allNodes.Clear();
 
             foreach (var category in _database.GetRepository<Category>().GetAll())
-                _cache.AllNodes.Add(category.Id, new CachedCategoryNode { Category = category });
+                _allNodes.Add(category.Id, new CachedCategory { Record = category });
 
-            foreach (var node in _cache.AllNodes.Values)
+            foreach (var node in _allNodes.Values)
             {
-                if (node.Category.ParentId == node.Category.Id)
+                if (node.Record.ParentId == node.Record.Id)
                 {
-                    throw new InvalidOperationException($"Category {node.Category.Id} can not be a parent for itself");
+                    throw new InvalidOperationException($"Category {node.Record.Id} can not be a parent for itself");
                 }
-                else if (node.Category.ParentId == NoParentId)
+                else if (node.Record.ParentId == NoParentId)
                 {
-                    _cache.RootNodes.Add(node);
+                    _rootNodes.Add(node);
                 }
                 else
                 {
-                    if (!_cache.AllNodes.TryGetValue(node.Category.ParentId, out var parentNode))
-                        throw new InvalidOperationException($"Category {node.Category.ParentId} not found in cache");
+                    if (!_allNodes.TryGetValue(node.Record.ParentId, out var parentNode))
+                        throw new InvalidOperationException($"Category {node.Record.ParentId} not found in cache");
 
-                    parentNode.Children.Add(node);
+                    parentNode.Children.Add(node.Record.Id, node);
                 }
             }
 
-            _cache.RootNodes = _cache.RootNodes.OrderBy(e => e.Category.Order).ToList();
+            _rootNodes = _rootNodes.OrderBy(e => e.Record.Order).ToList();
 
-            foreach (var node in _cache.AllNodes.Values)
+            foreach (var node in _allNodes.Values)
                 if (node.Children.Count > 1)
-                    node.Children = node.Children.OrderBy(child => child.Category.Order).ToList();
+                    node.Children = node.Children.OrderBy(child => child.Value.Record.Order).ToDictionary();
         }
 
         private void UpdateCacheIfDirty()

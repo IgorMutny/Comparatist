@@ -1,9 +1,8 @@
 ﻿using Comparatist.Core.Records;
-using Comparatist.Services.CategoryTree;
+using Comparatist.Services.Cache;
 using Comparatist.View.Infrastructure;
 using Comparatist.View.Utilities;
 using Comparatist.View.Utilities.Comparatist.View.Utilities;
-using System.Text;
 
 namespace Comparatist.View.CategoryTree
 {
@@ -55,7 +54,7 @@ namespace Comparatist.View.CategoryTree
             _nodeMenu.Dispose();
         }
 
-        public void Render(IReadOnlyList<CachedCategoryNode> rootNodes)
+        public void Render(IReadOnlyList<CachedCategory> rootNodes)
         {
             Control.BeginUpdate();
             Control.Nodes.Clear();
@@ -68,13 +67,13 @@ namespace Comparatist.View.CategoryTree
             Control.ExpandAll();
         }
 
-        private TreeNode CreateTreeNode(CachedCategoryNode node)
+        private TreeNode CreateTreeNode(CachedCategory node)
         {
-            var treeNode = new TreeNode($"{node.Category.Value} {node.Category.Order}") { Tag = node.Category };
-            _cache?.Add(node.Category);
+            var treeNode = new TreeNode($"{node.Record.Value} {node.Record.Order}") { Tag = node.Record };
+            _cache?.Add(node.Record);
 
             foreach (var child in node.Children)
-                treeNode.Nodes.Add(CreateTreeNode(child));
+                treeNode.Nodes.Add(CreateTreeNode(child.Value));
 
             return treeNode;
         }

@@ -1,18 +1,19 @@
 ﻿using Comparatist.Core.Infrastructure;
 using Comparatist.Core.Records;
+using Comparatist.Services.Cache;
 
 namespace Comparatist.Services.TableCache
 {
     internal class TableCacheService
     {
+        private readonly Dictionary<Guid, CachedRoot> _blocks = new();
+        private readonly Dictionary<Guid, CachedStem> _rows = new();
         private bool _isDirty = false;
         private IDatabase _database;
-        private TableCache _cache;
 
         public TableCacheService(IDatabase database)
         {
             _database = database;
-            _cache = new TableCache();
         }
 
         public void MarkDirty()
@@ -20,24 +21,25 @@ namespace Comparatist.Services.TableCache
             _isDirty = true;
         }
 
-        public IEnumerable<CachedSection> GetTable()
+        public IEnumerable<CachedCategory> GetTable()
         {
             UpdateCacheIfDirty();
 
-            var section = new CachedSection { Category = new() };
+            var section = new CachedCategory { Record = new() };
 
-            section.Blocks = _cache.Blocks
-                .Select(pair => (CachedBlock)pair.Value.Clone())
-                .OrderBy(e => e.Root.Value)
-                .ToList();
+            section.Roots = _blocks
+                .Select(pair => new KeyValuePair<Guid, CachedRoot>
+                (pair.Key, (CachedRoot)pair.Value.Clone()))
+                .OrderBy(e => e.Value.Record.Value)
+                .ToDictionary();
 
-            return new List<CachedSection> { section };
+            return new List<CachedCategory> { section };
         }
 
         public void RebuildCache()
         {
-            _cache.Blocks.Clear();
-            _cache.Rows.Clear();
+            _blocks.Clear();
+            _rows.Clear();
 
             foreach (var root in _database.GetRepository<Root>().GetAll())
                 AddRoot(root);
@@ -84,92 +86,92 @@ namespace Comparatist.Services.TableCache
 
         private void AddRoot(Root root)
         {
-            _cache.Blocks.Add(root.Id, new CachedBlock { Root = root });
+            _blocks.Add(root.Id, new CachedRoot { Record = root });
         }
 
         private void AddStem(Stem stem)
         {
-            var row = new CachedRow { Stem = stem };
-            _cache.Rows.Add(stem.Id, row);
+            var row = new CachedStem { Record = stem };
+            _rows.Add(stem.Id, row);
 
             foreach (var rootId in stem.RootIds)
             {
-                if (!_cache.Blocks.TryGetValue(rootId, out var block))
+                if (!_blocks.TryGetValue(rootId, out var block))
                     throw new InvalidOperationException($"Root {rootId} not found in cache");
 
-                block.Rows.Add(stem.Id, row);
+                block.Stems.Add(stem.Id, row);
             }
         }
 
         private void AddWord(Word word)
         {
-            if (!_cache.Rows.TryGetValue(word.StemId, out var row))
+            if (!_rows.TryGetValue(word.StemId, out var row))
                 throw new InvalidOperationException($"Stem {word.StemId} not found in cache");
 
-            row.Cells.Add(word.LanguageId, word);
+            row.WordsByLanguage.Add(word.LanguageId, new CachedWord { Record = word });
         }
 
         private void UpdateRoot(Root root)
         {
-            if (!_cache.Blocks.TryGetValue(root.Id, out var block))
+            if (!_blocks.TryGetValue(root.Id, out var block))
                 throw new InvalidOperationException($"Root {root.Id} not found in cache");
 
-            block.Root = root;
+            block.Record = root;
         }
 
         private void UpdateStem(Stem stem)
         {
-            if (!_cache.Rows.TryGetValue(stem.Id, out var row))
+            if (!_rows.TryGetValue(stem.Id, out var row))
                 throw new InvalidOperationException($"Stem {stem.Id} not found in cache");
 
-            row.Stem = stem;
+            row.Record = stem;
 
             foreach (var rootId in stem.RootIds)
             {
-                if (!_cache.Blocks.TryGetValue(rootId, out var block))
+                if (!_blocks.TryGetValue(rootId, out var block))
                     throw new InvalidOperationException($"Root {rootId} not found in cache");
 
-                if (!block.Rows.ContainsKey(stem.Id))
-                    block.Rows.Add(stem.Id, row);
+                block.Stems[stem.Id].Record = stem;
             }
         }
 
         private void UpdateWord(Word word)
         {
-            if (!_cache.Rows.TryGetValue(word.StemId, out var row))
+            if (!_rows.TryGetValue(word.StemId, out var row))
                 throw new InvalidOperationException($"Stem {word.StemId} not found in cache");
 
-            row.Cells[word.LanguageId] = word;
+            row.WordsByLanguage[word.LanguageId] = new CachedWord { Record = word };
         }
 
         private void DeleteRoot(Root root)
         {
-            if (!_cache.Blocks.ContainsKey(root.Id))
+            if (!_blocks.ContainsKey(root.Id))
                 throw new InvalidOperationException($"Root {root.Id} not found in cache");
 
-            _cache.Blocks.Remove(root.Id);
+            _blocks.Remove(root.Id);
         }
 
         private void DeleteStem(Stem stem)
         {
-            if (!_cache.Rows.Remove(stem.Id))
+            if (!_rows.Remove(stem.Id))
                 throw new InvalidOperationException($"Stem {stem.Id} not found in cache");
 
             foreach (var rootId in stem.RootIds)
             {
-                if (!_cache.Blocks.TryGetValue(rootId, out var block))
+                if (!_blocks.TryGetValue(rootId, out var block))
                     throw new InvalidOperationException($"Root {rootId} not found in cache");
 
-                block.Rows.Remove(stem.Id);
+                if (!block.Stems.Remove(stem.Id))
+                    throw new InvalidOperationException($"Stem {stem.Id} not found in cache"); ;
             }
         }
 
         private void DeleteWord(Word word)
         {
-            if (!_cache.Rows.TryGetValue(word.StemId, out var row))
+            if (!_rows.TryGetValue(word.StemId, out var row))
                 throw new InvalidOperationException($"Stem {word.StemId} not found in cache");
 
-            if (!row.Cells.Remove(word.LanguageId))
+            if (!row.WordsByLanguage.Remove(word.LanguageId))
                 throw new InvalidOperationException($"Word {word.Id} not found in cache");
         }
 

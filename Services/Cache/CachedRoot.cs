@@ -5,14 +5,19 @@ namespace Comparatist.Services.Cache
     public class CachedRoot
     {
         public required Root Record;
-        public List<CachedStem> Stems = new();
+        public Dictionary<Guid, CachedStem> Stems = new();
 
         public object Clone()
         {
             return new CachedRoot
             {
                 Record = (Root)Record.Clone(),
-                Stems = Stems.Select(x => (CachedStem)x.Clone()).ToList()
+                Stems = Stems
+                    .Select(pair =>
+                        new KeyValuePair<Guid, CachedStem>(
+                            pair.Key,
+                            (CachedStem)pair.Value.Clone()))
+                            .ToDictionary()
             };
         }
     }

@@ -1,28 +1,27 @@
 ﻿using Comparatist.Core.Records;
-using Comparatist.Services.CategoryTree;
-using Comparatist.Services.TableCache;
+using Comparatist.Services.Cache;
 
 namespace Comparatist.Services.CategoryTableComposing
 {
     internal class CategoryTableComposingService
     {
-        private Dictionary<Guid, CachedSection> _sections = new();
-        private List<CachedSection> _rootSections = new();
-        private CachedSection _uncategorizedSection = CreateUncategorizedSection();
+        private Dictionary<Guid, CachedCategory> _sections = new();
+        private List<CachedCategory> _rootSections = new();
+        private CachedCategory _uncategorizedSection = CreateUncategorizedSection();
 
-        public IEnumerable<CachedSection> GetTable()
+        public IEnumerable<CachedCategory> GetTable()
         {
-            var sections = new List<CachedSection>();
+            var sections = new List<CachedCategory>();
 
             foreach (var section in _rootSections)
-                sections.Add((CachedSection)section.Clone());
+                sections.Add((CachedCategory)section.Clone());
 
-            sections.Add((CachedSection)_uncategorizedSection.Clone());
+            sections.Add((CachedCategory)_uncategorizedSection.Clone());
 
             return sections;
         }
 
-        public void RebuildCache(IEnumerable<CachedCategoryNode> nodes, IEnumerable<CachedSection> flatSections)
+        public void RebuildCache(IEnumerable<CachedCategory> nodes, IEnumerable<CachedCategory> flatSections)
         {
             _uncategorizedSection = CreateUncategorizedSection();
 
@@ -30,47 +29,41 @@ namespace Comparatist.Services.CategoryTableComposing
             _rootSections.Clear();
 
             foreach (var node in nodes)
-            {
-                var rootSection = ConvertNodeToSection(node);
-                _rootSections.Add(rootSection);
-            }
+                _rootSections.Add(node);
+
+            foreach (var node in nodes)
+                AddNode(node);
 
             foreach (var section in flatSections)
             {
-                foreach (var block in section.Blocks)
+                foreach (var block in section.Roots)
                 {
-                    if (block.Root.CategoryIds.Count > 0)
+                    if (block.Value.Record.CategoryIds.Count > 0)
                     {
-                        foreach (var categoryId in block.Root.CategoryIds)
-                            _sections[categoryId].Blocks.Add(block);
+                        foreach (var categoryId in block.Value.Record.CategoryIds)
+                            _sections[categoryId].Roots.Add(block.Key, block.Value);
                     }
                     else
                     {
-                        _uncategorizedSection.Blocks.Add(block);
+                        _uncategorizedSection.Roots.Add(block.Key, block.Value);
                     }
                 }
             }
         }
 
-        private CachedSection ConvertNodeToSection(CachedCategoryNode node)
+        private void AddNode(CachedCategory category)
         {
-            var section = new CachedSection { Category = node.Category };
+            _sections.Add(category.Record.Id, category);
 
-            foreach (var child in node.Children)
-            {
-                var childSection = ConvertNodeToSection(child);
-                section.Children.Add(childSection);
-            }
-
-            _sections.Add(section.Category.Id, section);
-            return section;
+            foreach (var child in category.Children.Values)
+                AddNode(child);
         }
 
-        private static CachedSection CreateUncategorizedSection()
+        private static CachedCategory CreateUncategorizedSection()
         {
-            return new CachedSection
+            return new CachedCategory
             {
-                Category = new Category()
+                Record = new Category()
                 {
                     Value = "Uncategorized"
                 }

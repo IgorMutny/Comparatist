@@ -1,5 +1,6 @@
 ﻿using Comparatist.Core.Infrastructure;
 using Comparatist.Core.Records;
+using Comparatist.Services.Cache;
 using Comparatist.Services.CascadeDelete;
 using Comparatist.Services.CategoryTableComposing;
 using Comparatist.Services.CategoryTree;
@@ -59,12 +60,12 @@ namespace Comparatist.Services.Infrastructure
                     .OrderBy(e => e.Order));
         }
 
-        public Result<IEnumerable<CachedCategoryNode>> GetCategoryTree()
+        public Result<IEnumerable<CachedCategory>> GetCategoryTree()
         {
             return Execute(_categoryTree.GetTree);
         }
 
-        public Result<IEnumerable<CachedSection>> GetWordTable(SortingTypes sortingType)
+        public Result<IEnumerable<CachedCategory>> GetWordTable(SortingTypes sortingType)
         {
             switch (sortingType)
             {
@@ -165,7 +166,7 @@ namespace Comparatist.Services.Infrastructure
             }
             catch (Exception e)
             {
-                return new Result(false, e.Message);
+                return new Result(false, $"{e.Message}: {e.StackTrace}");
             }
         }
 
@@ -178,7 +179,7 @@ namespace Comparatist.Services.Infrastructure
             }
             catch (Exception e)
             {
-                return new Result<T>(false, default, e.Message);
+                return new Result<T>(false, default, $"{e.Message}: {e.StackTrace}");
             }
         }
 
