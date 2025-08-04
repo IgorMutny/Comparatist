@@ -12,6 +12,13 @@ namespace Comparatist.Services.CascadeDelete
             var categoryRepo = Database.GetRepository<Category>();
             var rootRepo = Database.GetRepository<Root>();
 
+            var children = categoryRepo
+                .GetAll()
+                .Where(x => x.ParentId == record.Id).ToList();
+
+            foreach (var child in children)
+                Delete(child);
+
             categoryRepo.Delete(record.Id);
 
             var updatedRoots = rootRepo.GetAll().Where(x => x.CategoryIds.Contains(record.Id));
@@ -22,7 +29,7 @@ namespace Comparatist.Services.CascadeDelete
                 rootRepo.Update(root);
             }
 
-            return categoryRepo.GetAll().Where(x => x.ParentId == record.Id).ToList();
+            return Enumerable.Empty<Category>();
         }
     }
 }

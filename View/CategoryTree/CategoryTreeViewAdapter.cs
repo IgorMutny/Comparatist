@@ -69,7 +69,7 @@ namespace Comparatist.View.CategoryTree
 
         private TreeNode CreateTreeNode(CachedCategory node)
         {
-            var treeNode = new TreeNode($"{node.Record.Value} {node.Record.Order}") { Tag = node.Record };
+            var treeNode = new TreeNode($"{node.Record.Value} {node.Record.Id}") { Tag = node.Record };
             _cache?.Add(node.Record);
 
             foreach (var child in node.Children)
@@ -163,7 +163,7 @@ namespace Comparatist.View.CategoryTree
         {
             source.ParentId = target.ParentId;
             _cache.Remove(source);
-            var newOrder = Math.Min(target.Order, _cache.Count);
+            var newOrder = Math.Max(target.Order - 1, 0);
             _cache.Insert(newOrder, source);
             ReorderCache();
         }

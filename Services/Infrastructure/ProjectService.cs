@@ -1,6 +1,8 @@
 ﻿using Comparatist.Core.Infrastructure;
 using Comparatist.Core.Records;
 using Comparatist.Services.Cache;
+using Comparatist.Services.CacheQuery;
+using Comparatist.Services.CacheUpdate;
 using Comparatist.Services.CascadeDelete;
 using Comparatist.Services.CategoryTableComposing;
 using Comparatist.Services.CategoryTree;
@@ -14,15 +16,28 @@ namespace Comparatist.Services.Infrastructure
         private TableCacheService _tableCache;
         private CategoryTreeService _categoryTree;
         private CategoryTableComposingService _categoryTableComposing;
+
         private IDatabase _database;
+        private ProjectCache _projectCache;
+        private CategoryCacheUpdater _categoryCacheUpdater;
+        private CacheQueryService _cacheQueryService;
+
 
         public ProjectService()
         {
             _database = new Database();
+            _projectCache = new ProjectCache();
+
             _cascadeDelete = new CascadeDeleteService(_database);
             _tableCache = new TableCacheService(_database);
             _categoryTree = new CategoryTreeService(_database);
             _categoryTableComposing = new CategoryTableComposingService();
+
+            _categoryCacheUpdater = new CategoryCacheUpdater(_database, _projectCache);
+            _categoryCacheUpdater.Initialize();
+            _categoryCacheUpdater.RebuildCache();
+
+            _cacheQueryService = new CacheQueryService(_projectCache);
         }
 
         public Result LoadDatabase(string path)
@@ -33,6 +48,7 @@ namespace Comparatist.Services.Infrastructure
                 _tableCache.RebuildCache();
                 _categoryTree.RebuildCache();
                 RebuildCategoryTableCache();
+                _categoryCacheUpdater.RebuildCache();
             });
         }
 
@@ -62,7 +78,7 @@ namespace Comparatist.Services.Infrastructure
 
         public Result<IEnumerable<CachedCategory>> GetCategoryTree()
         {
-            return Execute(_categoryTree.GetTree);
+            return Execute(_cacheQueryService.GetCategoryTree);
         }
 
         public Result<IEnumerable<CachedCategory>> GetWordTable(SortingTypes sortingType)
