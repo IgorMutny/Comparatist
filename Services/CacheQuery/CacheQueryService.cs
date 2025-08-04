@@ -29,7 +29,7 @@ namespace Comparatist.Services.CacheQuery
         {
             return _cache.Categories
                 .Select(pair => new KeyValuePair<Guid, CachedCategory>(
-                    pair.Key, 
+                    pair.Key,
                     (CachedCategory)pair.Value.Clone()))
                 .OrderBy(e => e.Value.Record.Order)
                 .ToDictionary().Values;
@@ -64,10 +64,20 @@ namespace Comparatist.Services.CacheQuery
 
         private IEnumerable<CachedCategory> GetWordTableByCategories()
         {
-            var categories = GetCategoryTree();
+            var categories = GetCategoryTree().ToList();
 
             foreach (var category in categories)
                 ReorderRootsRecursively(category);
+
+            categories.Add(new CachedCategory
+            {
+                Record = new Category { Value = "Uncategorized" },
+                Roots = _cache.UncategorizedRootIds
+                    .Select(id => new KeyValuePair<Guid, CachedRoot>(
+                        id, 
+                        (CachedRoot)_cache.Roots[id].Clone()))
+                    .ToDictionary()
+            });
 
             return categories;
         }

@@ -128,7 +128,9 @@ namespace Comparatist.View.WordGrid
 
         private void AddBlock(CachedRoot block)
         {
-            _blocks.Add(block.Record.Id, block);
+            if (!_blocks.ContainsKey(block.Record.Id))
+                _blocks.Add(block.Record.Id, block);
+
             var isExpanded = _expandedRootIds.Contains(block.Record.Id);
             var index = _grid.Rows.Add();
             AddBlockHeaderRow(block.Record, index, isExpanded);
