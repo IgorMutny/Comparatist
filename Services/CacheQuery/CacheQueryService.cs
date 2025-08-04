@@ -1,4 +1,4 @@
-﻿using Comparatist.Core.Exceptions;
+﻿using Comparatist.Services.Exceptions;
 using Comparatist.Services.Cache;
 
 namespace Comparatist.Services.CacheQuery
@@ -10,6 +10,17 @@ namespace Comparatist.Services.CacheQuery
         public CacheQueryService(ProjectCache cache)
         {
             _cache = cache;
+        }
+
+        public IEnumerable<CachedLanguage> GetAllLanguages()
+        {
+            return _cache.Languages
+                .Select(pair => new KeyValuePair<Guid, CachedLanguage>(
+                    pair.Key, 
+                    (CachedLanguage)pair.Value.Clone()))
+                .OrderBy(e => e.Value.Record.Order)
+                .ToDictionary()
+                .Values;
         }
 
         public IEnumerable<CachedCategory> GetCategoryTree()

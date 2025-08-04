@@ -1,44 +1,20 @@
-﻿using Comparatist.Core.Exceptions;
+﻿using Comparatist.Services.Exceptions;
 using Comparatist.Core.Infrastructure;
 using Comparatist.Core.Records;
 using Comparatist.Services.Cache;
-using Comparatist.Services.Infrastructure;
 
 namespace Comparatist.Services.CacheUpdate
 {
-    internal class CategoryCacheUpdater : IInitializable, IDisposable
+    internal class CategoryCacheUpdater : CacheUpdater<Category>
     {
-        private IDatabase _database;
-        private ProjectCache _cache;
+        public CategoryCacheUpdater(IDatabase database, ProjectCache cache) : base(database, cache) { }
 
-        public CategoryCacheUpdater(IDatabase database, ProjectCache cache)
+        public override void RebuildCache()
         {
-            _database = database;
-            _cache = cache;
-        }
+            Cache.Categories.Clear();
+            Cache.BaseCategoryIds.Clear();
 
-        public void Initialize()
-        {
-            var categoryRepo = _database.GetRepository<Category>();
-            categoryRepo.RecordAdded += OnCategoryAdded;
-            categoryRepo.RecordUpdated += OnCategoryUpdated;
-            categoryRepo.RecordDeleted += OnCategoryDeleted;
-        }
-
-        public void Dispose()
-        {
-            var categoryRepo = _database.GetRepository<Category>();
-            categoryRepo.RecordAdded -= OnCategoryAdded;
-            categoryRepo.RecordUpdated -= OnCategoryUpdated;
-            categoryRepo.RecordDeleted -= OnCategoryDeleted;
-        }
-
-        public void RebuildCache()
-        {
-            _cache.Categories.Clear();
-            _cache.BaseCategoryIds.Clear();
-
-            var allCategories = _database.GetRepository<Category>().GetAll();
+            var allCategories = Database.GetRepository<Category>().GetAll();
 
             foreach (var category in allCategories)
             {
@@ -46,14 +22,14 @@ namespace Comparatist.Services.CacheUpdate
                 AddCategoryToCache(cached);
             }
 
-            foreach (var cached in _cache.Categories.Values)
+            foreach (var cached in Cache.Categories.Values)
             {
                 UpdateBaseCategoryIds(cached.Record);
                 AddToCachedParent(cached, cached.Record.ParentId);
             }
         }
 
-        private void OnCategoryAdded(Category category)
+        protected override void OnAdded(Category category)
         {
             var cached = new CachedCategory { Record = category };
             UpdateBaseCategoryIds(category);
@@ -61,7 +37,7 @@ namespace Comparatist.Services.CacheUpdate
             AddToCachedParent(cached, category.ParentId);
         }
 
-        private void OnCategoryUpdated(Category category)
+        protected override void OnUpdated(Category category)
         {
             var cached = GetCategoryFromCache(category.Id);
             var oldParentId = cached.Record.ParentId;
@@ -76,10 +52,10 @@ namespace Comparatist.Services.CacheUpdate
             }
         }
 
-        private void OnCategoryDeleted(Category category)
+        protected override void OnDeleted(Category category)
         {
             var parentId = category.ParentId;
-            _cache.BaseCategoryIds.Remove(category.Id);
+            Cache.BaseCategoryIds.Remove(category.Id);
             RemoveFromCachedParent(category, category.ParentId);
             DeleteCategoryFromCache(category.Id);
         }
@@ -88,15 +64,15 @@ namespace Comparatist.Services.CacheUpdate
         {
             var id = cached.Record.Id;
 
-            if (_cache.Categories.ContainsKey(id))
+            if (Cache.Categories.ContainsKey(id))
                 throw new CachedRecordAlreadyExistsException(typeof(CachedCategory), id);
 
-            _cache.Categories.Add(id, cached);
+            Cache.Categories.Add(id, cached);
         }
 
         private CachedCategory GetCategoryFromCache(Guid id)
         {
-            if (!_cache.Categories.TryGetValue(id, out var cached))
+            if (!Cache.Categories.TryGetValue(id, out var cached))
                 throw new CachedRecordNotFoundException(typeof(CachedCategory), id);
 
             return cached;
@@ -104,7 +80,7 @@ namespace Comparatist.Services.CacheUpdate
 
         private void DeleteCategoryFromCache(Guid id)
         {
-            if (!_cache.Categories.Remove(id))
+            if (!Cache.Categories.Remove(id))
                 throw new CachedRecordNotFoundException(typeof(CachedCategory), id);
         }
 
@@ -119,16 +95,16 @@ namespace Comparatist.Services.CacheUpdate
 
         private void RemoveFromCachedParent(Category category, Guid parentId)
         {
-            if (parentId != Guid.Empty && _cache.Categories.TryGetValue(parentId, out var parentCached))
+            if (parentId != Guid.Empty && Cache.Categories.TryGetValue(parentId, out var parentCached))
                 parentCached.Children.Remove(category.Id);
         }
 
         private void UpdateBaseCategoryIds(Category category)
         {
             if (category.ParentId == Guid.Empty)
-                _cache.BaseCategoryIds.Add(category.Id);
+                Cache.BaseCategoryIds.Add(category.Id);
             else
-                _cache.BaseCategoryIds.Remove(category.Id);
+                Cache.BaseCategoryIds.Remove(category.Id);
         }
     }
 }

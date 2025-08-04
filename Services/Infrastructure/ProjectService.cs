@@ -19,6 +19,7 @@ namespace Comparatist.Services.Infrastructure
 
         private IDatabase _database;
         private ProjectCache _projectCache;
+        private LanguageCacheUpdater _languageCacheUpdater;
         private CategoryCacheUpdater _categoryCacheUpdater;
         private CacheQueryService _cacheQueryService;
 
@@ -33,9 +34,10 @@ namespace Comparatist.Services.Infrastructure
             _categoryTree = new CategoryTreeService(_database);
             _categoryTableComposing = new CategoryTableComposingService();
 
+            _languageCacheUpdater = new LanguageCacheUpdater(_database, _projectCache);
             _categoryCacheUpdater = new CategoryCacheUpdater(_database, _projectCache);
+            _languageCacheUpdater.Initialize();
             _categoryCacheUpdater.Initialize();
-            _categoryCacheUpdater.RebuildCache();
 
             _cacheQueryService = new CacheQueryService(_projectCache);
         }
@@ -48,7 +50,7 @@ namespace Comparatist.Services.Infrastructure
                 _tableCache.RebuildCache();
                 _categoryTree.RebuildCache();
                 RebuildCategoryTableCache();
-                _categoryCacheUpdater.RebuildCache();
+                RebuildProjectCache();
             });
         }
 
@@ -60,12 +62,9 @@ namespace Comparatist.Services.Infrastructure
             });
         }
 
-        public Result<IEnumerable<Language>> GetAllLanguages()
+        public Result<IEnumerable<CachedLanguage>> GetAllLanguages()
         {
-            return Execute(() =>
-                (IEnumerable<Language>)_database.GetRepository<Language>()
-                    .GetAll()
-                    .OrderBy(e => e.Order));
+            return Execute(_cacheQueryService.GetAllLanguages);
         }
 
         public Result<IEnumerable<Category>> GetAllCategories()
@@ -197,6 +196,12 @@ namespace Comparatist.Services.Infrastructure
             {
                 return new Result<T>(false, default, $"{e.Message}: {e.StackTrace}");
             }
+        }
+
+        private void RebuildProjectCache()
+        {
+            _languageCacheUpdater.RebuildCache();
+            _categoryCacheUpdater.RebuildCache();
         }
 
         private void RebuildCategoryTableCache()

@@ -56,7 +56,7 @@ namespace Comparatist.View.LanguageGrid
             var languages = Execute(Service.GetAllLanguages);
 
             if (languages != null)
-                View.Render(languages.ToList());
+                View.Render(languages.Select(e => e.Record));
         }
     }
 }
