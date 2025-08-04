@@ -30,16 +30,16 @@ namespace Comparatist.Services.CacheUpdate
 
         protected override void OnUpdated(Root root)
         {
-            CachedRoot cached = GetRootFromCache(root.Id);
+            var cached = GetRootFromCache(root.Id);
 
-            var oldCategoryIds = cached.Record.CategoryIds;
-            var newCategoryIds = root.CategoryIds;
+            var oldCategoryIds = cached.Record.CategoryIds.ToHashSet();
+            var newCategoryIds = root.CategoryIds.ToHashSet();
             cached.Record = root;
 
             var addedCategoryIds = newCategoryIds.Except(oldCategoryIds).ToHashSet();
             var removedCategoryIds = oldCategoryIds.Except(newCategoryIds).ToHashSet();
 
-            if (addedCategoryIds.Count() != 0 || removedCategoryIds.Count() != 0)
+            if (addedCategoryIds.Count != 0 || removedCategoryIds.Count != 0)
             {
                 UpdateUncategorizedRootIds(root);
 

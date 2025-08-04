@@ -62,7 +62,7 @@ namespace Comparatist.View.MainMenu
             _sortingItems.Add(SortingTypes.Alphabet, alphabetItem);
             _sortingItems.Add(SortingTypes.Categories, categories);
 
-            fileItem.DropDownItems.Add(new ToolStripSeparator());
+            settingsItem.DropDownItems.Add(new ToolStripSeparator());
             var autoreplaceItem = AddMenuItem("Autoreplace settings", ShowAutoReplace, settingsItem);
         }
 

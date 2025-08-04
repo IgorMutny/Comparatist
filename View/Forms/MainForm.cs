@@ -57,7 +57,7 @@ namespace Comparatist
             _mainMenuViewAdapter.RegisterViewAdapter(
                 ContentTypes.Words,
                 _wordGridViewAdapter,
-                "Roots by alphabet");
+                "Word table");
         }
     }
 }
