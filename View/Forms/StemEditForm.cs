@@ -10,7 +10,11 @@ namespace Comparatist
         private List<Guid> _selectedRootIds;
         private Stem _stem;
 
-        public StemEditForm(string header, Stem stem, IEnumerable<Root> allRoots, List<Guid> selectedRootIds)
+        public StemEditForm(
+            string header,
+            Stem stem,
+            IEnumerable<Root> allRoots,
+            IEnumerable<Guid> selectedRootIds)
         {
             InitializeComponent();
 
@@ -27,7 +31,7 @@ namespace Comparatist
             _commentTextBox.EnableAutoReplace();
 
             _allRoots = allRoots;
-            _selectedRootIds = selectedRootIds;
+            _selectedRootIds = (List<Guid>)selectedRootIds;
             _rootSelectionButton.Click += OnRootSelectionClicked;
             UpdateRootsTextBox();
         }

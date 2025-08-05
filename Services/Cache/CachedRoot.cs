@@ -4,8 +4,8 @@ namespace Comparatist.Services.Cache
 {
     public class CachedRoot
     {
-        public required Root Record;
-        public Dictionary<Guid, CachedStem> Stems = new();
+        public required Root Record { get; set; }
+        public Dictionary<Guid, CachedStem> Stems { get; set; } = new();
 
         public object Clone()
         {

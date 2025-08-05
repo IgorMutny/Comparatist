@@ -4,8 +4,8 @@ namespace Comparatist.Services.Cache
 {
     public class CachedStem
     {
-        public required Stem Record;
-        public Dictionary<Guid, CachedWord> WordsByLanguage = new();
+        public required Stem Record { get; set; }
+        public Dictionary<Guid, CachedWord> WordsByLanguage { get; set; } = new();
 
         public object Clone()
         {

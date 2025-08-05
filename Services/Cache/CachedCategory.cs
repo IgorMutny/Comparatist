@@ -4,9 +4,9 @@ namespace Comparatist.Services.Cache
 {
     public class CachedCategory
     {
-        public required Category Record;
-        public Dictionary<Guid, CachedCategory> Children = new();
-        public Dictionary<Guid, CachedRoot> Roots = new();
+        public required Category Record { get; set; }
+        public Dictionary<Guid, CachedCategory> Children { get; set; } = new();
+        public Dictionary<Guid, CachedRoot> Roots { get; set; } = new();
 
         public object Clone()
         {

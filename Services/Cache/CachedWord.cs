@@ -4,7 +4,7 @@ namespace Comparatist.Services.Cache
 {
     public class CachedWord
     {
-        public required Word Record;
+        public required Word Record { get; set; }
 
         public object Clone()
         {

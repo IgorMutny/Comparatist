@@ -3,9 +3,9 @@
 namespace Comparatist.Core.Records
 {
     [MessagePackObject]
-    public class Stem: IRecord, INativeRecord, ICheckableRecord
+    public class Stem : IRecord, INativeRecord, ICheckableRecord
     {
-        [Key(0)] public Guid Id {get; set;}
+        [Key(0)] public Guid Id { get; set; }
         [Key(1)] public string Value { get; set; } = string.Empty;
         [Key(2)] public string Translation { get; set; } = string.Empty;
         [Key(3)] public string Comment { get; set; } = string.Empty;
@@ -21,7 +21,7 @@ namespace Comparatist.Core.Records
                 Value = Value,
                 Translation = Translation,
                 Comment = Comment,
-                RootIds = RootIds,
+                RootIds = [.. RootIds],
                 IsNative = IsNative,
                 IsChecked = IsChecked
             };

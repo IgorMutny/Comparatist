@@ -4,13 +4,13 @@ namespace Comparatist.Services.Cache
 {
     public class ProjectCache
     {
-        public readonly Dictionary<Guid, CachedLanguage> Languages = new();
-        public readonly Dictionary<Guid, CachedCategory> Categories = new();
-        public readonly Dictionary<Guid, CachedRoot> Roots = new();
-        public readonly Dictionary<Guid, CachedStem> Stems = new();
-        public readonly Dictionary<Guid, CachedWord> Words = new();
+        public Dictionary<Guid, CachedLanguage> Languages { get; } = new();
+        public Dictionary<Guid, CachedCategory> Categories { get; } = new();
+        public Dictionary<Guid, CachedRoot> Roots { get; } = new();
+        public Dictionary<Guid, CachedStem> Stems { get; } = new();
+        public Dictionary<Guid, CachedWord> Words { get; } = new();
 
-        public readonly HashSet<Guid> BaseCategoryIds = new();
-        public readonly HashSet<Guid> UncategorizedRootIds = new();
+        public HashSet<Guid> BaseCategoryIds { get; } = new();
+        public HashSet<Guid> UncategorizedRootIds { get; } = new();
     }
 }

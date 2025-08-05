@@ -4,7 +4,7 @@ namespace Comparatist.Services.Cache
 {
     public class CachedLanguage : ICloneable
     {
-        public required Language Record;
+        public required Language Record { get; set; }
 
         public object Clone()
         {

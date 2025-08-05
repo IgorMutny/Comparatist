@@ -21,7 +21,7 @@ namespace Comparatist.Core.Records
                 Value = Value,
                 Translation = Translation,
                 Comment = Comment,
-                CategoryIds = CategoryIds,
+                CategoryIds = [..CategoryIds],
                 IsNative = IsNative,
                 IsChecked = IsChecked
             };
