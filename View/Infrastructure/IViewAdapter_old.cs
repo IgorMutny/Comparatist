@@ -1,6 +1,6 @@
 ﻿namespace Comparatist.View.Infrastructure
 {
-    internal interface IViewAdapter: IDisposable
+    internal interface IViewAdapter_old: IDisposable
     {
         public event Action? RenderRequest;
         void Show();

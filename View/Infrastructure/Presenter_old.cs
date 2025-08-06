@@ -2,51 +2,34 @@
 
 namespace Comparatist.View.Infrastructure
 {
-    internal abstract class Presenter<TRenderer, TInputHandler, TControl>: IPresenter
-        where TRenderer: Renderer<TControl>
-        where TInputHandler: InputHandler<TControl>
-        where TControl : Control
+    internal abstract class Presenter_old<TAdapter> : IDisposable where TAdapter : IViewAdapter_old
     {
         protected IProjectService Service { get; }
-        protected TRenderer Renderer { get; }
-        protected TInputHandler InputHandler { get; }
+        protected TAdapter View { get; }
 
-        public Presenter(IProjectService service, TRenderer renderer, TInputHandler inputHandler)
+        public Presenter_old(IProjectService service, TAdapter view)
         {
             Service = service;
-            Renderer = renderer;
-            InputHandler = inputHandler;
+            View = view;
+            View.RenderRequest += UpdateView;
             Subscribe();
         }
 
         public void Dispose()
         {
+            View.RenderRequest -= UpdateView;
             Unsubscribe();
-            InputHandler?.Dispose();
-        }
-
-        public void Show()
-        {
-            Renderer.Show();
-            UpdateView();
-        }
-
-        public void Hide()
-        {
-            Renderer.Hide();
-            CleanupCache();
         }
 
         protected abstract void Subscribe();
         protected abstract void Unsubscribe();
         protected abstract void UpdateView();
-        protected abstract void CleanupCache();
 
         protected void Execute(Func<Result> func)
         {
             var result = func();
             if (!result.IsSuccess)
-                Renderer.ShowError(result.Message);
+                View.ShowError(result.Message);
         }
 
         protected TValue? Execute<TValue>(Func<Result<TValue>> func)
@@ -59,7 +42,7 @@ namespace Comparatist.View.Infrastructure
             }
             else
             {
-                Renderer.ShowError(result.Message);
+                View.ShowError(result.Message);
                 return default;
             }
         }

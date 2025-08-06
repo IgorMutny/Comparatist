@@ -6,7 +6,7 @@ using Comparatist.View.Utilities.Comparatist.View.Utilities;
 
 namespace Comparatist.View.CategoryTree
 {
-    internal class CategoryTreeViewAdapter : ViewAdapter<TreeView>
+    internal class CategoryTreeViewAdapter : ViewAdapter_old<TreeView>
     {
         private DisposableMenu _treeMenu;
         private DisposableMenu _nodeMenu;

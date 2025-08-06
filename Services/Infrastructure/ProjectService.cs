@@ -61,7 +61,7 @@ namespace Comparatist.Services.Infrastructure
             return Execute(() => _database.Save(path));
         }
 
-        public Result<IEnumerable<CachedLanguage>> GetAllLanguages()
+        public Result<Dictionary<Guid, CachedLanguage>> GetAllLanguages()
         {
             return Execute(_cacheQueryService.GetAllLanguages);
         }

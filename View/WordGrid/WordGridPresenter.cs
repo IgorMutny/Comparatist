@@ -4,7 +4,7 @@ using Comparatist.View.Infrastructure;
 
 namespace Comparatist.View.WordGrid
 {
-    internal class WordGridPresenter : Presenter<WordGridViewAdapter>
+    internal class WordGridPresenter : Presenter_old<WordGridViewAdapter>
     {
         public WordGridPresenter(IProjectService service, WordGridViewAdapter view) :
             base(service, view)
@@ -99,7 +99,7 @@ namespace Comparatist.View.WordGrid
             if (sections != null && languages != null && categories != null)
             {
                 View.AllCategories = categories.Select(e => e.Record);
-                View.AllLanguages = languages.Select(e => e.Record);
+                View.AllLanguages = languages.Select(e => e.Value.Record);
                 View.Render(sections);
             }
         }

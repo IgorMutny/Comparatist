@@ -6,11 +6,12 @@ using Comparatist.View.WordGrid;
 
 namespace Comparatist.View.MainMenu
 {
-    internal class MainMenuViewAdapter : ViewAdapter<MenuStrip>
+    internal class MainMenuViewAdapter : ViewAdapter_old<MenuStrip>
     {
         private const string Extension = ".comparatist";
 
-        private Dictionary<ContentTypes, IViewAdapter> _adapters = new();
+        private Dictionary<ContentTypes, IViewAdapter_old> _adapters = new();
+        private Dictionary<ContentTypes, IPresenter> _presenters = new();
         private Dictionary<ContentTypes, ToolStripMenuItem> _adapterItems = new();
         private Dictionary<SortingTypes, ToolStripMenuItem> _sortingItems = new();
         private string _filePath = string.Empty;
@@ -27,9 +28,16 @@ namespace Comparatist.View.MainMenu
 
         protected override void Unsubscribe() { }
 
-        public void RegisterViewAdapter(ContentTypes type, IViewAdapter adapter, string text)
+        public void RegisterViewAdapter(ContentTypes type, IViewAdapter_old adapter, string text)
         {
             _adapters[type] = adapter;
+            var adapterItem = AddMenuItem(text, () => ShowContent(type), _adaptersItem);
+            _adapterItems[type] = adapterItem;
+        }
+
+        public void RegisterPresenter(ContentTypes type, IPresenter presenter, string text)
+        {
+            _presenters[type] = presenter;
             var adapterItem = AddMenuItem(text, () => ShowContent(type), _adaptersItem);
             _adapterItems[type] = adapterItem;
         }
@@ -130,6 +138,17 @@ namespace Comparatist.View.MainMenu
         private void ShowContent(ContentTypes type)
         {
             foreach (var pair in _adapters)
+            {
+                if (pair.Key == type)
+                    pair.Value.Show();
+                else
+                    pair.Value.Hide();
+            }
+
+            foreach (var pair in _adapterItems)
+                pair.Value.Checked = pair.Key == type;
+
+            foreach (var pair in _presenters)
             {
                 if (pair.Key == type)
                     pair.Value.Show();

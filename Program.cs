@@ -5,7 +5,7 @@ namespace Comparatist
         [STAThread]
         static void Main()
         {
-            //Test.Run(10, 50, 1000, 10000);
+            //Test.Run(10000, 0, 0, 0);
             ApplicationConfiguration.Initialize();
             Application.Run(new MainForm());
         }

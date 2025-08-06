@@ -1,12 +1,12 @@
 ﻿namespace Comparatist.View.Infrastructure
 {
-    internal abstract class ViewAdapter<T>: IViewAdapter where T : Control
+    internal abstract class ViewAdapter_old<T>: IViewAdapter_old where T : Control
     {
         protected T Control { get; private set; }
 
         public event Action? RenderRequest;
 
-        public ViewAdapter(T control)
+        public ViewAdapter_old(T control)
         {
             Control = control;
         }

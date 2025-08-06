@@ -31,7 +31,7 @@ namespace Comparatist.Core.Infrastructure
 
             var id = updatedRecord.Id;
             _storage[id] = (T)updatedRecord.Clone();
-            RecordUpdated?.Invoke((T)_storage[id].Clone());
+            RecordUpdated?.Invoke(updatedRecord);
         }
 
         public void Delete(Guid id)

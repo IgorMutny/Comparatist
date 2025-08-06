@@ -14,15 +14,13 @@ namespace Comparatist.Services.CacheQuery
             _cache = cache;
         }
 
-        public IEnumerable<CachedLanguage> GetAllLanguages()
+        public Dictionary<Guid, CachedLanguage> GetAllLanguages()
         {
             return _cache.Languages
                 .Select(pair => new KeyValuePair<Guid, CachedLanguage>(
-                    pair.Key,
+                    pair.Key, 
                     (CachedLanguage)pair.Value.Clone()))
-                .OrderBy(e => e.Value.Record.Order)
-                .ToDictionary()
-                .Values;
+                .ToDictionary();
         }
 
         public IEnumerable<CachedCategory> GetAllCategories()
@@ -74,7 +72,7 @@ namespace Comparatist.Services.CacheQuery
                 Record = new Category { Value = "Uncategorized" },
                 Roots = _cache.UncategorizedRootIds
                     .Select(id => new KeyValuePair<Guid, CachedRoot>(
-                        id, 
+                        id,
                         (CachedRoot)_cache.Roots[id].Clone()))
                     .ToDictionary()
             });

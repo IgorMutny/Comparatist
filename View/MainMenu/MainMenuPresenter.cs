@@ -3,7 +3,7 @@ using Comparatist.View.Infrastructure;
 
 namespace Comparatist.View.MainMenu
 {
-    internal class MainMenuPresenter : Presenter<MainMenuViewAdapter>
+    internal class MainMenuPresenter : Presenter_old<MainMenuViewAdapter>
     {
         public MainMenuPresenter(IProjectService service, MainMenuViewAdapter view) :
             base(service, view)

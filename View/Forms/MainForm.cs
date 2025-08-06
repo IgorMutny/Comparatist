@@ -1,10 +1,8 @@
-using Comparatist.Core.Infrastructure;
 using Comparatist.Services.Infrastructure;
 using Comparatist.View.CategoryTree;
 using Comparatist.View.Infrastructure;
 using Comparatist.View.LanguageGrid;
 using Comparatist.View.MainMenu;
-using Comparatist.View.Utilities;
 using Comparatist.View.WordGrid;
 
 namespace Comparatist
@@ -14,7 +12,6 @@ namespace Comparatist
         private MainMenuViewAdapter _mainMenuViewAdapter;
         private MainMenuPresenter _mainMenuPresenter;
 
-        private LanguageGridViewAdapter _languageGridViewAdapter;
         private LanguageGridPresenter _languageGridPresenter;
 
         private CategoryTreeViewAdapter _categoryTreeViewAdapter;
@@ -35,8 +32,9 @@ namespace Comparatist
             _mainMenuPresenter = new(_service, _mainMenuViewAdapter);
             _mainMenuViewAdapter.ExitRequest += Close;
 
-            _languageGridViewAdapter = new(_languageGridView);
-            _languageGridPresenter = new(_service, _languageGridViewAdapter);
+            var languageRenderer = new LanguageGridRenderer(_languageGridView);
+            var languageInputHandler = new LanguageGridInputHandler(_languageGridView);
+            _languageGridPresenter = new(_service, languageRenderer, languageInputHandler);
 
             _categoryTreeViewAdapter = new(_categoryTreeView);
             _categoryTreePresenter = new(_service, _categoryTreeViewAdapter);
@@ -44,9 +42,9 @@ namespace Comparatist
             _wordGridViewAdapter = new(_wordGridView);
             _wordGridPresenter = new(_service, _wordGridViewAdapter);
 
-            _mainMenuViewAdapter.RegisterViewAdapter(
+            _mainMenuViewAdapter.RegisterPresenter(
                 ContentTypes.Languages,
-                _languageGridViewAdapter,
+                _languageGridPresenter,
                 "Languages");
 
             _mainMenuViewAdapter.RegisterViewAdapter(

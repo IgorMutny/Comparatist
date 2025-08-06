@@ -8,7 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Comparatist.View.WordGrid
 {
-    internal class WordGridViewAdapter : ViewAdapter<DataGridView>
+    internal class WordGridViewAdapter : ViewAdapter_old<DataGridView>
     {
         private DisposableMenu _gridMenu;
         private DisposableMenu _rootMenu;
