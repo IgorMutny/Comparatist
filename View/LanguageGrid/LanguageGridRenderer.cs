@@ -52,6 +52,7 @@ namespace Comparatist.View.LanguageGrid
         {
             Control.Rows.Clear();
             Control.Columns.Clear();
+            _cachedRows.Clear();
 
             Control.Columns.Add(new DataGridViewTextBoxColumn
             {

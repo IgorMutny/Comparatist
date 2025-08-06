@@ -56,7 +56,7 @@ namespace Comparatist.View.CategoryTree
             var nodes = Execute(Service.GetCategoryTree);
 
             if (nodes != null)
-                View.Render(nodes.ToList());
+                View.Render(nodes.Values.ToList());
         }
     }
 }

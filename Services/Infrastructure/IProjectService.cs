@@ -10,9 +10,8 @@ namespace Comparatist.Services.Infrastructure
         Result UpdateMany<T>(IEnumerable<T> records) where T : class, IRecord;
         Result Delete<T>(T record) where T : class, IRecord;
         Result<Dictionary<Guid, CachedLanguage>> GetAllLanguages();
-        Result<IEnumerable<CachedCategory>> GetAllCategories();
-        Result<IEnumerable<CachedCategory>> GetCategoryTree();
-        Result<IEnumerable<CachedCategory>> GetWordTable(SortingTypes sortingType);
+        Result<Dictionary<Guid, CachedCategory>> GetCategoryTree();
+        Result<Dictionary<Guid, CachedCategory>> GetWordTable(SortingTypes sortingType);
         Result LoadDatabase(string path);
         Result SaveDatabase(string path);
     }

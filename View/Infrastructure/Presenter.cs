@@ -27,20 +27,20 @@ namespace Comparatist.View.Infrastructure
 
         public void Show()
         {
+            OnShow();
             Renderer.Show();
-            UpdateView();
         }
 
         public void Hide()
         {
             Renderer.Hide();
-            CleanupCache();
+            OnHide();
         }
 
         protected abstract void Subscribe();
         protected abstract void Unsubscribe();
-        protected abstract void UpdateView();
-        protected abstract void CleanupCache();
+        protected virtual void OnShow() { }
+        protected virtual void OnHide() { }
 
         protected void Execute(Func<Result> func)
         {

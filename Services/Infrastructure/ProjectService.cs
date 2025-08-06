@@ -52,6 +52,7 @@ namespace Comparatist.Services.Infrastructure
             return Execute(() =>
             {
                 _database.Load(path);
+                _projectCache.Clear();
                 RebuildProjectCache();
             });
         }
@@ -66,17 +67,12 @@ namespace Comparatist.Services.Infrastructure
             return Execute(_cacheQueryService.GetAllLanguages);
         }
 
-        public Result<IEnumerable<CachedCategory>> GetAllCategories()
-        {
-            return Execute(_cacheQueryService.GetAllCategories);
-        }
-
-        public Result<IEnumerable<CachedCategory>> GetCategoryTree()
+        public Result<Dictionary<Guid, CachedCategory>> GetCategoryTree()
         {
             return Execute(_cacheQueryService.GetCategoryTree);
         }
 
-        public Result<IEnumerable<CachedCategory>> GetWordTable(SortingTypes sortingType)
+        public Result<Dictionary<Guid, CachedCategory>> GetWordTable(SortingTypes sortingType)
         {
             return Execute(() => _cacheQueryService.GetWordTable(sortingType));
         }

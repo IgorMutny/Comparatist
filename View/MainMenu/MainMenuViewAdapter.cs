@@ -28,6 +28,12 @@ namespace Comparatist.View.MainMenu
 
         protected override void Unsubscribe() { }
 
+        public void Initialize()
+        {
+            ShowContent(ContentTypes.Words);
+            SwitchRootSortingType(SortingTypes.Alphabet);
+        }
+
         public void RegisterViewAdapter(ContentTypes type, IViewAdapter_old adapter, string text)
         {
             _adapters[type] = adapter;
@@ -108,6 +114,9 @@ namespace Comparatist.View.MainMenu
                     _filePath = dialog.FileName;
                     LoadRequest?.Invoke(_filePath);
                 }
+
+                ShowContent(ContentTypes.Words);
+                SwitchRootSortingType(SortingTypes.Alphabet);
             }
         }
 
@@ -170,10 +179,10 @@ namespace Comparatist.View.MainMenu
             foreach (var pair in _sortingItems)
                 pair.Value.Checked = pair.Key == type;
 
-            var adapter = _adapters[ContentTypes.Words] as WordGridViewAdapter;
+            var presenter = _presenters[ContentTypes.Words] as WordGridPresenter;
 
-            if (adapter != null)
-                adapter.SortingType = type;
+            if (presenter != null)
+                presenter.SortingType = type;
         }
 
         private void Exit()

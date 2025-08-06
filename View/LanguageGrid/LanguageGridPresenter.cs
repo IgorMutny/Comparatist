@@ -34,7 +34,17 @@ namespace Comparatist.View.LanguageGrid
             InputHandler.DeleteRequest -= OnDeleteRequest;
         }
 
-        protected override void UpdateView()
+        protected override void OnShow()
+        {
+            UpdateView();
+        }
+
+        protected override void OnHide()
+        {
+            _previousLanguages?.Clear();
+        }
+
+        private void UpdateView()
         {
             var languages = Execute(Service.GetAllLanguages);
 
@@ -44,7 +54,7 @@ namespace Comparatist.View.LanguageGrid
                 return;
             }
 
-            if (_previousLanguages == null || _previousLanguages.Count() == 0)
+            if (_previousLanguages == null || _previousLanguages.Count == 0)
                 RedrawAll(languages);
             else
                 DrawDiff(languages);
@@ -103,11 +113,6 @@ namespace Comparatist.View.LanguageGrid
                     }
                 }
             }
-        }
-
-        protected override void CleanupCache()
-        {
-            _previousLanguages?.Clear();
         }
 
         private void OnAddRequest(Language language)

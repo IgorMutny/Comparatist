@@ -18,7 +18,7 @@ namespace Comparatist.Services.CacheQuery
         {
             return _cache.Languages
                 .Select(pair => new KeyValuePair<Guid, CachedLanguage>(
-                    pair.Key, 
+                    pair.Key,
                     (CachedLanguage)pair.Value.Clone()))
                 .ToDictionary();
         }
@@ -33,7 +33,7 @@ namespace Comparatist.Services.CacheQuery
                 .ToDictionary().Values;
         }
 
-        public IEnumerable<CachedCategory> GetWordTable(SortingTypes type)
+        public Dictionary<Guid, CachedCategory> GetWordTable(SortingTypes type)
         {
             return type switch
             {
@@ -44,7 +44,7 @@ namespace Comparatist.Services.CacheQuery
 
         }
 
-        private IEnumerable<CachedCategory> GetWordTableByAlphabet()
+        private Dictionary<Guid, CachedCategory> GetWordTableByAlphabet()
         {
             var allRoots = _cache.Roots
                 .Select(pair => new KeyValuePair<Guid, CachedRoot>(
@@ -53,34 +53,37 @@ namespace Comparatist.Services.CacheQuery
                 .OrderBy(e => e.Value.Record.Value)
                 .ToDictionary();
 
-            return new List<CachedCategory> { new CachedCategory
+            var category = new CachedCategory
             {
                 Record = new Category { Value = "By alphabet" },
                 Roots = allRoots
-            } };
+            };
+
+            return new Dictionary<Guid, CachedCategory> { { Guid.Empty, category } };
         }
 
-        private IEnumerable<CachedCategory> GetWordTableByCategories()
+        private Dictionary<Guid, CachedCategory> GetWordTableByCategories()
         {
-            var categories = GetCategoryTree().ToList();
+            var categories = GetCategoryTree();
 
-            foreach (var category in categories)
-                ReorderRootsRecursively(category);
+            var uncategorizedRoots = _cache.UncategorizedRootIds
+                .Select(id => new KeyValuePair<Guid, CachedRoot>(
+                    id,
+                    (CachedRoot)_cache.Roots[id].Clone()))
+                .ToDictionary();
 
-            categories.Add(new CachedCategory
+            var uncategorizedCategory = new CachedCategory
             {
-                Record = new Category { Value = "Uncategorized" },
-                Roots = _cache.UncategorizedRootIds
-                    .Select(id => new KeyValuePair<Guid, CachedRoot>(
-                        id,
-                        (CachedRoot)_cache.Roots[id].Clone()))
-                    .ToDictionary()
-            });
+                Record = new Category { Value = "Uncategorized", Order = int.MaxValue },
+                Roots = uncategorizedRoots
+            };
+
+            categories.Add(Guid.Empty, uncategorizedCategory);
 
             return categories;
         }
 
-        public IEnumerable<CachedCategory> GetCategoryTree()
+        public Dictionary<Guid, CachedCategory> GetCategoryTree()
         {
             var result = new Dictionary<Guid, CachedCategory>();
 
@@ -92,28 +95,7 @@ namespace Comparatist.Services.CacheQuery
                 result.Add(id, (CachedCategory)cached.Clone());
             }
 
-            result = result.OrderBy(pair => pair.Value.Record.Order).ToDictionary();
-
-            foreach (var e in result)
-                ReorderCategoryRecursively(e.Value);
-
-            return result.Values;
-        }
-
-        private void ReorderCategoryRecursively(CachedCategory category)
-        {
-            category.Children = category.Children.OrderBy(e => e.Value.Record.Order).ToDictionary();
-
-            foreach (var child in category.Children.Values)
-                ReorderCategoryRecursively(child);
-        }
-
-        private void ReorderRootsRecursively(CachedCategory category)
-        {
-            category.Roots = category.Roots.OrderBy(e => e.Value.Record.Value).ToDictionary();
-
-            foreach (var child in category.Children.Values)
-                ReorderRootsRecursively(child);
+            return result;
         }
     }
 }

@@ -12,5 +12,16 @@ namespace Comparatist.Services.Cache
 
         public HashSet<Guid> BaseCategoryIds { get; } = new();
         public HashSet<Guid> UncategorizedRootIds { get; } = new();
+
+        public void Clear()
+        {
+            Languages.Clear();
+            Categories.Clear();
+            Roots.Clear();
+            Stems.Clear();
+            Words.Clear();
+            BaseCategoryIds.Clear();
+            UncategorizedRootIds.Clear();
+        }
     }
 }

@@ -1,107 +1,93 @@
-﻿using Comparatist.Core.Records;
+﻿using Comparatist.Services.Cache;
 using Comparatist.Services.Infrastructure;
 using Comparatist.View.Infrastructure;
 
 namespace Comparatist.View.WordGrid
 {
-    internal class WordGridPresenter : Presenter_old<WordGridViewAdapter>
+    internal class WordGridPresenter :
+        Presenter<WordGridRenderer, WordGridInputHandler, DataGridView>
     {
-        public WordGridPresenter(IProjectService service, WordGridViewAdapter view) :
-            base(service, view)
+        private SortingTypes _sortingType = SortingTypes.Alphabet;
+        private Dictionary<Guid, SectionBinder> _sectionBinders = new();
+        private List<Guid> _orderedBinderIds = new();
+
+        public WordGridPresenter(
+            IProjectService service,
+            WordGridRenderer renderer,
+            WordGridInputHandler inputHandler) :
+            base(service, renderer, inputHandler)
         { }
+        public SortingTypes SortingType
+        {
+            get { return _sortingType; }
+            set { _sortingType = value; RedrawAll(); }
+        }
 
         protected override void Subscribe()
         {
-            View.AddRootRequest += OnAddRootRequest;
-            View.UpdateRootRequest += OnUpdateRootRequest;
-            View.DeleteRootRequest += OnDeleteRootRequest;
-            View.AddStemRequest += OnAddStemRequest;
-            View.UpdateStemRequest += OnUpdateStemRequest;
-            View.DeleteStemRequest += OnDeleteStemRequest;
-            View.AddWordRequest += OnAddWordRequest;
-            View.UpdateWordRequest += OnUpdateWordRequest;
-            View.DeleteWordRequest += OnDeleteWordRequest;
+
         }
 
         protected override void Unsubscribe()
         {
-            View.AddRootRequest -= OnAddRootRequest;
-            View.UpdateRootRequest -= OnUpdateRootRequest;
-            View.DeleteRootRequest -= OnDeleteRootRequest;
-            View.AddStemRequest -= OnAddStemRequest;
-            View.UpdateStemRequest -= OnUpdateStemRequest;
-            View.DeleteStemRequest -= OnDeleteStemRequest;
-            View.AddWordRequest -= OnAddWordRequest;
-            View.UpdateWordRequest -= OnUpdateWordRequest;
-            View.DeleteWordRequest -= OnDeleteWordRequest;
+
         }
 
-        private void OnAddRootRequest(Root root)
+        protected override void OnShow()
         {
-            Execute(() => Service.Add(root));
-            UpdateView();
+            RedrawAll();
         }
 
-        private void OnUpdateRootRequest(Root root)
+        protected override void OnHide()
         {
-            Execute(() => Service.Update(root));
-            UpdateView();
+            _sectionBinders.Clear();
+            _orderedBinderIds.Clear();
         }
 
-        private void OnDeleteRootRequest(Root root)
+        private void RedrawAll()
         {
-            Execute(() => Service.Delete(root));
-            UpdateView();
-        }
+            _sectionBinders.Clear();
+            _orderedBinderIds.Clear();
+            Renderer.Clear();
 
-        private void OnAddStemRequest(Stem stem)
-        {
-            Execute(() => Service.Add(stem));
-            UpdateView();
-        }
-
-        private void OnUpdateStemRequest(Stem stem)
-        {
-            Execute(() => Service.Update(stem));
-            UpdateView();
-        }
-
-        private void OnDeleteStemRequest(Stem stem)
-        {
-            Execute(() => Service.Delete(stem));
-            UpdateView();
-        }
-
-        private void OnAddWordRequest(Word word)
-        {
-            Execute(() => Service.Add(word));
-            UpdateView();
-        }
-
-        private void OnUpdateWordRequest(Word word)
-        {
-            Execute(() => Service.Update(word));
-            UpdateView();
-        }
-
-        private void OnDeleteWordRequest(Word word)
-        {
-            Execute(() => Service.Delete(word));
-            UpdateView();
-        }
-
-        protected override void UpdateView()
-        {
-            var sections = Execute(() => Service.GetWordTable(View.SortingType));
             var languages = Execute(Service.GetAllLanguages);
-            var categories = Execute(Service.GetAllCategories);
+            var state = Execute(() => Service.GetWordTable(SortingType));
 
-            if (sections != null && languages != null && categories != null)
+            if (state == null || languages == null)
             {
-                View.AllCategories = categories.Select(e => e.Record);
-                View.AllLanguages = languages.Select(e => e.Value.Record);
-                View.Render(sections);
+                Renderer.ShowError("No cached data received");
+                return;
             }
+
+            var orderedLanguages = languages.Values.OrderBy(e => e.Record.Order).ToList();
+            Renderer.CreateColumns(orderedLanguages);
+
+            CollectBinders(state);
+
+            foreach(var id in _orderedBinderIds)
+            {
+                var binder = _sectionBinders[id];
+                binder.Initialize();
+            }
+        }
+
+        private void CollectBinders(Dictionary<Guid, CachedCategory> state)
+        {
+            var orderedCategories = state.Values.OrderBy(e => e.Record.Order).ToList();
+
+            foreach (var category in orderedCategories)
+                CollectBindersRecursively(category);
+        }
+
+        private void CollectBindersRecursively(CachedCategory category)
+        {
+            _sectionBinders.Add(category.Record.Id, new SectionBinder(category, Renderer));
+            _orderedBinderIds.Add(category.Record.Id);
+
+            var orderedChildren = category.Children.Values.OrderBy(e => e.Record.Order).ToList();
+
+            foreach (var child in orderedChildren)
+                CollectBindersRecursively(child);
         }
     }
 }
