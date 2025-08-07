@@ -19,12 +19,12 @@ namespace Comparatist.View.WordGrid
 
         public void Initialize()
         {
-            _renderer.AddSection(this);
+            var orderedRoots = _previousState.Roots.Values
+                .OrderByDescending(e => e.Record.Value)
+                .ToList();
 
-            foreach (var e in _previousState.Roots)
-            {
-                AddBinder(e.Value);
-            }
+            foreach (var root in orderedRoots)
+                AddBinder(root);
         }
 
         public void Update(CachedCategory state)
@@ -46,29 +46,47 @@ namespace Comparatist.View.WordGrid
 
             foreach (var id in oldRootIds)
             {
-                if (!_blockBinders.TryGetValue(id, out var binder))
-                    continue;
-
+                var binder = _blockBinders[id];
                 binder.Update(state.Roots[id]);
             }
 
             _previousState = state;
+            UpdateBlockOrder();
         }
 
         private void AddBinder(CachedRoot root)
         {
             var binder = new BlockBinder(root, this, _renderer);
             _blockBinders.Add(root.Record.Id, binder);
-            binder.Initialize();
+            _renderer.AddBlock(binder, this);
         }
 
         private void RemoveBinder(Guid id)
         {
-            if (!_blockBinders.TryGetValue(id, out var binder))
-                return;
-
-            binder.Destroy();
+            var binder = _blockBinders[id];
+            _renderer.RemoveBlock(binder);
             _blockBinders.Remove(id);
+        }
+
+        private void UpdateBlockOrder()
+        {
+            var orderedBinders = _blockBinders.Values
+                .OrderBy(b => b.Root.Value)
+                .ToList();
+
+            for (int i = 0; i < orderedBinders.Count; i++)
+            {
+                var currentBinder = orderedBinders[i];
+
+                if (!currentBinder.NeedsReorder)
+                    continue;
+
+                var previousBinder = i > 0
+                    ? orderedBinders[i - 1]
+                    : null;
+
+                _renderer.MoveBlock(currentBinder, previousBinder);
+            }
         }
     }
 }

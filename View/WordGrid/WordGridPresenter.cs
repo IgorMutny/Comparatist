@@ -177,6 +177,7 @@ namespace Comparatist.View.WordGrid
             var binder = new SectionBinder(category, Renderer);
             _sectionBinders.Add(category.Record.Id, binder);
             _orderedBinderIds.Add(category.Record.Id);
+            Renderer.AddSection(binder);
             binder.Initialize();
         }
     }

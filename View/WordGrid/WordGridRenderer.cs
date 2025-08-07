@@ -100,6 +100,22 @@ namespace Comparatist.View.WordGrid
             cell.Value = $"[b]{binder.Root.Value}[/b] {binder.Root.Translation}";
         }
 
+        public void MoveBlock(BlockBinder binder, BlockBinder? previousBinder)
+        {
+            var previousRow = previousBinder == null
+                ? _sections[binder.Parent]
+                : _blocks[previousBinder];
+
+            var row = _blocks[binder];
+
+            if (previousRow.Index + 1 == row.Index)
+                return;
+
+            Control.Rows.Remove(row);
+            var index = previousRow.Index + 1;
+            Control.Rows.Insert(index, row);
+        }
+
         public void RemoveBlock(BlockBinder binder)
         {
             if (!_blocks.TryGetValue(binder, out var row))
