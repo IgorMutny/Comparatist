@@ -1,6 +1,5 @@
 ﻿using Comparatist.Core.Records;
 using Comparatist.Services.Cache;
-using Comparatist.Services.Infrastructure;
 using Comparatist.Services.TableCache;
 using Comparatist.View.Infrastructure;
 using Comparatist.View.Utilities;
@@ -66,8 +65,8 @@ namespace Comparatist.View.WordGrid
         }
 
         public IEnumerable<Category> AllCategories { private get; set; } = Enumerable.Empty<Category>();
-        public IEnumerable<Language> AllLanguages { private get; set; } = Enumerable.Empty<Language>();
         private IEnumerable<Root> AllRoots { get; set; } = Enumerable.Empty<Root>();
+        public IEnumerable<Language> AllLanguages { private get; set; } = Enumerable.Empty<Language>();
 
         private void SetupGrid()
         {

@@ -67,14 +67,29 @@ namespace Comparatist.Services.Infrastructure
             return Execute(_cacheQueryService.GetAllLanguages);
         }
 
+        public Result<Dictionary<Guid, CachedCategory>> GetAllCategories()
+        {
+            return Execute(_cacheQueryService.GetAllCategories);
+        }
+
+        public Result<Dictionary<Guid, CachedRoot>> GetAllRoots()
+        {
+            return Execute(_cacheQueryService.GetAllRoots);
+        }
+
+        public Result<Dictionary<Guid, CachedCategory>> GetWordTableByCategory()
+        {
+            return Execute(_cacheQueryService.GetWordTableByCategory);
+        }
+
+        public Result<Dictionary<Guid, CachedCategory>> GetWordTableByAlphabet()
+        {
+            return Execute( _cacheQueryService.GetWordTableByAlphabet);
+        }
+
         public Result<Dictionary<Guid, CachedCategory>> GetCategoryTree()
         {
             return Execute(_cacheQueryService.GetCategoryTree);
-        }
-
-        public Result<Dictionary<Guid, CachedCategory>> GetWordTable(SortingTypes sortingType)
-        {
-            return Execute(() => _cacheQueryService.GetWordTable(sortingType));
         }
 
         public Result Add<T>(T record) where T : class, IRecord

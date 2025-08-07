@@ -36,15 +36,66 @@ namespace Comparatist.View.LanguageGrid
 
         protected override void OnShow()
         {
-            UpdateView();
+            RedrawAll();
         }
 
         protected override void OnHide()
         {
-            _previousLanguages?.Clear();
+            Reset();
         }
 
-        private void UpdateView()
+        private void Reset()
+        {
+            _previousLanguages?.Clear();
+            Renderer.Reset();
+        }
+
+         private void OnAddRequest(Language language)
+        {
+            Execute(() => Service.Add(language));
+            DrawDiff();
+        }
+
+        private void OnUpdateRequest(Language language)
+        {
+            Execute(() => Service.Update(language));
+            DrawDiff();
+        }
+
+        private void OnUpdateManyRequest(IEnumerable<Language> languages)
+        {
+            Execute(() => Service.UpdateMany(languages));
+            DrawDiff();
+        }
+
+        private void OnDeleteRequest(Language language)
+        {
+            Execute(() => Service.Delete(language));
+            DrawDiff();
+        }
+
+        private void RedrawAll()
+        {
+            Reset();
+
+            var languages = Execute(Service.GetAllLanguages);
+
+            if (languages == null)
+            {
+                Renderer.ShowError("No language cache received");
+                return;
+            }
+
+            var orderedLanguages = languages.Values.OrderBy(e => e.Record.Order).ToList();
+            foreach (var language in orderedLanguages)
+                Renderer.Add(language);
+
+            _previousLanguages = languages.ToDictionary(
+                pair => pair.Key,
+                pair => (CachedLanguage)pair.Value.Clone());
+        }
+
+        private void DrawDiff()
         {
             var languages = Execute(Service.GetAllLanguages);
 
@@ -54,31 +105,10 @@ namespace Comparatist.View.LanguageGrid
                 return;
             }
 
-            if (_previousLanguages == null || _previousLanguages.Count == 0)
-                RedrawAll(languages);
-            else
-                DrawDiff(languages);
-
-            _previousLanguages = languages.ToDictionary(
-                pair => pair.Key,
-                pair => (CachedLanguage)pair.Value.Clone());
-        }
-
-        private void RedrawAll(Dictionary<Guid, CachedLanguage> languages)
-        {
-            Renderer.Reset();
-
-            var orderedLanguages = languages.Values.OrderBy(e => e.Record.Order).ToList();
-            foreach (var language in orderedLanguages)
-                Renderer.Add(language);
-        }
-
-        private void DrawDiff(Dictionary<Guid, CachedLanguage> currentLanguages)
-        {
-            var currentIds = currentLanguages.Keys.ToList();
+            var currentIds = languages.Keys.ToList();
             var previousIds = _previousLanguages!.Keys.ToList();
 
-            var orderedIds = currentLanguages
+            var orderedIds = languages
                 .Select(pair => new KeyValuePair<int, Guid>(
                     pair.Value.Record.Order,
                     pair.Key))
@@ -88,7 +118,7 @@ namespace Comparatist.View.LanguageGrid
 
             foreach (var addedId in addedIds)
             {
-                var language = currentLanguages[addedId];
+                var language = languages[addedId];
                 Renderer.Add(language);
             }
 
@@ -97,7 +127,7 @@ namespace Comparatist.View.LanguageGrid
             foreach (var removedId in removedIds)
                 Renderer.Remove(removedId);
 
-            foreach (var pair in currentLanguages)
+            foreach (var pair in languages)
             {
                 if (_previousLanguages.TryGetValue(pair.Key, out var previousLanguage))
                 {
@@ -113,30 +143,8 @@ namespace Comparatist.View.LanguageGrid
                     }
                 }
             }
-        }
 
-        private void OnAddRequest(Language language)
-        {
-            Execute(() => Service.Add(language));
-            UpdateView();
-        }
-
-        private void OnUpdateRequest(Language language)
-        {
-            Execute(() => Service.Update(language));
-            UpdateView();
-        }
-
-        private void OnUpdateManyRequest(IEnumerable<Language> languages)
-        {
-            Execute(() => Service.UpdateMany(languages));
-            UpdateView();
-        }
-
-        private void OnDeleteRequest(Language language)
-        {
-            Execute(() => Service.Delete(language));
-            UpdateView();
+            _previousLanguages = languages;
         }
     }
 }

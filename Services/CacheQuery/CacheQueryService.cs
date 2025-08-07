@@ -1,6 +1,5 @@
 ﻿using Comparatist.Services.Exceptions;
 using Comparatist.Services.Cache;
-using Comparatist.Services.Infrastructure;
 using Comparatist.Core.Records;
 
 namespace Comparatist.Services.CacheQuery
@@ -23,48 +22,9 @@ namespace Comparatist.Services.CacheQuery
                 .ToDictionary();
         }
 
-        public IEnumerable<CachedCategory> GetAllCategories()
+        public Dictionary<Guid, CachedCategory> GetWordTableByCategory()
         {
-            return _cache.Categories
-                .Select(pair => new KeyValuePair<Guid, CachedCategory>(
-                    pair.Key,
-                    (CachedCategory)pair.Value.Clone()))
-                .OrderBy(e => e.Value.Record.Order)
-                .ToDictionary().Values;
-        }
-
-        public Dictionary<Guid, CachedCategory> GetWordTable(SortingTypes type)
-        {
-            return type switch
-            {
-                SortingTypes.Alphabet => GetWordTableByAlphabet(),
-                SortingTypes.Categories => GetWordTableByCategories(),
-                _ => throw new NotSupportedException()
-            };
-
-        }
-
-        private Dictionary<Guid, CachedCategory> GetWordTableByAlphabet()
-        {
-            var allRoots = _cache.Roots
-                .Select(pair => new KeyValuePair<Guid, CachedRoot>(
-                    pair.Key,
-                    (CachedRoot)pair.Value.Clone()))
-                .OrderBy(e => e.Value.Record.Value)
-                .ToDictionary();
-
-            var category = new CachedCategory
-            {
-                Record = new Category { Value = "By alphabet" },
-                Roots = allRoots
-            };
-
-            return new Dictionary<Guid, CachedCategory> { { Guid.Empty, category } };
-        }
-
-        private Dictionary<Guid, CachedCategory> GetWordTableByCategories()
-        {
-            var categories = GetCategoryTree();
+            var categories = GetAllCategories();
 
             var uncategorizedRoots = _cache.UncategorizedRootIds
                 .Select(id => new KeyValuePair<Guid, CachedRoot>(
@@ -82,6 +42,47 @@ namespace Comparatist.Services.CacheQuery
 
             return categories;
         }
+
+        public Dictionary<Guid, CachedCategory> GetWordTableByAlphabet()
+        {
+            var allRoots = _cache.Roots
+                .Select(pair => new KeyValuePair<Guid, CachedRoot>(
+                    pair.Key,
+                    (CachedRoot)pair.Value.Clone()))
+                .OrderBy(e => e.Value.Record.Value)
+                .ToDictionary();
+
+            var category = new CachedCategory
+            {
+                Record = new Category { Value = "By alphabet" },
+                Roots = allRoots
+            };
+
+            return new Dictionary<Guid, CachedCategory> { { Guid.Empty, category } };
+        }
+
+        public Dictionary<Guid, CachedCategory> GetAllCategories()
+        {
+            return _cache.Categories
+                .Select(pair => new KeyValuePair<Guid, CachedCategory>
+                (
+                    pair.Key,
+                    (CachedCategory)pair.Value.Clone()
+                ))
+                .ToDictionary();
+        }
+
+        public Dictionary<Guid, CachedRoot> GetAllRoots()
+        {
+            return _cache.Roots
+                .Select(pair => new KeyValuePair<Guid, CachedRoot>
+                (
+                    pair.Key,
+                    (CachedRoot)pair.Value.Clone()
+                ))
+                .ToDictionary();
+        }
+
 
         public Dictionary<Guid, CachedCategory> GetCategoryTree()
         {

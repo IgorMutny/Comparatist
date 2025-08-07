@@ -2,7 +2,7 @@
 
 namespace Comparatist.Services.Cache
 {
-    public class CachedWord
+    public class CachedWord: ICloneable
     {
         public required Word Record { get; set; }
 

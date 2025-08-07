@@ -1,11 +1,13 @@
 ﻿using Comparatist.Services.Cache;
 using Comparatist.View.Infrastructure;
+using Comparatist.View.Utilities;
 
 namespace Comparatist.View.WordGrid
 {
     internal class WordGridRenderer : Renderer<DataGridView>
     {
-        private Dictionary<Guid, DataGridViewRow> _sections = new();
+        private Dictionary<SectionBinder, DataGridViewRow> _sections = new();
+        private Dictionary<BlockBinder, DataGridViewRow> _blocks = new();
 
         public WordGridRenderer(DataGridView control) : base(control)
         {
@@ -16,13 +18,21 @@ namespace Comparatist.View.WordGrid
             Control.MultiSelect = false;
             Control.ReadOnly = true;
             Control.Visible = false;
+
+            Control.CellPainting += OnCellPainting;
         }
 
-        public void Clear()
+        public override void Dispose()
+        {
+            Control.CellPainting -= OnCellPainting;
+        }
+
+        public void Reset()
         {
             Control.Columns.Clear();
             Control.Rows.Clear();
             _sections.Clear();
+            _blocks.Clear();
         }
 
         public void CreateColumns(List<CachedLanguage> languages)
@@ -56,18 +66,72 @@ namespace Comparatist.View.WordGrid
             Control.Columns.Add(column);
         }
 
-        public void AddSection(CachedCategory category)
+        public void AddSection(SectionBinder binder)
         {
             var index = Control.Rows.Add();
             var row = Control.Rows[index];
-
             row.DefaultCellStyle.BackColor = Color.LightGreen;
 
             var cell = row.Cells[0];
-            cell.Tag = category;
-            cell.Value = $"{category.Record.Value.ToUpper()} {category.Record.Order}";
+            cell.Tag = binder.Category;
+            cell.Value = binder.Category.Value.ToUpper();
 
-            _sections.Add(category.Record.Id, row);
+            _sections.Add(binder, row);
+        }
+
+        public void AddBlock(BlockBinder binder, SectionBinder parent)
+        {
+            var parentRow = _sections[parent];
+            var index = parentRow.Index + 1;
+            Control.Rows.Insert(index);
+            var row = Control.Rows[index];
+            _blocks.Add(binder, row);
+
+            UpdateBlock(binder);
+        }
+
+        public void UpdateBlock(BlockBinder binder)
+        {
+            if (!_blocks.TryGetValue(binder, out var block))
+                return;
+
+            var cell = block.Cells[0];
+            cell.Tag = binder.Root;
+            cell.Value = $"[b]{binder.Root.Value}[/b] {binder.Root.Translation}";
+        }
+
+        public void RemoveBlock(BlockBinder binder)
+        {
+            if (!_blocks.TryGetValue(binder, out var row))
+                return;
+
+            Control.Rows.Remove(row);
+            _blocks.Remove(binder);
+        }
+
+        private void OnCellPainting(object? sender, DataGridViewCellPaintingEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.ColumnIndex < 0) return;
+            var value = e.FormattedValue?.ToString();
+            if (string.IsNullOrEmpty(value)) return;
+
+            e.Handled = true;
+            e.PaintBackground(e.CellBounds, true);
+
+            var formatted = RichTextFormatter.Parse(value);
+            var x = e.CellBounds.X + 2;
+            var y = e.CellBounds.Y + 2;
+
+            if (e.CellStyle != null && e.Graphics != null)
+            {
+                foreach (var (text, style) in formatted)
+                {
+                    using var font = new Font(e.CellStyle.Font, style);
+                    var size = TextRenderer.MeasureText(text, font);
+                    TextRenderer.DrawText(e.Graphics, text, font, new Point(x, y), e.CellStyle.ForeColor);
+                    x += size.Width;
+                }
+            }
         }
     }
 }

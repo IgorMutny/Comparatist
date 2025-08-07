@@ -2,7 +2,7 @@
 
 namespace Comparatist.Services.Cache
 {
-    public class CachedRoot
+    public class CachedRoot: ICloneable
     {
         public required Root Record { get; set; }
         public Dictionary<Guid, CachedStem> Stems { get; set; } = new();

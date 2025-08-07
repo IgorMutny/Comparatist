@@ -1,4 +1,5 @@
 ﻿using Comparatist.Core.Records;
+using Comparatist.Services.Cache;
 using Comparatist.Services.Infrastructure;
 using Comparatist.View.Infrastructure;
 
@@ -92,7 +93,7 @@ namespace Comparatist.View.WordGrid
 
         protected override void UpdateView()
         {
-            var sections = Execute(() => Service.GetWordTable(View.SortingType));
+            var sections = new Dictionary<Guid, CachedCategory>(); // Execute(() => Service.GetAllRoots(View.SortingType));
             var languages = Execute(Service.GetAllLanguages);
             var categories = Execute(Service.GetCategoryTree);
 

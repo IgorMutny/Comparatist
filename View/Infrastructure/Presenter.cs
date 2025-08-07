@@ -23,6 +23,7 @@ namespace Comparatist.View.Infrastructure
         {
             Unsubscribe();
             InputHandler?.Dispose();
+            Renderer?.Dispose();
         }
 
         public void Show()

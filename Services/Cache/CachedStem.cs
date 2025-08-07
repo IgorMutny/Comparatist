@@ -2,7 +2,7 @@
 
 namespace Comparatist.Services.Cache
 {
-    public class CachedStem
+    public class CachedStem: ICloneable
     {
         public required Stem Record { get; set; }
         public Dictionary<Guid, CachedWord> WordsByLanguage { get; set; } = new();

@@ -27,6 +27,9 @@ namespace Comparatist
 
             _service = new ProjectService();
 
+            _mainMenuViewAdapter = new(_mainMenuStrip);
+            _mainMenuPresenter = new(_service, _mainMenuViewAdapter);
+            _mainMenuViewAdapter.ExitRequest += Close;
 
             var languageRenderer = new LanguageGridRenderer(_languageGridView);
             var languageInputHandler = new LanguageGridInputHandler(_languageGridView);
@@ -38,10 +41,6 @@ namespace Comparatist
             var wordRenderer = new WordGridRenderer(_wordGridView);
             var wordInputHandler = new WordGridInputHandler(_wordGridView);
             _wordGridPresenter = new WordGridPresenter(_service, wordRenderer, wordInputHandler);
-
-            _mainMenuViewAdapter = new(_mainMenuStrip);
-            _mainMenuPresenter = new(_service, _mainMenuViewAdapter);
-            _mainMenuViewAdapter.ExitRequest += Close;
 
             _mainMenuViewAdapter.RegisterPresenter(
                 ContentTypes.Languages,

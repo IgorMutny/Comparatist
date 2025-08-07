@@ -1,6 +1,4 @@
-﻿using Comparatist.Core.Records;
-
-namespace Comparatist.Services.Cache
+﻿namespace Comparatist.Services.Cache
 {
     public class ProjectCache
     {

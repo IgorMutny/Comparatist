@@ -3,7 +3,7 @@
 namespace Comparatist.Core.Records
 {
     [MessagePackObject]
-    public class Root: IRecord, INativeRecord, ICheckableRecord
+    public class Root: IRecord, INativeRecord, ICheckableRecord, IContentEquatable<Root>
     {
         [Key(0)] public Guid Id { get; set; }
         [Key(1)] public string Value { get; set; } = string.Empty;
@@ -25,6 +25,20 @@ namespace Comparatist.Core.Records
                 IsNative = IsNative,
                 IsChecked = IsChecked
             };
+        }
+
+        public bool EqualsContent(Root other)
+        {
+            if (other == null)
+                return false;
+
+            return Id == other.Id 
+                && Value == other.Value 
+                && Translation == other.Translation 
+                && Comment == other.Comment 
+                && IsNative == other.IsNative
+                && IsChecked == other.IsChecked
+                && new HashSet<Guid>(CategoryIds).SetEquals(other.CategoryIds);
         }
     }
 }

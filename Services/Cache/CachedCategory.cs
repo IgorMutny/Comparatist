@@ -2,7 +2,7 @@
 
 namespace Comparatist.Services.Cache
 {
-    public class CachedCategory
+    public class CachedCategory: ICloneable
     {
         public required Category Record { get; set; }
         public Dictionary<Guid, CachedCategory> Children { get; set; } = new();

@@ -1,6 +1,6 @@
 ﻿namespace Comparatist.View.Infrastructure
 {
-    internal abstract class Renderer<T> where T : Control
+    internal abstract class Renderer<T>:IDisposable where T : Control
     {
         protected T Control { get; private set; }
 
@@ -8,6 +8,8 @@
         {
             Control = control;
         }
+
+        public virtual void Dispose() { }
 
         public void Show()
         {
