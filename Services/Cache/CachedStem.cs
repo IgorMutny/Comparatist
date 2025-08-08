@@ -21,7 +21,7 @@ namespace Comparatist.Services.Cache
             };
         }
 
-        public bool EqualsContent(CachedStem other)
+        public bool EqualsContent(CachedStem? other)
         {
             if (other == null)
                 return false;

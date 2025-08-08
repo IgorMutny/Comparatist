@@ -5,21 +5,23 @@ namespace Comparatist.View.WordGrid
 {
     internal class RootBinder
     {
-        private CachedRoot _previousState;
+        private CachedRoot? _previousState;
+        private CachedRoot _currentState;
         private WordGridRenderer _renderer;
         private bool _isExpanded;
         private Dictionary<Guid, StemBinder> _binders = new();
 
         public RootBinder(CachedRoot state, CategoryBinder parent, WordGridRenderer renderer)
         {
-            _previousState = state;
+            _currentState = state;
             Parent = parent;
             _renderer = renderer;
         }
 
         public bool NeedsReorder { get; set; }
-        public Root Root => _previousState.Record;
+        public Root Root => _currentState.Record;
         public CategoryBinder Parent { get; private set; }
+        public string ExpandedMark => _isExpanded ? "▼" : "▶";
 
         public void OnRemove()
         {
@@ -29,16 +31,18 @@ namespace Comparatist.View.WordGrid
 
         public void Update(CachedRoot state)
         {
-            if(_isExpanded)
-                UpdateStemContents(state);
+            _currentState = state;
+
+            if (_isExpanded)
+                UpdateStemContents();
 
             if (state.EqualsContent(_previousState))
                 return;
 
             if (_isExpanded)
-                UpdateStems(state);
+                UpdateStems();
 
-            var oldValue = _previousState.Record.Value;
+            var oldValue = _previousState?.Record.Value;
             _previousState = state;
             _renderer.UpdateRoot(this);
 
@@ -46,17 +50,20 @@ namespace Comparatist.View.WordGrid
                 NeedsReorder = true;
         }
 
-        private void UpdateStems(CachedRoot state)
+        private void UpdateStems()
         {
-            var addedStemIds = state.Stems.Keys.Except(_previousState.Stems.Keys).ToList();
+            if (_previousState == null)
+                return;
+
+            var addedStemIds = _currentState.Stems.Keys.Except(_previousState.Stems.Keys).ToList();
 
             foreach (var id in addedStemIds)
             {
-                var stem = state.Stems[id];
+                var stem = _currentState.Stems[id];
                 AddBinder(stem, needsReorder: true);
             }
 
-            var deletedStemIds = _previousState.Stems.Keys.Except(state.Stems.Keys).ToList();
+            var deletedStemIds = _previousState.Stems.Keys.Except(_currentState.Stems.Keys).ToList();
 
             foreach (var id in deletedStemIds)
                 RemoveBinder(id);
@@ -64,15 +71,19 @@ namespace Comparatist.View.WordGrid
             UpdateStemOrder();
         }
 
-        private void UpdateStemContents(CachedRoot state)
+        private void UpdateStemContents()
         {
-            var oldStemIds = state.Stems.Keys.Intersect(_previousState.Stems.Keys).ToList();
+            IEnumerable<Guid> oldStemIds = _currentState.Stems.Keys;
+
+            if (_previousState != null)
+                oldStemIds = _currentState.Stems.Keys.Intersect(_previousState.Stems.Keys).ToList();
+
             bool needReorder = false;
 
             foreach (var id in oldStemIds)
             {
                 var binder = _binders[id];
-                binder.Update(state.Stems[id]);
+                binder.Update(_currentState.Stems[id]);
 
                 if (binder.NeedsReorder)
                     needReorder = true;
@@ -92,7 +103,7 @@ namespace Comparatist.View.WordGrid
 
         private void Expand()
         {
-            var orderedStems = _previousState.Stems.Values
+            var orderedStems = _currentState.Stems.Values
                 .OrderByDescending(e => e.Record.Value)
                 .ToList();
 
@@ -100,6 +111,7 @@ namespace Comparatist.View.WordGrid
                 AddBinder(stem);
 
             _isExpanded = true;
+            _renderer.UpdateRoot(this);
         }
 
         private void Collapse()
@@ -108,6 +120,7 @@ namespace Comparatist.View.WordGrid
                 RemoveBinder(pair.Key);
 
             _isExpanded = false;
+            _renderer.UpdateRoot(this);
         }
 
         private void AddBinder(CachedStem stem, bool needsReorder = false)

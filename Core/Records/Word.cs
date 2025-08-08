@@ -29,7 +29,7 @@ namespace Comparatist.Core.Records
             };
         }
 
-        public bool EqualsContent(Word other)
+        public bool EqualsContent(Word? other)
         {
             if (other == null)
                 return false;

@@ -2,6 +2,6 @@
 {
     public interface IContentEquatable<T>
     {
-        bool EqualsContent(T other);
+        bool EqualsContent(T? other);
     }
 }

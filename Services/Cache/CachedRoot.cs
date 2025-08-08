@@ -21,7 +21,7 @@ namespace Comparatist.Services.Cache
             };
         }
 
-        public bool EqualsContent(CachedRoot other)
+        public bool EqualsContent(CachedRoot? other)
         {
             if (other == null)
                 return false;

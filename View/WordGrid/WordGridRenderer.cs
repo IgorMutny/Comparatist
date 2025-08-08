@@ -6,6 +6,11 @@ namespace Comparatist.View.WordGrid
 {
     internal class WordGridRenderer : Renderer<DataGridView>
     {
+        private readonly static Color FilledWordCellColor = Color.White;
+        private readonly static Color EmptyWordCellColor = Color.LightGray;
+        private readonly static Color CheckedFrontColor = Color.Black;
+        private readonly static Color UncheckedFrontColor = Color.DarkGray;
+
         private Dictionary<CategoryBinder, DataGridViewRow> _categories = new();
         private Dictionary<RootBinder, DataGridViewRow> _roots = new();
         private Dictionary<StemBinder, DataGridViewRow> _stems = new();
@@ -81,7 +86,7 @@ namespace Comparatist.View.WordGrid
 
             var cell = row.Cells[0];
             cell.Tag = binder.Category;
-            cell.Value = binder.Category.Value.ToUpper();
+            cell.Value = $"[b]{binder.Category.Value.ToUpper()}[/b]";
 
             _categories.Add(binder, row);
         }
@@ -104,7 +109,10 @@ namespace Comparatist.View.WordGrid
 
             var cell = row.Cells[0];
             cell.Tag = binder.Root;
-            cell.Value = $"[b]{binder.Root.Value}[/b] {binder.Root.Translation}";
+            cell.Style.ForeColor = binder.Root.IsChecked ? CheckedFrontColor : UncheckedFrontColor;
+            var open = binder.Root.IsNative ? string.Empty : "《";
+            var close = binder.Root.IsNative ? string.Empty : "》";
+            cell.Value = $"{binder.ExpandedMark} {open}[b]{binder.Root.Value}[/b] {binder.Root.Translation} {close}";
         }
 
         public void MoveRoot(RootBinder binder, RootBinder? previousBinder)
@@ -139,17 +147,24 @@ namespace Comparatist.View.WordGrid
             Control.Rows.Insert(index);
             var row = Control.Rows[index];
             _stems.Add(binder, row);
+
+            for (int i = 1; i < row.Cells.Count; i++)
+                row.Cells[i].Style.BackColor = EmptyWordCellColor;
+
             UpdateStem(binder);
         }
 
         public void UpdateStem(StemBinder binder)
         {
-            if (!_stems.TryGetValue(binder, out var block))
+            if (!_stems.TryGetValue(binder, out var row))
                 return;
 
-            var cell = block.Cells[0];
+            var cell = row.Cells[0];
             cell.Tag = binder.Stem;
-            cell.Value = $"→ [b]{binder.Stem.Value}[/b] {binder.Stem.Translation}";
+            var open = binder.Stem.IsNative ? string.Empty : "《";
+            var close = binder.Stem.IsNative ? string.Empty : "》";
+            cell.Style.ForeColor = binder.Stem.IsChecked ? CheckedFrontColor : UncheckedFrontColor;
+            cell.Value = $"    • {open}[b]{binder.Stem.Value}[/b] {binder.Stem.Translation} {close}";
         }
 
         public void MoveStem(StemBinder binder, StemBinder? previousBinder)
@@ -182,6 +197,7 @@ namespace Comparatist.View.WordGrid
             var row = _stems[parent];
             var column = _columns[binder.Word.LanguageId];
             var cell = Control.Rows[row.Index].Cells[column.Index];
+            cell.Style.BackColor = FilledWordCellColor;
             _words.Add(binder, cell);
             UpdateWord(binder);
         }
@@ -192,7 +208,10 @@ namespace Comparatist.View.WordGrid
                 return;
 
             cell.Tag = binder.Word;
-            cell.Value = $"[b]{binder.Word.Value}[/b] {binder.Word.Translation}";
+            var open = binder.Word.IsNative ? string.Empty : "《";
+            var close = binder.Word.IsNative ? string.Empty : "》";
+            cell.Style.ForeColor = binder.Word.IsChecked ? CheckedFrontColor : UncheckedFrontColor;
+            cell.Value = $"{open}[b]{binder.Word.Value}[/b] {binder.Word.Translation} {close}";
         }
 
         public void RemoveWord(WordBinder binder)
@@ -200,6 +219,7 @@ namespace Comparatist.View.WordGrid
             var cell = _words[binder];
             cell.Value = null;
             cell.Tag = null;
+            cell.Style.BackColor = EmptyWordCellColor;
             _words.Remove(binder);
         }
 

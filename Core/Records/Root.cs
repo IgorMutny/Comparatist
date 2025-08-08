@@ -27,7 +27,7 @@ namespace Comparatist.Core.Records
             };
         }
 
-        public bool EqualsContent(Root other)
+        public bool EqualsContent(Root? other)
         {
             if (other == null)
                 return false;
