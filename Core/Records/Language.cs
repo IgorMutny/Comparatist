@@ -18,5 +18,10 @@ namespace Comparatist.Core.Records
                 Order = Order
             };
         }
+
+        public override string ToString()
+        {
+            return Value;
+        }
     }
 }

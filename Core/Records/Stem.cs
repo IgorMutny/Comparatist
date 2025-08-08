@@ -40,5 +40,10 @@ namespace Comparatist.Core.Records
                    && IsChecked == other.IsChecked
                    && new HashSet<Guid>(RootIds).SetEquals(other.RootIds);
         }
+
+        public override string ToString()
+        {
+            return $"{Value} - {Translation}";
+        }
     }
 }

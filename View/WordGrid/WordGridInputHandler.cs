@@ -56,8 +56,8 @@ namespace Comparatist.View.WordGrid
             Control.MouseDoubleClick += OnDoubleClick;
         }
 
-        public IEnumerable<Category> AllCategories { private get; set; } = Enumerable.Empty<Category>();
-        public IEnumerable<Root> AllRoots { private get; set; } = Enumerable.Empty<Root>();
+        public List<Category> AllCategories { private get; set; } = new();
+        public List<Root> AllRoots { private get; set; } = new();
 
         public override void Dispose()
         {

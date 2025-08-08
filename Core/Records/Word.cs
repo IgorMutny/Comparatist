@@ -28,5 +28,10 @@ namespace Comparatist.Core.Records
                 IsChecked = IsChecked
             };
         }
+
+        public override string ToString()
+        {
+            return $"{Value} - {Translation}";
+        }
     }
 }

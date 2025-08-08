@@ -143,8 +143,8 @@ namespace Comparatist.View.WordGrid
                 return;
             }
 
-            InputHandler.AllCategories = categories.Values.Select(e => e.Record);
-            InputHandler.AllRoots = roots.Values.Select(e => e.Record);
+            InputHandler.AllCategories = categories.Values.Select(e => e.Record).ToList();
+            InputHandler.AllRoots = roots.Values.Select(e => e.Record).OrderBy(e => e.Value).ToList();
 
             var orderedLanguages = languages.Values.OrderBy(e => e.Record.Order).ToList();
             Renderer.CreateColumns(orderedLanguages);
@@ -169,8 +169,8 @@ namespace Comparatist.View.WordGrid
                 return;
             }
 
-            InputHandler.AllCategories = categories.Values.Select(e => e.Record);
-            InputHandler.AllRoots = roots.Values.Select(e => e.Record);
+            InputHandler.AllCategories = categories.Values.Select(e => e.Record).ToList();
+            InputHandler.AllRoots = roots.Values.Select(e => e.Record).OrderBy(e => e.Value).ToList();
 
             foreach (var category in state.Values)
                 if (_binders.TryGetValue(category.Record.Id, out var binder))

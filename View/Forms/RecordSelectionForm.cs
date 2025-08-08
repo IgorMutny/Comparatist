@@ -38,7 +38,12 @@ namespace Comparatist
         {
             foreach (var record in _allRecords)
             {
-                var item = new GuidedItem { Text = record.Value, Id = record.Id };
+                var item = new GuidedItem
+                {
+                    Text = record.ToString() ?? string.Empty,
+                    Id = record.Id
+                };
+
                 int index = _checkedListBox.Items.Add(item);
 
                 if (_selectedIds.Contains(record.Id))
