@@ -3,14 +3,12 @@ using Comparatist.Core.Records;
 
 namespace Comparatist.Services.CascadeDelete
 {
-    internal class RootCascadeDeleteStrategy : CascadeDeleteStrategy<Root>
+    internal class RootCascadeDeleteHandler : CascadeDeleteHandler<Root>
     {
-        public RootCascadeDeleteStrategy(IDatabase database) : base(database) { }
+        public RootCascadeDeleteHandler(IDatabase database) : base(database) { }
 
-        protected override IEnumerable<IRecord> Delete(Root record)
+        protected override IEnumerable<IRecord> GetBoundedRecords(Root record)
         {
-            Database.GetRepository<Root>().Delete(record.Id);
-
             return Database.GetRepository<Stem>().GetAll()
                 .Where(x => x.RootIds.Contains(record.Id))
                 .ToList();

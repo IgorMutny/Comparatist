@@ -21,6 +21,12 @@ namespace Comparatist.View.WordGrid
         public Root Root => _previousState.Record;
         public CategoryBinder Parent { get; private set; }
 
+        public void OnRemove()
+        {
+            foreach (var id in _binders.Keys)
+                RemoveBinder(id);
+        }
+
         public void Update(CachedRoot state)
         {
             if(_isExpanded)
@@ -110,11 +116,13 @@ namespace Comparatist.View.WordGrid
             binder.NeedsReorder = needsReorder;
             _binders.Add(stem.Record.Id, binder);
             _renderer.AddStem(binder, this);
+            binder.Initialize();
         }
 
         private void RemoveBinder(Guid id)
         {
             var binder = _binders[id];
+            binder.OnRemove();
             _renderer.RemoveStem(binder);
             _binders.Remove(id);
         }

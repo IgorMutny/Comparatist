@@ -9,6 +9,8 @@ namespace Comparatist.View.WordGrid
         private Dictionary<CategoryBinder, DataGridViewRow> _categories = new();
         private Dictionary<RootBinder, DataGridViewRow> _roots = new();
         private Dictionary<StemBinder, DataGridViewRow> _stems = new();
+        private Dictionary<WordBinder, DataGridViewCell> _words = new();
+        private Dictionary<Guid, DataGridViewColumn> _columns = new();
 
         public WordGridRenderer(DataGridView control) : base(control)
         {
@@ -35,6 +37,8 @@ namespace Comparatist.View.WordGrid
             _categories.Clear();
             _roots.Clear();
             _stems.Clear();
+            _words.Clear();
+            _columns.Clear();
         }
 
         public void CreateColumns(List<CachedLanguage> languages)
@@ -62,10 +66,11 @@ namespace Comparatist.View.WordGrid
             {
                 HeaderText = language.Record.Value,
                 Width = 200,
-                Tag = language
+                Tag = language.Record,
             };
 
             Control.Columns.Add(column);
+            _columns.Add(language.Record.Id, column);
         }
 
         public void AddCategory(CategoryBinder binder)
@@ -170,6 +175,32 @@ namespace Comparatist.View.WordGrid
 
             Control.Rows.Remove(row);
             _stems.Remove(binder);
+        }
+
+        public void AddWord(WordBinder binder, StemBinder parent)
+        {
+            var row = _stems[parent];
+            var column = _columns[binder.Word.LanguageId];
+            var cell = Control.Rows[row.Index].Cells[column.Index];
+            _words.Add(binder, cell);
+            UpdateWord(binder);
+        }
+
+        public void UpdateWord(WordBinder binder)
+        {
+            if (!_words.TryGetValue(binder, out var cell))
+                return;
+
+            cell.Tag = binder.Word;
+            cell.Value = $"[b]{binder.Word.Value}[/b] {binder.Word.Translation}";
+        }
+
+        public void RemoveWord(WordBinder binder)
+        {
+            var cell = _words[binder];
+            cell.Value = null;
+            cell.Tag = null;
+            _words.Remove(binder);
         }
 
         private void OnCellPainting(object? sender, DataGridViewCellPaintingEventArgs e)

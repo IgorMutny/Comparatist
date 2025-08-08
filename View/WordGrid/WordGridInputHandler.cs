@@ -170,8 +170,13 @@ namespace Comparatist.View.WordGrid
         private void AddOrEditWord()
         {
             if (!TryGetSelected(out Word word))
-                return;
+                AddWord();
+            else
+                EditWord(word);
+        }
 
+        private void AddWord()
+        {
             var cell = Control.SelectedCells[0];
             var row = Control.Rows[cell.RowIndex];
             var column = Control.Columns[cell.ColumnIndex];
@@ -179,16 +184,32 @@ namespace Comparatist.View.WordGrid
             if (row.Cells[0].Tag is not Stem stem || column.Tag is not Language language)
                 return;
 
+            var word = new Word();
             word.IsNative = stem.IsNative;
             var form = new WordEditForm(word, stem, language);
 
             if (form.ShowDialog() == DialogResult.OK)
             {
                 var updatedWord = form.GetResult();
-                if (updatedWord.Id == Guid.Empty)
-                    AddWordRequest?.Invoke(updatedWord);
-                else
-                    UpdateWordRequest?.Invoke(updatedWord);
+                AddWordRequest?.Invoke(updatedWord);
+            }
+        }
+
+        private void EditWord(Word word)
+        {
+            var cell = Control.SelectedCells[0];
+            var row = Control.Rows[cell.RowIndex];
+            var column = Control.Columns[cell.ColumnIndex];
+
+            if (row.Cells[0].Tag is not Stem stem || column.Tag is not Language language)
+                return;
+
+            var form = new WordEditForm(word, stem, language);
+
+            if (form.ShowDialog() == DialogResult.OK)
+            {
+                var updatedWord = form.GetResult();
+                UpdateWordRequest?.Invoke(updatedWord);
             }
         }
 
@@ -226,15 +247,22 @@ namespace Comparatist.View.WordGrid
             if (e.Button != MouseButtons.Right)
                 return;
 
-            SelectCellUnderCursor(e);
+            SelectCellUnderCursor(e, out var cell);
             TryGetSelected(out IRecord tag);
-            var menu = GetMenuFor(tag);
+            var menu = GetMenuFor(cell, tag);
             var point = new Point(e.X, e.Y);
             menu?.Show(Control, point);
         }
 
-        private DisposableMenu? GetMenuFor(object? tag)
+        private DisposableMenu? GetMenuFor(DataGridViewCell? cell, object? tag)
         {
+            if (tag is null
+                && cell is not null
+                && Control.Rows[cell.RowIndex].Cells[0].Tag is Stem)
+            {
+                return _wordMenu;
+            }
+
             return tag switch
             {
                 Root => _rootMenu,
@@ -266,6 +294,16 @@ namespace Comparatist.View.WordGrid
                 var selectedCell = Control.Rows[hit.RowIndex].Cells[hit.ColumnIndex];
                 selectedCell.Selected = true;
             }
+        }
+
+        private void SelectCellUnderCursor(MouseEventArgs e, out DataGridViewCell? cell)
+        {
+            SelectCellUnderCursor(e);
+
+            cell = null;
+
+            if (Control.SelectedCells.Count > 0)
+                cell = Control.SelectedCells[0];
         }
     }
 }

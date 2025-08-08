@@ -73,6 +73,7 @@ namespace Comparatist.View.WordGrid
         private void RemoveBinder(Guid id)
         {
             var binder = _binders[id];
+            binder.OnRemove();
             _renderer.RemoveRoot(binder);
             _binders.Remove(id);
         }

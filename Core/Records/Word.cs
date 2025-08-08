@@ -3,7 +3,7 @@
 namespace Comparatist.Core.Records
 {
     [MessagePackObject]
-    public class Word: IRecord, INativeRecord, ICheckableRecord
+    public class Word: IRecord, INativeRecord, ICheckableRecord, IContentEquatable<Word>
     {
         [Key(0)] public Guid Id { get; set; }
         [Key(1)] public string Value { get; set; } = string.Empty;
@@ -27,6 +27,21 @@ namespace Comparatist.Core.Records
                 IsNative = IsNative,
                 IsChecked = IsChecked
             };
+        }
+
+        public bool EqualsContent(Word other)
+        {
+            if (other == null)
+                return false;
+
+            return Id == other.Id
+                   && Value == other.Value
+                   && Translation == other.Translation
+                   && Comment == other.Comment
+                   && IsNative == other.IsNative
+                   && IsChecked == other.IsChecked
+                   && StemId == other.StemId
+                   && LanguageId == other.LanguageId;
         }
 
         public override string ToString()

@@ -26,8 +26,8 @@ namespace Comparatist.Services.Cache
             if (other == null)
                 return false;
 
-            return Record.EqualsContent(other.Record) &&
-                Stems.Keys.ToHashSet().SetEquals(other.Stems.Keys);
+            return Record.EqualsContent(other.Record)
+                && Stems.Keys.ToHashSet().SetEquals(other.Stems.Keys);
         }
     }
 }

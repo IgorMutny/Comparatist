@@ -5,14 +5,14 @@ namespace Comparatist.Services.Cache
     public class CachedStem : ICloneable, IContentEquatable<CachedStem>
     {
         public required Stem Record { get; set; }
-        public Dictionary<Guid, CachedWord> WordsByLanguage { get; set; } = new();
+        public Dictionary<Guid, CachedWord> Words { get; set; } = new();
 
         public object Clone()
         {
             return new CachedStem
             {
                 Record = (Stem)Record.Clone(),
-                WordsByLanguage = WordsByLanguage
+                Words = Words
                     .Select(pair =>
                         new KeyValuePair<Guid, CachedWord>(
                             pair.Key,
@@ -26,8 +26,8 @@ namespace Comparatist.Services.Cache
             if (other == null)
                 return false;
 
-            return Record.EqualsContent(other.Record) &&
-                WordsByLanguage.Keys.ToHashSet().SetEquals(other.WordsByLanguage.Keys);
+            return Record.EqualsContent(other.Record)
+                 && Words.Keys.ToHashSet().SetEquals(other.Words.Keys);
         }
     }
 }

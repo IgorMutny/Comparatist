@@ -5,25 +5,29 @@ namespace Comparatist.Services.CascadeDelete
 {
     internal class CascadeDeleteService
     {
-        private Dictionary<Type, ICascadeDeleteStrategy> _strategies;
+        private Dictionary<Type, ICascadeDeleteHandler> _handlers;
         private HashSet<Guid> _visitedIds = new();
 
         public CascadeDeleteService(IDatabase database)
         {
-            _strategies = new Dictionary<Type, ICascadeDeleteStrategy>
+            _handlers = new Dictionary<Type, ICascadeDeleteHandler>
             {
-                {typeof(Language), new LanguageCascadeDeleteStrategy(database) },
-                {typeof(Category), new CategoryCascadeDeleteStrategy(database) },
-                {typeof(Root), new RootCascadeDeleteStrategy(database) },
-                {typeof(Stem), new StemCascadeDeleteStrategy(database) },
-                {typeof(Word), new WordCascadeDeleteStrategy(database) },
+                {typeof(Language), new LanguageCascadeDeleteHandler(database) },
+                {typeof(Category), new CategoryCascadeDeleteHandler(database) },
+                {typeof(Root), new RootCascadeDeleteHandler(database) },
+                {typeof(Stem), new StemCascadeDeleteHandler(database) },
+                {typeof(Word), new WordCascadeDeleteHandler(database) },
             };
         }
 
         public void Delete(IRecord record)
         {
             _visitedIds.Clear();
+            DeleteRecursively(record);
+        }
 
+        private void DeleteRecursively(IRecord record)
+        {
             if (_visitedIds.Contains(record.Id))
                 return;
 
@@ -31,13 +35,15 @@ namespace Comparatist.Services.CascadeDelete
 
             var type = record.GetType();
 
-            if (!_strategies.TryGetValue(type, out var strategy))
-                throw new InvalidOperationException($"No strategy for type {type}");
+            if (!_handlers.TryGetValue(type, out var handler))
+                throw new NotSupportedException();
 
-            var boundedRecords = strategy.Delete(record);
+            var boundedRecords = handler.GetBoundedRecords(record);
 
             foreach (var boundedRecord in boundedRecords)
-                Delete(boundedRecord);
+                DeleteRecursively(boundedRecord);
+
+            handler.Delete(record);
         }
     }
 }

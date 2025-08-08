@@ -108,7 +108,7 @@ namespace Comparatist.Services.TableCache
             if (!_rows.TryGetValue(word.StemId, out var row))
                 throw new InvalidOperationException($"Stem {word.StemId} not found in cache");
 
-            row.WordsByLanguage.Add(word.LanguageId, new CachedWord { Record = word });
+            row.Words.Add(word.LanguageId, new CachedWord { Record = word });
         }
 
         private void UpdateRoot(Root root)
@@ -140,7 +140,7 @@ namespace Comparatist.Services.TableCache
             if (!_rows.TryGetValue(word.StemId, out var row))
                 throw new InvalidOperationException($"Stem {word.StemId} not found in cache");
 
-            row.WordsByLanguage[word.LanguageId] = new CachedWord { Record = word };
+            row.Words[word.LanguageId] = new CachedWord { Record = word };
         }
 
         private void DeleteRoot(Root root)
@@ -171,7 +171,7 @@ namespace Comparatist.Services.TableCache
             if (!_rows.TryGetValue(word.StemId, out var row))
                 throw new InvalidOperationException($"Stem {word.StemId} not found in cache");
 
-            if (!row.WordsByLanguage.Remove(word.LanguageId))
+            if (!row.Words.Remove(word.LanguageId))
                 throw new InvalidOperationException($"Word {word.Id} not found in cache");
         }
 

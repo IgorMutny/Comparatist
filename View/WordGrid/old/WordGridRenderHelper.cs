@@ -174,7 +174,7 @@ namespace Comparatist.View.WordGrid
             var languageId = language.Id;
             var columnIndex = column.Index;
 
-            if (cachedRow.WordsByLanguage.TryGetValue(languageId, out var word) && word != null)
+            if (cachedRow.Words.TryGetValue(languageId, out var word) && word != null)
                 FillWordCell(row, columnIndex, word.Record);
             else
                 FillEmptyCell(row, columnIndex, languageId, cachedRow.Record.Id);

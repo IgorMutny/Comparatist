@@ -17,5 +17,14 @@ namespace Comparatist.View.WordGrid
 
         public Word Word => _previousState.Record;
         public StemBinder Parent { get; private set; }
+
+        public void Update(CachedWord state)
+        {
+            if (state.EqualsContent(_previousState))
+                return;
+
+            _previousState = state;
+            _renderer.UpdateWord(this);
+        }
     }
 }

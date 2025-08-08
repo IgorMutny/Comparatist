@@ -29,7 +29,7 @@ namespace Comparatist.Services.CacheUpdate
             if (!Cache.Stems.TryGetValue(word.StemId, out var stem))
                 throw new CachedRecordNotFoundException(typeof(CachedStem), word.StemId);
 
-            stem.WordsByLanguage.Add(word.LanguageId, cached);
+            stem.Words.Add(word.Id, cached);
         }
 
         protected override void OnUpdated(Word word)
@@ -45,7 +45,7 @@ namespace Comparatist.Services.CacheUpdate
             if (!Cache.Stems.TryGetValue(word.StemId, out var stem))
                 throw new CachedRecordNotFoundException(typeof(CachedStem), word.StemId);
 
-            stem.WordsByLanguage.Remove(word.LanguageId);
+            stem.Words.Remove(word.Id);
 
             if (!Cache.Words.Remove(word.Id))
                 throw new CachedRecordNotFoundException(typeof(CachedWord), word.Id);
