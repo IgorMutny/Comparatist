@@ -3,13 +3,13 @@ using Comparatist.Services.Cache;
 
 namespace Comparatist.View.WordGrid
 {
-    internal class SectionBinder
+    internal class CategoryBinder
     {
         private CachedCategory _previousState;
         private WordGridRenderer _renderer;
-        private Dictionary<Guid, BlockBinder> _blockBinders = new();
+        private Dictionary<Guid, RootBinder> _binders = new();
 
-        public SectionBinder(CachedCategory state, WordGridRenderer renderer)
+        public CategoryBinder(CachedCategory state, WordGridRenderer renderer)
         {
             _previousState = state;
             _renderer = renderer;
@@ -34,7 +34,7 @@ namespace Comparatist.View.WordGrid
             foreach (var id in addedRootIds)
             {
                 var root = state.Roots[id];
-                AddBinder(root);
+                AddBinder(root, needsReorder: true);
             }
 
             var deletedRootIds = _previousState.Roots.Keys.Except(state.Roots.Keys).ToList();
@@ -46,31 +46,40 @@ namespace Comparatist.View.WordGrid
 
             foreach (var id in oldRootIds)
             {
-                var binder = _blockBinders[id];
+                var binder = _binders[id];
                 binder.Update(state.Roots[id]);
             }
 
             _previousState = state;
-            UpdateBlockOrder();
+            UpdateRootOrder();
         }
 
-        private void AddBinder(CachedRoot root)
+        public void ExpandOrCollapse(Root root)
         {
-            var binder = new BlockBinder(root, this, _renderer);
-            _blockBinders.Add(root.Record.Id, binder);
-            _renderer.AddBlock(binder, this);
+            if (!_binders.TryGetValue(root.Id, out var binder))
+                return;
+
+            binder.ExpandOrCollapse();
+        }
+
+        private void AddBinder(CachedRoot root, bool needsReorder = false)
+        {
+            var binder = new RootBinder(root, this, _renderer);
+            binder.NeedsReorder = needsReorder;
+            _binders.Add(root.Record.Id, binder);
+            _renderer.AddRoot(binder, this);
         }
 
         private void RemoveBinder(Guid id)
         {
-            var binder = _blockBinders[id];
-            _renderer.RemoveBlock(binder);
-            _blockBinders.Remove(id);
+            var binder = _binders[id];
+            _renderer.RemoveRoot(binder);
+            _binders.Remove(id);
         }
 
-        private void UpdateBlockOrder()
+        private void UpdateRootOrder()
         {
-            var orderedBinders = _blockBinders.Values
+            var orderedBinders = _binders.Values
                 .OrderBy(b => b.Root.Value)
                 .ToList();
 
@@ -85,7 +94,8 @@ namespace Comparatist.View.WordGrid
                     ? orderedBinders[i - 1]
                     : null;
 
-                _renderer.MoveBlock(currentBinder, previousBinder);
+                _renderer.MoveRoot(currentBinder, previousBinder);
+                currentBinder.NeedsReorder = false;
             }
         }
     }

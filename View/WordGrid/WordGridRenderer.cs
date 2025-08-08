@@ -6,8 +6,9 @@ namespace Comparatist.View.WordGrid
 {
     internal class WordGridRenderer : Renderer<DataGridView>
     {
-        private Dictionary<SectionBinder, DataGridViewRow> _sections = new();
-        private Dictionary<BlockBinder, DataGridViewRow> _blocks = new();
+        private Dictionary<CategoryBinder, DataGridViewRow> _categories = new();
+        private Dictionary<RootBinder, DataGridViewRow> _roots = new();
+        private Dictionary<StemBinder, DataGridViewRow> _stems = new();
 
         public WordGridRenderer(DataGridView control) : base(control)
         {
@@ -31,8 +32,9 @@ namespace Comparatist.View.WordGrid
         {
             Control.Columns.Clear();
             Control.Rows.Clear();
-            _sections.Clear();
-            _blocks.Clear();
+            _categories.Clear();
+            _roots.Clear();
+            _stems.Clear();
         }
 
         public void CreateColumns(List<CachedLanguage> languages)
@@ -66,7 +68,7 @@ namespace Comparatist.View.WordGrid
             Control.Columns.Add(column);
         }
 
-        public void AddSection(SectionBinder binder)
+        public void AddCategory(CategoryBinder binder)
         {
             var index = Control.Rows.Add();
             var row = Control.Rows[index];
@@ -76,37 +78,37 @@ namespace Comparatist.View.WordGrid
             cell.Tag = binder.Category;
             cell.Value = binder.Category.Value.ToUpper();
 
-            _sections.Add(binder, row);
+            _categories.Add(binder, row);
         }
 
-        public void AddBlock(BlockBinder binder, SectionBinder parent)
+        public void AddRoot(RootBinder binder, CategoryBinder parent)
         {
-            var parentRow = _sections[parent];
+            var parentRow = _categories[parent];
             var index = parentRow.Index + 1;
             Control.Rows.Insert(index);
             var row = Control.Rows[index];
-            _blocks.Add(binder, row);
+            _roots.Add(binder, row);
 
-            UpdateBlock(binder);
+            UpdateRoot(binder);
         }
 
-        public void UpdateBlock(BlockBinder binder)
+        public void UpdateRoot(RootBinder binder)
         {
-            if (!_blocks.TryGetValue(binder, out var block))
+            if (!_roots.TryGetValue(binder, out var row))
                 return;
 
-            var cell = block.Cells[0];
+            var cell = row.Cells[0];
             cell.Tag = binder.Root;
             cell.Value = $"[b]{binder.Root.Value}[/b] {binder.Root.Translation}";
         }
 
-        public void MoveBlock(BlockBinder binder, BlockBinder? previousBinder)
+        public void MoveRoot(RootBinder binder, RootBinder? previousBinder)
         {
             var previousRow = previousBinder == null
-                ? _sections[binder.Parent]
-                : _blocks[previousBinder];
+                ? _categories[binder.Parent]
+                : _roots[previousBinder];
 
-            var row = _blocks[binder];
+            var row = _roots[binder];
 
             if (previousRow.Index + 1 == row.Index)
                 return;
@@ -116,13 +118,58 @@ namespace Comparatist.View.WordGrid
             Control.Rows.Insert(index, row);
         }
 
-        public void RemoveBlock(BlockBinder binder)
+        public void RemoveRoot(RootBinder binder)
         {
-            if (!_blocks.TryGetValue(binder, out var row))
+            if (!_roots.TryGetValue(binder, out var row))
                 return;
 
             Control.Rows.Remove(row);
-            _blocks.Remove(binder);
+            _roots.Remove(binder);
+        }
+
+        public void AddStem(StemBinder binder, RootBinder parent)
+        {
+            var parentRow = _roots[parent];
+            var index = parentRow.Index + 1;
+            Control.Rows.Insert(index);
+            var row = Control.Rows[index];
+            _stems.Add(binder, row);
+            UpdateStem(binder);
+        }
+
+        public void UpdateStem(StemBinder binder)
+        {
+            if (!_stems.TryGetValue(binder, out var block))
+                return;
+
+            var cell = block.Cells[0];
+            cell.Tag = binder.Stem;
+            cell.Value = $"→ [b]{binder.Stem.Value}[/b] {binder.Stem.Translation}";
+        }
+
+        public void MoveStem(StemBinder binder, StemBinder? previousBinder)
+        {
+            var previousRow = previousBinder == null
+                ? _roots[binder.Parent]
+                : _stems[previousBinder];
+
+            var row = _stems[binder];
+
+            if (previousRow.Index + 1 == row.Index)
+                return;
+
+            Control.Rows.Remove(row);
+            var index = previousRow.Index + 1;
+            Control.Rows.Insert(index, row);
+        }
+
+        public void RemoveStem(StemBinder binder)
+        {
+            if (!_stems.TryGetValue(binder, out var row))
+                return;
+
+            Control.Rows.Remove(row);
+            _stems.Remove(binder);
         }
 
         private void OnCellPainting(object? sender, DataGridViewCellPaintingEventArgs e)

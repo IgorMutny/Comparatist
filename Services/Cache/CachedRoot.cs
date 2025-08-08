@@ -2,7 +2,7 @@
 
 namespace Comparatist.Services.Cache
 {
-    public class CachedRoot: ICloneable
+    public class CachedRoot : ICloneable, IContentEquatable<CachedRoot>
     {
         public required Root Record { get; set; }
         public Dictionary<Guid, CachedStem> Stems { get; set; } = new();
@@ -19,6 +19,15 @@ namespace Comparatist.Services.Cache
                             (CachedStem)pair.Value.Clone()))
                             .ToDictionary()
             };
+        }
+
+        public bool EqualsContent(CachedRoot other)
+        {
+            if (other == null)
+                return false;
+
+            return Record.EqualsContent(other.Record) &&
+                Stems.Keys.ToHashSet().SetEquals(other.Stems.Keys);
         }
     }
 }

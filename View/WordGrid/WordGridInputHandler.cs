@@ -22,6 +22,7 @@ namespace Comparatist.View.WordGrid
         public event Action<Word>? AddWordRequest;
         public event Action<Word>? UpdateWordRequest;
         public event Action<Word>? DeleteWordRequest;
+        public event Action<Root>? ExpandOrCollapseRequested;
 
         public WordGridInputHandler(DataGridView control) : base(control)
         {
@@ -250,8 +251,8 @@ namespace Comparatist.View.WordGrid
 
             SelectCellUnderCursor(e);
 
-            //if (TryGetSelected(out Root root))
-                //_renderHelper.HandleDoubleClick(root, Control.SelectedCells[0].RowIndex);
+            if (TryGetSelected(out Root root))
+                ExpandOrCollapseRequested?.Invoke(root);
         }
 
         private void SelectCellUnderCursor(MouseEventArgs e)

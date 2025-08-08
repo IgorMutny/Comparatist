@@ -9,8 +9,9 @@ namespace Comparatist.View.WordGrid
         Presenter<WordGridRenderer, WordGridInputHandler, DataGridView>
     {
         private SortingTypes _sortingType = SortingTypes.Alphabet;
-        private Dictionary<Guid, SectionBinder> _sectionBinders = new();
+        private Dictionary<Guid, CategoryBinder> _binders = new();
         private List<Guid> _orderedBinderIds = new();
+        private bool _isShown;
 
         public WordGridPresenter(
             IProjectService service,
@@ -21,7 +22,7 @@ namespace Comparatist.View.WordGrid
         public SortingTypes SortingType
         {
             get { return _sortingType; }
-            set { _sortingType = value; RedrawAll(); }
+            set { _sortingType = value; if (_isShown) { RedrawAll(); } }
         }
 
         protected override void Subscribe()
@@ -35,6 +36,7 @@ namespace Comparatist.View.WordGrid
             InputHandler.AddWordRequest += OnAddWordRequest;
             InputHandler.UpdateWordRequest += OnUpdateWordRequest;
             InputHandler.DeleteWordRequest += OnDeleteWordRequest;
+            InputHandler.ExpandOrCollapseRequested += OnExpandOrCollapseRequested;
         }
 
         protected override void Unsubscribe()
@@ -48,21 +50,24 @@ namespace Comparatist.View.WordGrid
             InputHandler.AddWordRequest -= OnAddWordRequest;
             InputHandler.UpdateWordRequest -= OnUpdateWordRequest;
             InputHandler.DeleteWordRequest -= OnDeleteWordRequest;
+            InputHandler.ExpandOrCollapseRequested -= OnExpandOrCollapseRequested;
         }
 
         protected override void OnShow()
         {
             RedrawAll();
+            _isShown = true;
         }
 
         protected override void OnHide()
         {
             Reset();
+            _isShown = false;
         }
 
         private void Reset()
         {
-            _sectionBinders.Clear();
+            _binders.Clear();
             _orderedBinderIds.Clear();
             Renderer.Reset();
         }
@@ -128,7 +133,7 @@ namespace Comparatist.View.WordGrid
             var languages = Execute(Service.GetAllLanguages);
             var categories = Execute(Service.GetAllCategories);
             var roots = Execute(Service.GetAllRoots);
-            var state = SortingType == SortingTypes.Categories 
+            var state = SortingType == SortingTypes.Categories
                 ? Execute(Service.GetWordTableByCategory)
                 : Execute(Service.GetWordTableByAlphabet);
 
@@ -147,7 +152,7 @@ namespace Comparatist.View.WordGrid
             var orderedCategories = state.Values.OrderBy(e => e.Record.Order).ToList();
 
             foreach (var category in orderedCategories)
-                CreateBinder(category);
+                AddBinder(category);
         }
 
         private void DrawDiff()
@@ -158,7 +163,7 @@ namespace Comparatist.View.WordGrid
                 ? Execute(Service.GetWordTableByCategory)
                 : Execute(Service.GetWordTableByAlphabet);
 
-            if (state == null || roots == null || categories == null) 
+            if (state == null || roots == null || categories == null)
             {
                 Renderer.ShowError("No cached data received");
                 return;
@@ -168,17 +173,29 @@ namespace Comparatist.View.WordGrid
             InputHandler.AllRoots = roots.Values.Select(e => e.Record);
 
             foreach (var category in state.Values)
-                if (_sectionBinders.TryGetValue(category.Record.Id, out var binder))
+                if (_binders.TryGetValue(category.Record.Id, out var binder))
                     binder.Update(category);
         }
 
-        private void CreateBinder(CachedCategory category)
+        private void AddBinder(CachedCategory category)
         {
-            var binder = new SectionBinder(category, Renderer);
-            _sectionBinders.Add(category.Record.Id, binder);
+            var binder = new CategoryBinder(category, Renderer);
+            _binders.Add(category.Record.Id, binder);
             _orderedBinderIds.Add(category.Record.Id);
-            Renderer.AddSection(binder);
+            Renderer.AddCategory(binder);
             binder.Initialize();
+        }
+
+        private void OnExpandOrCollapseRequested(Root root)
+        {
+            var categoryIds = root.CategoryIds;
+
+            foreach (var categoryId in categoryIds)
+                if (_binders.TryGetValue(categoryId, out var binder))
+                    binder.ExpandOrCollapse(root);
+
+            if (_binders.TryGetValue(Guid.Empty, out var specialBinder))
+                specialBinder.ExpandOrCollapse(root);
         }
     }
 }

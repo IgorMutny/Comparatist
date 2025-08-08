@@ -149,6 +149,8 @@ namespace Comparatist.Services.Infrastructure
             _languageCacheUpdater.RebuildCache();
             _categoryCacheUpdater.RebuildCache();
             _rootCacheUpdater.RebuildCache();
+            _stemCacheUpdater.RebuildCache();
+            _wordCacheUpdater.RebuildCache();
         }
     }
 }

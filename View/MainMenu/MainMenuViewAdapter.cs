@@ -29,8 +29,8 @@ namespace Comparatist.View.MainMenu
 
         public void Initialize()
         {
-            ShowContent(ContentTypes.Words);
             SwitchRootSortingType(SortingTypes.Alphabet);
+            ShowContent(ContentTypes.Words);
         }
 
         public void RegisterViewAdapter(ContentTypes type, IViewAdapter_old adapter, string text)
