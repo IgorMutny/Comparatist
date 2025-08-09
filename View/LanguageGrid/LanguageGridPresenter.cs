@@ -1,13 +1,12 @@
-﻿using Comparatist.Core.Records;
-using Comparatist.Services.Cache;
-using Comparatist.Services.Infrastructure;
-using Comparatist.View.Infrastructure;
-using System.Text;
+﻿using Comparatist.Data.Entities;
+using Comparatist.Application.Cache;
+using Comparatist.Application.Management;
+using Comparatist.View.Common;
 
 namespace Comparatist.View.LanguageGrid
 {
     internal class LanguageGridPresenter :
-        Presenter<LanguageGridRenderer, LanguageGridInputHandler, DataGridView>
+        Presenter<LanguageGridRenderer, LanguageGridInputHandler>
     {
         private Dictionary<Guid, CachedLanguage>? _previousLanguages;
 

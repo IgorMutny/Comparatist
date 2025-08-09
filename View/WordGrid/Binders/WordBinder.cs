@@ -1,9 +1,10 @@
-﻿using Comparatist.Core.Records;
-using Comparatist.Services.Cache;
+﻿using Comparatist.Data.Entities;
+using Comparatist.Application.Cache;
+using Comparatist.View.Common;
 
-namespace Comparatist.View.WordGrid
+namespace Comparatist.View.WordGrid.Binders
 {
-    internal class WordBinder : Binder<CachedWord>
+    internal class WordBinder : Binder<CachedWord, WordGridRenderer>
     { 
         public WordBinder(CachedWord state, StemBinder parent, WordGridRenderer renderer)
             : base(state, renderer)

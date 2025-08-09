@@ -1,5 +1,6 @@
-﻿using Comparatist.Services.Cache;
-using Comparatist.View.Infrastructure;
+﻿using Comparatist.Application.Cache;
+using Comparatist.View.Common;
+using Comparatist.View.WordGrid.BinderRenderers;
 using Comparatist.View.WordGrid.Binders;
 
 namespace Comparatist.View.WordGrid

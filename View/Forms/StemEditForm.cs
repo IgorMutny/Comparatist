@@ -1,4 +1,4 @@
-﻿using Comparatist.Core.Records;
+﻿using Comparatist.Data.Entities;
 using Comparatist.View.Utilities;
 using System.Text;
 
@@ -30,6 +30,9 @@ namespace Comparatist
             _translationTextBox.EnableAutoReplace();
             _commentTextBox.EnableAutoReplace();
 
+            _valueTextBox.TextChanged += (_, _) => UpdateOKState();
+            _rootsTextBox.TextChanged += (_, _) => UpdateOKState();
+
             _allRoots = allRoots;
             _selectedRootIds = (List<Guid>)selectedRootIds;
             _rootSelectionButton.Click += OnRootSelectionClicked;
@@ -47,6 +50,12 @@ namespace Comparatist
                 IsChecked = _checkedBox.Checked,
                 RootIds = _selectedRootIds
             };
+        }
+
+        private void UpdateOKState()
+        {
+            _okButton.Enabled = !string.IsNullOrWhiteSpace(_valueTextBox.Text) 
+                && _selectedRootIds.Count > 0;
         }
 
         private void UpdateRootsTextBox()

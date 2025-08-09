@@ -7,17 +7,17 @@
             using var form = CreateForm(caption);
             var label = CreateLabel(text);
             var textBox = CreateTextBox();
-            var buttonOK = CreateOkButton();
-            var buttonCancel = CreateCancelButton();
+            var okButton = CreateOkButton();
+            var cancelButton = CreateCancelButton();
 
             textBox.Text = defaultText;
             textBox.EnableAutoReplace();
 
-            buttonOK.Enabled = !string.IsNullOrWhiteSpace(textBox.Text);
-            textBox.TextChanged += (_, _) => buttonOK.Enabled = !string.IsNullOrWhiteSpace(textBox.Text);
-            form.Controls.AddRange([label, textBox, buttonOK, buttonCancel]);
-            form.AcceptButton = buttonOK;
-            form.CancelButton = buttonCancel;
+            okButton.Enabled = !string.IsNullOrWhiteSpace(textBox.Text);
+            textBox.TextChanged += (_, _) => okButton.Enabled = !string.IsNullOrWhiteSpace(textBox.Text);
+            form.Controls.AddRange([label, textBox, okButton, cancelButton]);
+            form.AcceptButton = okButton;
+            form.CancelButton = cancelButton;
 
             var result = form.ShowDialog();
             return result == DialogResult.OK ? textBox.Text.Trim() : null;

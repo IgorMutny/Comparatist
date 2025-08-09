@@ -1,9 +1,11 @@
-﻿using Comparatist.Core.Records;
-using Comparatist.Services.Cache;
+﻿using Comparatist.Data.Entities;
+using Comparatist.Application.Cache;
+using Comparatist.View.Common;
 
-namespace Comparatist.View.WordGrid
+namespace Comparatist.View.WordGrid.Binders
 {
-    internal class RootBinder: CompositeBinder<CachedRoot, StemBinder>, IOrderableBinder
+    internal class RootBinder :
+        CompositeBinder<CachedRoot, StemBinder, WordGridRenderer>, IOrderableBinder
     { 
         private bool _isExpanded;
 

@@ -1,12 +1,13 @@
-﻿using Comparatist.Core.Records;
-using Comparatist.Services.Cache;
-using Comparatist.Services.Infrastructure;
-using Comparatist.View.Infrastructure;
+﻿using Comparatist.Data.Entities;
+using Comparatist.Application.Cache;
+using Comparatist.Application.Management;
+using Comparatist.View.Common;
+using Comparatist.View.WordGrid.Binders;
 
 namespace Comparatist.View.WordGrid
 {
     internal class WordGridPresenter :
-        Presenter<WordGridRenderer, WordGridInputHandler, DataGridView>
+        Presenter<WordGridRenderer, WordGridInputHandler>
     {
         private SortingTypes _sortingType = SortingTypes.Alphabet;
         private Dictionary<Guid, CategoryBinder> _binders = new();

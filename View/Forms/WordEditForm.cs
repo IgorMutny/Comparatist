@@ -1,4 +1,4 @@
-﻿using Comparatist.Core.Records;
+﻿using Comparatist.Data.Entities;
 using Comparatist.View.Utilities;
 
 namespace Comparatist
@@ -27,6 +27,9 @@ namespace Comparatist
             _valueTextBox.EnableAutoReplace();
             _translationTextBox.EnableAutoReplace();
             _commentTextBox.EnableAutoReplace();
+
+            _valueTextBox.TextChanged += (_, _)
+                => _okButton.Enabled = !string.IsNullOrWhiteSpace(_valueTextBox.Text);
         }
 
         public Word GetResult()

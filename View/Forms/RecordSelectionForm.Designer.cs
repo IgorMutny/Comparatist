@@ -1,4 +1,4 @@
-﻿using Comparatist.Core.Records;
+﻿using Comparatist.Data.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,6 +1,6 @@
-﻿using Comparatist.Core.Records;
-using Comparatist.Services.Cache;
-using Comparatist.View.Infrastructure;
+﻿using Comparatist.Data.Entities;
+using Comparatist.Application.Cache;
+using Comparatist.View.Common;
 using Comparatist.View.Utilities;
 using System.Diagnostics.CodeAnalysis;
 

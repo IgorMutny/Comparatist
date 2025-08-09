@@ -1,5 +1,5 @@
-﻿using Comparatist.Core.Records;
-using Comparatist.Services.Cache;
+﻿using Comparatist.Data.Entities;
+using Comparatist.Application.Cache;
 
 namespace Comparatist.View.WordGrid
 {

@@ -1,6 +1,6 @@
-using Comparatist.Services.Infrastructure;
+using Comparatist.Application.Management;
 using Comparatist.View.CategoryTree;
-using Comparatist.View.Infrastructure;
+using Comparatist.View.Common;
 using Comparatist.View.LanguageGrid;
 using Comparatist.View.MainMenu;
 using Comparatist.View.WordGrid;
@@ -9,8 +9,7 @@ namespace Comparatist
 {
     public partial class MainForm : Form
     {
-        private MainMenuViewAdapter _mainMenuViewAdapter;
-        private MainMenuPresenter _mainMenuPresenter;
+        private MainMenuHandler _mainMenuHandler;
 
         private LanguageGridPresenter _languageGridPresenter;
 
@@ -18,7 +17,7 @@ namespace Comparatist
         private CategoryTreePresenter _categoryTreePresenter;
 
         private WordGridPresenter _wordGridPresenter;
-        
+    
         private IProjectService _service;
 
         public MainForm()
@@ -27,9 +26,8 @@ namespace Comparatist
 
             _service = new ProjectService();
 
-            _mainMenuViewAdapter = new(_mainMenuStrip);
-            _mainMenuPresenter = new(_service, _mainMenuViewAdapter);
-            _mainMenuViewAdapter.ExitRequest += Close;
+            _mainMenuHandler = new(_service, _mainMenuStrip);
+            _mainMenuHandler.ExitRequest += Close;
 
             var languageRenderer = new LanguageGridRenderer(_languageGridView);
             var languageInputHandler = new LanguageGridInputHandler(_languageGridView);
@@ -42,22 +40,22 @@ namespace Comparatist
             var wordInputHandler = new WordGridInputHandler(_wordGridView);
             _wordGridPresenter = new WordGridPresenter(_service, wordRenderer, wordInputHandler);
 
-            _mainMenuViewAdapter.RegisterPresenter(
+            _mainMenuHandler.RegisterPresenter(
                 ContentTypes.Languages,
                 _languageGridPresenter,
                 "Languages");
 
-            _mainMenuViewAdapter.RegisterViewAdapter(
+            _mainMenuHandler.RegisterViewAdapter(
                 ContentTypes.Categories,
                 _categoryTreeViewAdapter,
                 "Categories");
 
-            _mainMenuViewAdapter.RegisterPresenter(
+            _mainMenuHandler.RegisterPresenter(
                 ContentTypes.Words,
                 _wordGridPresenter,
                 "Word table");
 
-            _mainMenuViewAdapter.Initialize();
+            _mainMenuHandler.Initialize();
         }
     }
 }

@@ -1,6 +1,6 @@
-﻿using Comparatist.Core.Records;
-using Comparatist.Services.Infrastructure;
-using Comparatist.View.Infrastructure;
+﻿using Comparatist.Data.Entities;
+using Comparatist.Application.Management;
+using Comparatist.View.Common;
 
 namespace Comparatist.View.CategoryTree
 {

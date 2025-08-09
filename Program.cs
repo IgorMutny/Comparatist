@@ -7,7 +7,7 @@ namespace Comparatist
         {
             //Test.Run(10, 2, 5000, 0);
             ApplicationConfiguration.Initialize();
-            Application.Run(new MainForm());
+            System.Windows.Forms.Application.Run(new MainForm());
         }
     }
 }

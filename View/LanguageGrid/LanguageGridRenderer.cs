@@ -1,5 +1,5 @@
-﻿using Comparatist.Services.Cache;
-using Comparatist.View.Infrastructure;
+﻿using Comparatist.Application.Cache;
+using Comparatist.View.Common;
 
 namespace Comparatist.View.LanguageGrid
 {

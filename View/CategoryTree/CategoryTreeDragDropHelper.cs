@@ -1,4 +1,4 @@
-﻿using Comparatist.Core.Records;
+﻿using Comparatist.Data.Entities;
 using Comparatist.View.Utilities;
 
 namespace Comparatist.View.CategoryTree

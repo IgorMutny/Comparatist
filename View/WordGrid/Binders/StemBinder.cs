@@ -1,9 +1,11 @@
-﻿using Comparatist.Core.Records;
-using Comparatist.Services.Cache;
+﻿using Comparatist.Data.Entities;
+using Comparatist.Application.Cache;
+using Comparatist.View.Common;
 
-namespace Comparatist.View.WordGrid
+namespace Comparatist.View.WordGrid.Binders
 {
-    internal class StemBinder: CompositeBinder<CachedStem, WordBinder>, IOrderableBinder
+    internal class StemBinder: 
+        CompositeBinder<CachedStem, WordBinder, WordGridRenderer>, IOrderableBinder
     { 
         public StemBinder(CachedStem state, RootBinder parent, WordGridRenderer renderer)
             : base (state, renderer)

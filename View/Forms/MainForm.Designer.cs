@@ -1,4 +1,4 @@
-﻿using Comparatist.Core.Infrastructure;
+﻿using Comparatist.Data.Persistence;
 
 namespace Comparatist
 {

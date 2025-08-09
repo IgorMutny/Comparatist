@@ -1,4 +1,4 @@
-﻿using Comparatist.Services.Cache;
+﻿using Comparatist.Application.Cache;
 
 namespace Comparatist.View.WordGrid
 {
