@@ -1,8 +1,9 @@
-﻿using Comparatist.Core.Records;
+﻿using Comparatist.Core.Infrastructure;
+using Comparatist.Core.Records;
 
 namespace Comparatist.Services.Cache
 {
-    public class CachedCategory: ICloneable
+    public class CachedCategory: ICachedRecord, IContentEquatable<CachedCategory>
     {
         public required Category Record { get; set; }
         public Dictionary<Guid, CachedCategory> Children { get; set; } = new();
@@ -11,6 +12,16 @@ namespace Comparatist.Services.Cache
         public object Clone()
         {
             return Clone(new HashSet<Guid>());
+        }
+
+        public bool EqualsContent(CachedCategory? other)
+        {
+            if (other == null)
+                return false;
+
+            return Record.EqualsContent(other.Record)
+                && Children.Keys.ToHashSet().SetEquals(other.Children.Keys)
+                && Roots.Keys.ToHashSet().SetEquals(other.Roots.Keys);
         }
 
         private CachedCategory Clone(HashSet<Guid> visited)

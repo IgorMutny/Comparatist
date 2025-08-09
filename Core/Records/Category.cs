@@ -1,9 +1,10 @@
-﻿using MessagePack;
+﻿using Comparatist.Core.Infrastructure;
+using MessagePack;
 
 namespace Comparatist.Core.Records
 {
     [MessagePackObject]
-    public class Category: IRecord
+    public class Category: IRecord, IContentEquatable<Category>
     {
         [Key(0)] public Guid Id { get; set; }
         [Key(1)] public string Value { get; set; } = string.Empty;
@@ -19,6 +20,17 @@ namespace Comparatist.Core.Records
                 ParentId = ParentId,
                 Order = Order
             };
+        }
+
+        public bool EqualsContent(Category? other)
+        {
+            if (other == null)
+                return false;
+
+            return Id == other.Id
+                && Value == other.Value
+                && ParentId == other.ParentId
+                && Order == other.Order;
         }
 
         public override string ToString()

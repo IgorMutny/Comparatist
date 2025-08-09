@@ -1,4 +1,5 @@
-﻿using MessagePack;
+﻿using Comparatist.Core.Infrastructure;
+using MessagePack;
 
 namespace Comparatist.Core.Records
 {

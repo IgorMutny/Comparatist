@@ -182,7 +182,7 @@ namespace Comparatist.View.WordGrid
             var binder = new CategoryBinder(category, Renderer);
             _binders.Add(category.Record.Id, binder);
             _orderedBinderIds.Add(category.Record.Id);
-            Renderer.AddCategory(binder);
+            Renderer.Add(binder);
             binder.Initialize();
         }
 

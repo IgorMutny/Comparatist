@@ -1,8 +1,9 @@
-﻿using Comparatist.Core.Records;
+﻿using Comparatist.Core.Infrastructure;
+using Comparatist.Core.Records;
 
 namespace Comparatist.Services.Cache
 {
-    public class CachedRoot : ICloneable, IContentEquatable<CachedRoot>
+    public class CachedRoot : ICachedRecord, IContentEquatable<CachedRoot>
     {
         public required Root Record { get; set; }
         public Dictionary<Guid, CachedStem> Stems { get; set; } = new();

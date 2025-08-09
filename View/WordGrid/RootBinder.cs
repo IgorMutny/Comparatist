@@ -3,94 +3,38 @@ using Comparatist.Services.Cache;
 
 namespace Comparatist.View.WordGrid
 {
-    internal class RootBinder
-    {
-        private CachedRoot? _previousState;
-        private CachedRoot _currentState;
-        private WordGridRenderer _renderer;
+    internal class RootBinder: CompositeBinder<CachedRoot, StemBinder>, IOrderableBinder
+    { 
         private bool _isExpanded;
-        private Dictionary<Guid, StemBinder> _binders = new();
 
         public RootBinder(CachedRoot state, CategoryBinder parent, WordGridRenderer renderer)
+            : base(state, renderer)
         {
-            _currentState = state;
             Parent = parent;
-            _renderer = renderer;
         }
 
         public bool NeedsReorder { get; set; }
-        public Root Root => _currentState.Record;
+        public Root Root => CurrentState.Record;
         public CategoryBinder Parent { get; private set; }
         public string ExpandedMark => _isExpanded ? "▼" : "▶";
+        public string Order => CurrentState.Record.Value;
+        public override Guid Id => Root.Id;
 
-        public void OnRemove()
+        protected override void OnUpdate()
         {
-            foreach (var id in _binders.Keys)
-                RemoveBinder(id);
-        }
-
-        public void Update(CachedRoot state)
-        {
-            _currentState = state;
-
             if (_isExpanded)
-                UpdateStemContents();
+                UpdateChildrenContent(CurrentState.Stems, PreviousState.Stems);
 
-            if (state.EqualsContent(_previousState))
+            if (CurrentState.EqualsContent(PreviousState))
                 return;
 
             if (_isExpanded)
-                UpdateStems();
+                UpdateChildrenSet(CurrentState.Stems, PreviousState.Stems);
 
-            var oldValue = _previousState?.Record.Value;
-            _previousState = state;
-            _renderer.UpdateRoot(this);
+            Renderer.Update(this);
 
-            if (oldValue != state.Record.Value)
+            if (PreviousState?.Record.Value != CurrentState.Record.Value)
                 NeedsReorder = true;
-        }
-
-        private void UpdateStems()
-        {
-            if (_previousState == null)
-                return;
-
-            var addedStemIds = _currentState.Stems.Keys.Except(_previousState.Stems.Keys).ToList();
-
-            foreach (var id in addedStemIds)
-            {
-                var stem = _currentState.Stems[id];
-                AddBinder(stem, needsReorder: true);
-            }
-
-            var deletedStemIds = _previousState.Stems.Keys.Except(_currentState.Stems.Keys).ToList();
-
-            foreach (var id in deletedStemIds)
-                RemoveBinder(id);
-
-            UpdateStemOrder();
-        }
-
-        private void UpdateStemContents()
-        {
-            IEnumerable<Guid> oldStemIds = _currentState.Stems.Keys;
-
-            if (_previousState != null)
-                oldStemIds = _currentState.Stems.Keys.Intersect(_previousState.Stems.Keys).ToList();
-
-            bool needReorder = false;
-
-            foreach (var id in oldStemIds)
-            {
-                var binder = _binders[id];
-                binder.Update(_currentState.Stems[id]);
-
-                if (binder.NeedsReorder)
-                    needReorder = true;
-            }
-
-            if (needReorder)
-                UpdateStemOrder();
         }
 
         public void ExpandOrCollapse()
@@ -103,63 +47,30 @@ namespace Comparatist.View.WordGrid
 
         private void Expand()
         {
-            var orderedStems = _currentState.Stems.Values
+            var orderedStems = CurrentState.Stems.Values
                 .OrderByDescending(e => e.Record.Value)
                 .ToList();
 
             foreach (var stem in orderedStems)
-                AddBinder(stem);
+                AddChild(stem);
 
             _isExpanded = true;
-            _renderer.UpdateRoot(this);
+            Renderer.Update(this);
         }
 
         private void Collapse()
         {
-            foreach (var pair in _binders)
-                RemoveBinder(pair.Key);
-
+            RemoveAllChildren();
             _isExpanded = false;
-            _renderer.UpdateRoot(this);
+            Renderer.Update(this);
         }
 
-        private void AddBinder(CachedStem stem, bool needsReorder = false)
+        protected override StemBinder CreateChild(ICachedRecord cached)
         {
-            var binder = new StemBinder(stem, this, _renderer);
-            binder.NeedsReorder = needsReorder;
-            _binders.Add(stem.Record.Id, binder);
-            _renderer.AddStem(binder, this);
-            binder.Initialize();
-        }
+            if (cached is not CachedStem cachedStem)
+                throw new ArgumentException();
 
-        private void RemoveBinder(Guid id)
-        {
-            var binder = _binders[id];
-            binder.OnRemove();
-            _renderer.RemoveStem(binder);
-            _binders.Remove(id);
-        }
-
-        private void UpdateStemOrder()
-        {
-            var orderedBinders = _binders.Values
-                .OrderBy(b => b.Stem.Value)
-                .ToList();
-
-            for (int i = 0; i < orderedBinders.Count; i++)
-            {
-                var currentBinder = orderedBinders[i];
-
-                if (!currentBinder.NeedsReorder)
-                    continue;
-
-                var previousBinder = i > 0
-                    ? orderedBinders[i - 1]
-                    : null;
-
-                _renderer.MoveStem(currentBinder, previousBinder);
-                currentBinder.NeedsReorder = false;
-            }
+            return new StemBinder(cachedStem, this, Renderer);
         }
     }
 }

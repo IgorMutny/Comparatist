@@ -1,9 +1,10 @@
-﻿using MessagePack;
+﻿using Comparatist.Core.Infrastructure;
+using MessagePack;
 
 namespace Comparatist.Core.Records
 {
     [MessagePackObject]
-    public class Language: IRecord
+    public class Language: IRecord, IContentEquatable<Language>
     {
         [Key(0)] public Guid Id { get; set; }
         [Key(1)] public string Value { get; set; } = string.Empty;
@@ -17,6 +18,16 @@ namespace Comparatist.Core.Records
                 Value = Value,
                 Order = Order
             };
+        }
+
+        public bool EqualsContent(Language? other)
+        {
+            if (other == null)
+                return false;
+
+            return Id == other.Id
+                && Value == other.Value
+                && Order == other.Order;
         }
 
         public override string ToString()

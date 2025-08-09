@@ -1,8 +1,9 @@
-﻿using Comparatist.Core.Records;
+﻿using Comparatist.Core.Infrastructure;
+using Comparatist.Core.Records;
 
 namespace Comparatist.Services.Cache
 {
-    public class CachedStem : ICloneable, IContentEquatable<CachedStem>
+    public class CachedStem : ICachedRecord, IContentEquatable<CachedStem>
     {
         public required Stem Record { get; set; }
         public Dictionary<Guid, CachedWord> Words { get; set; } = new();

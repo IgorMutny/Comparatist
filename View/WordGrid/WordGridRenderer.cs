@@ -78,7 +78,37 @@ namespace Comparatist.View.WordGrid
             _columns.Add(language.Record.Id, column);
         }
 
-        public void AddCategory(CategoryBinder binder)
+        public void Add<T>(T binder)
+            where T : class, IBinder
+        {
+            switch (binder)
+            {
+                case (CategoryBinder categoryBinder):
+                    AddCategory(categoryBinder);
+                    break;
+                default: throw new NotSupportedException();
+            }
+        }
+
+        public void Add<T1, T2>(T1 binder, T2 parent)
+            where T1 : class, IBinder where T2 : class, IBinder
+        {
+            switch (binder, parent)
+            {
+                case (RootBinder rootBinder, CategoryBinder categoryBinder):
+                    AddRoot(rootBinder, categoryBinder);
+                    break;
+                case (StemBinder stemBinder, RootBinder rootBinder):
+                    AddStem(stemBinder, rootBinder);
+                    break;
+                case (WordBinder wordBinder, StemBinder stemBinder):
+                    AddWord(wordBinder, stemBinder);
+                    break;
+                default: throw new NotSupportedException();
+            }
+        }
+
+        private void AddCategory(CategoryBinder binder)
         {
             var index = Control.Rows.Add();
             var row = Control.Rows[index];
@@ -91,7 +121,7 @@ namespace Comparatist.View.WordGrid
             _categories.Add(binder, row);
         }
 
-        public void AddRoot(RootBinder binder, CategoryBinder parent)
+        private void AddRoot(RootBinder binder, CategoryBinder parent)
         {
             var parentRow = _categories[parent];
             var index = parentRow.Index + 1;
@@ -102,7 +132,51 @@ namespace Comparatist.View.WordGrid
             UpdateRoot(binder);
         }
 
-        public void UpdateRoot(RootBinder binder)
+        private void AddStem(StemBinder binder, RootBinder parent)
+        {
+            var parentRow = _roots[parent];
+            var index = parentRow.Index + 1;
+            Control.Rows.Insert(index);
+            var row = Control.Rows[index];
+            _stems.Add(binder, row);
+
+            for (int i = 1; i < row.Cells.Count; i++)
+                row.Cells[i].Style.BackColor = EmptyWordCellColor;
+
+            UpdateStem(binder);
+        }
+
+        private void AddWord(WordBinder binder, StemBinder parent)
+        {
+            var row = _stems[parent];
+            var column = _columns[binder.Word.LanguageId];
+            var cell = Control.Rows[row.Index].Cells[column.Index];
+            cell.Style.BackColor = FilledWordCellColor;
+            _words.Add(binder, cell);
+            UpdateWord(binder);
+        }
+
+        public void Update<T>(T binder)
+            where T : class, IBinder
+        {
+            switch (binder)
+            {
+                case (CategoryBinder categoryBinder):
+                    break;
+                case (RootBinder rootBinder):
+                    UpdateRoot(rootBinder);
+                    break;
+                case (StemBinder stemBinder):
+                    UpdateStem(stemBinder);
+                    break;
+                case (WordBinder wordBinder):
+                    UpdateWord(wordBinder);
+                    break;
+                default: throw new NotSupportedException();
+            }
+        }
+
+        private void UpdateRoot(RootBinder binder)
         {
             if (!_roots.TryGetValue(binder, out var row))
                 return;
@@ -115,7 +189,52 @@ namespace Comparatist.View.WordGrid
             cell.Value = $"{binder.ExpandedMark} {open}[b]{binder.Root.Value}[/b] {binder.Root.Translation} {close}";
         }
 
-        public void MoveRoot(RootBinder binder, RootBinder? previousBinder)
+        private void UpdateStem(StemBinder binder)
+        {
+            if (!_stems.TryGetValue(binder, out var row))
+                return;
+
+            var cell = row.Cells[0];
+            cell.Tag = binder.Stem;
+            var open = binder.Stem.IsNative ? string.Empty : "《";
+            var close = binder.Stem.IsNative ? string.Empty : "》";
+            cell.Style.ForeColor = binder.Stem.IsChecked ? CheckedFrontColor : UncheckedFrontColor;
+            cell.Value = $"    • {open}[b]{binder.Stem.Value}[/b] {binder.Stem.Translation} {close}";
+        }
+
+        private void UpdateWord(WordBinder binder)
+        {
+            if (!_words.TryGetValue(binder, out var cell))
+                return;
+
+            cell.Tag = binder.Word;
+            var open = binder.Word.IsNative ? string.Empty : "《";
+            var close = binder.Word.IsNative ? string.Empty : "》";
+            cell.Style.ForeColor = binder.Word.IsChecked ? CheckedFrontColor : UncheckedFrontColor;
+            cell.Value = $"{open}[b]{binder.Word.Value}[/b] {binder.Word.Translation} {close}";
+        }
+
+        public void Move<T>(T binder, T? previousBinder) where T : class, IBinder
+        {
+            switch (binder, previousBinder)
+            {
+                case (RootBinder rootBinder, RootBinder previousRootBinder):
+                    MoveRoot(rootBinder, previousRootBinder);
+                    break;
+                case (RootBinder rootBinder, null):
+                    MoveRoot(rootBinder, null);
+                    break;
+                case (StemBinder stemBinder, StemBinder previousStemBinder):
+                    MoveStem(stemBinder, previousStemBinder);
+                    break;
+                case (StemBinder stemBinder, null):
+                    MoveStem(stemBinder, null);
+                    break;
+                default: throw new NotSupportedException();
+            }
+        }
+
+        private void MoveRoot(RootBinder binder, RootBinder? previousBinder)
         {
             var previousRow = previousBinder == null
                 ? _categories[binder.Parent]
@@ -131,43 +250,7 @@ namespace Comparatist.View.WordGrid
             Control.Rows.Insert(index, row);
         }
 
-        public void RemoveRoot(RootBinder binder)
-        {
-            if (!_roots.TryGetValue(binder, out var row))
-                return;
-
-            Control.Rows.Remove(row);
-            _roots.Remove(binder);
-        }
-
-        public void AddStem(StemBinder binder, RootBinder parent)
-        {
-            var parentRow = _roots[parent];
-            var index = parentRow.Index + 1;
-            Control.Rows.Insert(index);
-            var row = Control.Rows[index];
-            _stems.Add(binder, row);
-
-            for (int i = 1; i < row.Cells.Count; i++)
-                row.Cells[i].Style.BackColor = EmptyWordCellColor;
-
-            UpdateStem(binder);
-        }
-
-        public void UpdateStem(StemBinder binder)
-        {
-            if (!_stems.TryGetValue(binder, out var row))
-                return;
-
-            var cell = row.Cells[0];
-            cell.Tag = binder.Stem;
-            var open = binder.Stem.IsNative ? string.Empty : "《";
-            var close = binder.Stem.IsNative ? string.Empty : "》";
-            cell.Style.ForeColor = binder.Stem.IsChecked ? CheckedFrontColor : UncheckedFrontColor;
-            cell.Value = $"    • {open}[b]{binder.Stem.Value}[/b] {binder.Stem.Translation} {close}";
-        }
-
-        public void MoveStem(StemBinder binder, StemBinder? previousBinder)
+        private void MoveStem(StemBinder binder, StemBinder? previousBinder)
         {
             var previousRow = previousBinder == null
                 ? _roots[binder.Parent]
@@ -183,7 +266,27 @@ namespace Comparatist.View.WordGrid
             Control.Rows.Insert(index, row);
         }
 
-        public void RemoveStem(StemBinder binder)
+        public void Remove<T>(T binder) where T : IBinder
+        {
+            switch (binder)
+            {
+                case RootBinder rootBinder: RemoveRoot(rootBinder); break;
+                case StemBinder stemBinder: RemoveStem(stemBinder); break;
+                case WordBinder wordBinder: RemoveWord(wordBinder); break;
+                default: throw new NotSupportedException();
+            }
+        }
+
+        private void RemoveRoot(RootBinder binder)
+        {
+            if (!_roots.TryGetValue(binder, out var row))
+                return;
+
+            Control.Rows.Remove(row);
+            _roots.Remove(binder);
+        }
+
+        private void RemoveStem(StemBinder binder)
         {
             if (!_stems.TryGetValue(binder, out var row))
                 return;
@@ -192,29 +295,7 @@ namespace Comparatist.View.WordGrid
             _stems.Remove(binder);
         }
 
-        public void AddWord(WordBinder binder, StemBinder parent)
-        {
-            var row = _stems[parent];
-            var column = _columns[binder.Word.LanguageId];
-            var cell = Control.Rows[row.Index].Cells[column.Index];
-            cell.Style.BackColor = FilledWordCellColor;
-            _words.Add(binder, cell);
-            UpdateWord(binder);
-        }
-
-        public void UpdateWord(WordBinder binder)
-        {
-            if (!_words.TryGetValue(binder, out var cell))
-                return;
-
-            cell.Tag = binder.Word;
-            var open = binder.Word.IsNative ? string.Empty : "《";
-            var close = binder.Word.IsNative ? string.Empty : "》";
-            cell.Style.ForeColor = binder.Word.IsChecked ? CheckedFrontColor : UncheckedFrontColor;
-            cell.Value = $"{open}[b]{binder.Word.Value}[/b] {binder.Word.Translation} {close}";
-        }
-
-        public void RemoveWord(WordBinder binder)
+        private void RemoveWord(WordBinder binder)
         {
             var cell = _words[binder];
             cell.Value = null;

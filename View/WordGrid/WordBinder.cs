@@ -3,28 +3,24 @@ using Comparatist.Services.Cache;
 
 namespace Comparatist.View.WordGrid
 {
-    internal class WordBinder
-    {
-        private CachedWord _previousState;
-        private WordGridRenderer _renderer;
-
+    internal class WordBinder : Binder<CachedWord>
+    { 
         public WordBinder(CachedWord state, StemBinder parent, WordGridRenderer renderer)
+            : base(state, renderer)
         {
-            _previousState = state;
             Parent = parent;
-            _renderer = renderer;
         }
 
-        public Word Word => _previousState.Record;
+        public Word Word => CurrentState.Record;
         public StemBinder Parent { get; private set; }
+        public override Guid Id => Word.Id; 
 
-        public void Update(CachedWord state)
+        protected override void OnUpdate()
         {
-            if (state.EqualsContent(_previousState))
+            if (CurrentState.EqualsContent(PreviousState))
                 return;
 
-            _previousState = state;
-            _renderer.UpdateWord(this);
+            Renderer.Update(this);
         }
     }
 }

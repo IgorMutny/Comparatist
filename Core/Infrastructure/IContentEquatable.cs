@@ -1,4 +1,4 @@
-﻿namespace Comparatist.Core.Records
+﻿namespace Comparatist.Core.Infrastructure
 {
     public interface IContentEquatable<T>
     {
