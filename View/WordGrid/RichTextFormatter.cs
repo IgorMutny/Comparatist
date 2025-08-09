@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace Comparatist.View.Utilities
+namespace Comparatist.View.WordGrid
 {
     public static class RichTextFormatter
     {
@@ -29,7 +29,6 @@ namespace Comparatist.View.Utilities
 
                 if (closing)
                 {
-                    // Pop matching style
                     var popped = styleStack.Pop();
                 }
                 else

@@ -11,12 +11,7 @@ namespace Comparatist.View.WordGrid
         public Category Category => CurrentState.Record;
         public override Guid Id => Category.Id;
 
-        public void Initialize()
-        {
-            OnCreate();
-        }
-
-        protected override void OnCreate()
+        public override void OnCreate()
         {
             var orderedRoots = CurrentState.Roots.Values
                 .OrderByDescending(e => e.Record.Value)

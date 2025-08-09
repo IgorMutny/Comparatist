@@ -1,24 +1,33 @@
 ﻿using Comparatist.Services.Cache;
 using Comparatist.View.Infrastructure;
-using Comparatist.View.Utilities;
+using Comparatist.View.WordGrid.Binders;
 
 namespace Comparatist.View.WordGrid
 {
     internal class WordGridRenderer : Renderer<DataGridView>
     {
-        private readonly static Color FilledWordCellColor = Color.White;
-        private readonly static Color EmptyWordCellColor = Color.LightGray;
-        private readonly static Color CheckedFrontColor = Color.Black;
-        private readonly static Color UncheckedFrontColor = Color.DarkGray;
-
         private Dictionary<CategoryBinder, DataGridViewRow> _categories = new();
         private Dictionary<RootBinder, DataGridViewRow> _roots = new();
         private Dictionary<StemBinder, DataGridViewRow> _stems = new();
         private Dictionary<WordBinder, DataGridViewCell> _words = new();
         private Dictionary<Guid, DataGridViewColumn> _columns = new();
 
+        private ColumnRenderer _columnRenderer;
+        private CategoryBinderRenderer _categoryRenderer;
+        private RootBinderRenderer _rootRenderer;
+        private StemBinderRenderer _stemRenderer;
+        private WordBinderRenderer _wordRenderer;
+        private RichTextCellPainter _richTextCellPainter;
+
         public WordGridRenderer(DataGridView control) : base(control)
         {
+            _columnRenderer = new ColumnRenderer(control, _columns);
+            _categoryRenderer = new CategoryBinderRenderer(control, _categories);
+            _rootRenderer = new RootBinderRenderer(control, _categories, _roots);
+            _stemRenderer = new StemBinderRenderer(control, _roots, _stems);
+            _wordRenderer = new WordBinderRenderer(control, _columns, _stems, _words);
+            _richTextCellPainter = new(Control);
+
             Control.Dock = DockStyle.Fill;
             Control.AllowUserToAddRows = false;
             Control.RowHeadersVisible = false;
@@ -26,13 +35,11 @@ namespace Comparatist.View.WordGrid
             Control.MultiSelect = false;
             Control.ReadOnly = true;
             Control.Visible = false;
-
-            Control.CellPainting += OnCellPainting;
         }
 
         public override void Dispose()
         {
-            Control.CellPainting -= OnCellPainting;
+            _richTextCellPainter.Dispose();
         }
 
         public void Reset()
@@ -46,45 +53,16 @@ namespace Comparatist.View.WordGrid
             _columns.Clear();
         }
 
-        public void CreateColumns(List<CachedLanguage> languages)
-        {
-            AddRowHeaderColumn();
-
-            foreach (var language in languages)
-                AddColumn(language);
-        }
-
-        private void AddRowHeaderColumn()
-        {
-            var rowHeaderColumn = new DataGridViewTextBoxColumn
-            {
-                HeaderText = string.Empty,
-                Width = 200
-            };
-
-            Control.Columns.Add(rowHeaderColumn);
-        }
-
-        private void AddColumn(CachedLanguage language)
-        {
-            var column = new DataGridViewTextBoxColumn
-            {
-                HeaderText = language.Record.Value,
-                Width = 200,
-                Tag = language.Record,
-            };
-
-            Control.Columns.Add(column);
-            _columns.Add(language.Record.Id, column);
-        }
-
+        public void CreateColumns(List<CachedLanguage> languages) 
+            => _columnRenderer.CreateColumns(languages);
+ 
         public void Add<T>(T binder)
             where T : class, IBinder
         {
             switch (binder)
             {
                 case (CategoryBinder categoryBinder):
-                    AddCategory(categoryBinder);
+                    _categoryRenderer.Add(categoryBinder);
                     break;
                 default: throw new NotSupportedException();
             }
@@ -96,64 +74,16 @@ namespace Comparatist.View.WordGrid
             switch (binder, parent)
             {
                 case (RootBinder rootBinder, CategoryBinder categoryBinder):
-                    AddRoot(rootBinder, categoryBinder);
+                    _rootRenderer.Add(rootBinder, categoryBinder);
                     break;
                 case (StemBinder stemBinder, RootBinder rootBinder):
-                    AddStem(stemBinder, rootBinder);
+                    _stemRenderer.Add(stemBinder, rootBinder);
                     break;
                 case (WordBinder wordBinder, StemBinder stemBinder):
-                    AddWord(wordBinder, stemBinder);
+                    _wordRenderer.Add(wordBinder, stemBinder);
                     break;
                 default: throw new NotSupportedException();
             }
-        }
-
-        private void AddCategory(CategoryBinder binder)
-        {
-            var index = Control.Rows.Add();
-            var row = Control.Rows[index];
-            row.DefaultCellStyle.BackColor = Color.LightGreen;
-
-            var cell = row.Cells[0];
-            cell.Tag = binder.Category;
-            cell.Value = $"[b]{binder.Category.Value.ToUpper()}[/b]";
-
-            _categories.Add(binder, row);
-        }
-
-        private void AddRoot(RootBinder binder, CategoryBinder parent)
-        {
-            var parentRow = _categories[parent];
-            var index = parentRow.Index + 1;
-            Control.Rows.Insert(index);
-            var row = Control.Rows[index];
-            _roots.Add(binder, row);
-
-            UpdateRoot(binder);
-        }
-
-        private void AddStem(StemBinder binder, RootBinder parent)
-        {
-            var parentRow = _roots[parent];
-            var index = parentRow.Index + 1;
-            Control.Rows.Insert(index);
-            var row = Control.Rows[index];
-            _stems.Add(binder, row);
-
-            for (int i = 1; i < row.Cells.Count; i++)
-                row.Cells[i].Style.BackColor = EmptyWordCellColor;
-
-            UpdateStem(binder);
-        }
-
-        private void AddWord(WordBinder binder, StemBinder parent)
-        {
-            var row = _stems[parent];
-            var column = _columns[binder.Word.LanguageId];
-            var cell = Control.Rows[row.Index].Cells[column.Index];
-            cell.Style.BackColor = FilledWordCellColor;
-            _words.Add(binder, cell);
-            UpdateWord(binder);
         }
 
         public void Update<T>(T binder)
@@ -164,54 +94,16 @@ namespace Comparatist.View.WordGrid
                 case (CategoryBinder categoryBinder):
                     break;
                 case (RootBinder rootBinder):
-                    UpdateRoot(rootBinder);
+                    _rootRenderer.Update(rootBinder);
                     break;
                 case (StemBinder stemBinder):
-                    UpdateStem(stemBinder);
+                    _stemRenderer.Update(stemBinder);
                     break;
                 case (WordBinder wordBinder):
-                    UpdateWord(wordBinder);
+                    _wordRenderer.Update(wordBinder);
                     break;
                 default: throw new NotSupportedException();
             }
-        }
-
-        private void UpdateRoot(RootBinder binder)
-        {
-            if (!_roots.TryGetValue(binder, out var row))
-                return;
-
-            var cell = row.Cells[0];
-            cell.Tag = binder.Root;
-            cell.Style.ForeColor = binder.Root.IsChecked ? CheckedFrontColor : UncheckedFrontColor;
-            var open = binder.Root.IsNative ? string.Empty : "《";
-            var close = binder.Root.IsNative ? string.Empty : "》";
-            cell.Value = $"{binder.ExpandedMark} {open}[b]{binder.Root.Value}[/b] {binder.Root.Translation} {close}";
-        }
-
-        private void UpdateStem(StemBinder binder)
-        {
-            if (!_stems.TryGetValue(binder, out var row))
-                return;
-
-            var cell = row.Cells[0];
-            cell.Tag = binder.Stem;
-            var open = binder.Stem.IsNative ? string.Empty : "《";
-            var close = binder.Stem.IsNative ? string.Empty : "》";
-            cell.Style.ForeColor = binder.Stem.IsChecked ? CheckedFrontColor : UncheckedFrontColor;
-            cell.Value = $"    • {open}[b]{binder.Stem.Value}[/b] {binder.Stem.Translation} {close}";
-        }
-
-        private void UpdateWord(WordBinder binder)
-        {
-            if (!_words.TryGetValue(binder, out var cell))
-                return;
-
-            cell.Tag = binder.Word;
-            var open = binder.Word.IsNative ? string.Empty : "《";
-            var close = binder.Word.IsNative ? string.Empty : "》";
-            cell.Style.ForeColor = binder.Word.IsChecked ? CheckedFrontColor : UncheckedFrontColor;
-            cell.Value = $"{open}[b]{binder.Word.Value}[/b] {binder.Word.Translation} {close}";
         }
 
         public void Move<T>(T binder, T? previousBinder) where T : class, IBinder
@@ -219,113 +111,29 @@ namespace Comparatist.View.WordGrid
             switch (binder, previousBinder)
             {
                 case (RootBinder rootBinder, RootBinder previousRootBinder):
-                    MoveRoot(rootBinder, previousRootBinder);
+                    _rootRenderer.Move(rootBinder, previousRootBinder);
                     break;
                 case (RootBinder rootBinder, null):
-                    MoveRoot(rootBinder, null);
+                    _rootRenderer.Move(rootBinder, null);
                     break;
                 case (StemBinder stemBinder, StemBinder previousStemBinder):
-                    MoveStem(stemBinder, previousStemBinder);
+                    _stemRenderer.Move(stemBinder, previousStemBinder);
                     break;
                 case (StemBinder stemBinder, null):
-                    MoveStem(stemBinder, null);
+                    _stemRenderer.Move(stemBinder, null);
                     break;
                 default: throw new NotSupportedException();
             }
-        }
-
-        private void MoveRoot(RootBinder binder, RootBinder? previousBinder)
-        {
-            var previousRow = previousBinder == null
-                ? _categories[binder.Parent]
-                : _roots[previousBinder];
-
-            var row = _roots[binder];
-
-            if (previousRow.Index + 1 == row.Index)
-                return;
-
-            Control.Rows.Remove(row);
-            var index = previousRow.Index + 1;
-            Control.Rows.Insert(index, row);
-        }
-
-        private void MoveStem(StemBinder binder, StemBinder? previousBinder)
-        {
-            var previousRow = previousBinder == null
-                ? _roots[binder.Parent]
-                : _stems[previousBinder];
-
-            var row = _stems[binder];
-
-            if (previousRow.Index + 1 == row.Index)
-                return;
-
-            Control.Rows.Remove(row);
-            var index = previousRow.Index + 1;
-            Control.Rows.Insert(index, row);
         }
 
         public void Remove<T>(T binder) where T : IBinder
         {
             switch (binder)
             {
-                case RootBinder rootBinder: RemoveRoot(rootBinder); break;
-                case StemBinder stemBinder: RemoveStem(stemBinder); break;
-                case WordBinder wordBinder: RemoveWord(wordBinder); break;
+                case RootBinder rootBinder: _rootRenderer.Remove(rootBinder); break;
+                case StemBinder stemBinder: _stemRenderer.Remove(stemBinder); break;
+                case WordBinder wordBinder: _wordRenderer.Remove(wordBinder); break;
                 default: throw new NotSupportedException();
-            }
-        }
-
-        private void RemoveRoot(RootBinder binder)
-        {
-            if (!_roots.TryGetValue(binder, out var row))
-                return;
-
-            Control.Rows.Remove(row);
-            _roots.Remove(binder);
-        }
-
-        private void RemoveStem(StemBinder binder)
-        {
-            if (!_stems.TryGetValue(binder, out var row))
-                return;
-
-            Control.Rows.Remove(row);
-            _stems.Remove(binder);
-        }
-
-        private void RemoveWord(WordBinder binder)
-        {
-            var cell = _words[binder];
-            cell.Value = null;
-            cell.Tag = null;
-            cell.Style.BackColor = EmptyWordCellColor;
-            _words.Remove(binder);
-        }
-
-        private void OnCellPainting(object? sender, DataGridViewCellPaintingEventArgs e)
-        {
-            if (e.RowIndex < 0 || e.ColumnIndex < 0) return;
-            var value = e.FormattedValue?.ToString();
-            if (string.IsNullOrEmpty(value)) return;
-
-            e.Handled = true;
-            e.PaintBackground(e.CellBounds, true);
-
-            var formatted = RichTextFormatter.Parse(value);
-            var x = e.CellBounds.X + 2;
-            var y = e.CellBounds.Y + 2;
-
-            if (e.CellStyle != null && e.Graphics != null)
-            {
-                foreach (var (text, style) in formatted)
-                {
-                    using var font = new Font(e.CellStyle.Font, style);
-                    var size = TextRenderer.MeasureText(text, font);
-                    TextRenderer.DrawText(e.Graphics, text, font, new Point(x, y), e.CellStyle.ForeColor);
-                    x += size.Width;
-                }
             }
         }
     }

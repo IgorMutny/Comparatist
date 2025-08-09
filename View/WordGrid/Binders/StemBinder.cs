@@ -17,7 +17,7 @@ namespace Comparatist.View.WordGrid
         public string Order => CurrentState.Record.Value;
         public override Guid Id => Stem.Id;
 
-        protected override void OnCreate()
+        public override void OnCreate()
         {
             foreach (var word in CurrentState.Words.Values)
                 AddChild(word);

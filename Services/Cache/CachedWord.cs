@@ -3,9 +3,14 @@ using Comparatist.Core.Records;
 
 namespace Comparatist.Services.Cache
 {
-    public class CachedWord: ICachedRecord, IContentEquatable<CachedWord>
+    public class CachedWord: IDisplayableCachedRecord, IContentEquatable<CachedWord>
     {
         public required Word Record { get; set; }
+
+        public string Value => Record.Value;
+        public string Translation => Record.Translation;
+        public bool IsNative => Record.IsNative;
+        public bool IsChecked => Record.IsChecked;
 
         public object Clone()
         {

@@ -4,7 +4,7 @@ using MessagePack;
 namespace Comparatist.Core.Records
 {
     [MessagePackObject]
-    public class Root: IRecord, INativeRecord, ICheckableRecord, IContentEquatable<Root>
+    public class Root: IRecord, IContentEquatable<Root>
     {
         [Key(0)] public Guid Id { get; set; }
         [Key(1)] public string Value { get; set; } = string.Empty;

@@ -13,8 +13,8 @@ namespace Comparatist.View.WordGrid
         }
         
         public abstract Guid Id { get; }
+        public TCached CurrentState { get; private set; }
         protected TCached PreviousState { get; private set; }
-        protected TCached CurrentState { get; private set; }
         protected WordGridRenderer Renderer { get; private set; }
 
         public void Update(ICachedRecord cached)
@@ -30,7 +30,7 @@ namespace Comparatist.View.WordGrid
             PreviousState = newState;
         }
 
-        protected virtual void OnCreate() { }
+        public virtual void OnCreate() { }
         protected abstract void OnUpdate();
     }
 }

@@ -3,10 +3,15 @@ using Comparatist.Core.Records;
 
 namespace Comparatist.Services.Cache
 {
-    public class CachedStem : ICachedRecord, IContentEquatable<CachedStem>
+    public class CachedStem : IDisplayableCachedRecord, IContentEquatable<CachedStem>
     {
         public required Stem Record { get; set; }
         public Dictionary<Guid, CachedWord> Words { get; set; } = new();
+
+        public string Value => Record.Value;
+        public string Translation => Record.Translation;
+        public bool IsNative => Record.IsNative;
+        public bool IsChecked => Record.IsChecked;
 
         public object Clone()
         {
