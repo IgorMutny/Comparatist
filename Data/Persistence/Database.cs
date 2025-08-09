@@ -6,7 +6,7 @@ namespace Comparatist.Data.Persistence
 
     public class Database : IDatabase
     {
-        public ProjectMetadata Metadata { get; } = ProjectMetadata.CreateNew();
+        public ProjectMetadata Metadata { get; set; } = ProjectMetadata.CreateNew();
 
         private Dictionary<Type, IRepository> _repositories = new()
         {
@@ -16,6 +16,11 @@ namespace Comparatist.Data.Persistence
             { typeof(Stem),     new Repository<Stem>()     },
             { typeof(Word),     new Repository<Word>()     },
         };
+
+        public ProjectMetadata GetMetadata()
+        {
+            return (ProjectMetadata)Metadata.Clone();
+        }
 
         public IRepository<T> GetRepository<T>() where T : class, IRecord
         {

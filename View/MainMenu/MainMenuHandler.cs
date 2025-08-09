@@ -1,7 +1,9 @@
 ﻿using Comparatist.Application.Management;
+using Comparatist.Data.Persistence;
 using Comparatist.View.Autoreplace;
 using Comparatist.View.Common;
 using Comparatist.View.WordGrid;
+using System.Text;
 
 namespace Comparatist.View.MainMenu
 {
@@ -112,11 +114,27 @@ namespace Comparatist.View.MainMenu
                 {
                     _filePath = dialog.FileName;
                     _service.LoadDatabase(_filePath);
-                }
+                    ShowContent(ContentTypes.Words);
+                    SwitchRootSortingType(SortingTypes.Alphabet);
 
-                ShowContent(ContentTypes.Words);
-                SwitchRootSortingType(SortingTypes.Alphabet);
+                    var metadataQuery = _service.GetProjectMetadata();
+
+                    if (metadataQuery.IsSuccess && metadataQuery.Value != null)
+                        ShowMetadata(metadataQuery.Value);
+                }
             }
+        }
+
+        private void ShowMetadata(ProjectMetadata data)
+        {
+            var builder = new StringBuilder()
+                .AppendLine("Database loaded")
+                .AppendLine($"Project id: {data.Id}")
+                .AppendLine($"Database version: {data.Version}")
+                .AppendLine($"Created: {data.Created}")
+                .AppendLine($"Modified: {data.Modified}");
+
+            MessageBox.Show( builder.ToString() );
         }
 
         private void Save()

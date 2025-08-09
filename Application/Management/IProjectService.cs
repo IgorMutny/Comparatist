@@ -1,5 +1,6 @@
 ﻿using Comparatist.Data.Entities;
 using Comparatist.Application.Cache;
+using Comparatist.Data.Persistence;
 
 namespace Comparatist.Application.Management
 {
@@ -11,6 +12,7 @@ namespace Comparatist.Application.Management
         Result Update<T>(T record) where T : class, IRecord;
         Result UpdateMany<T>(IEnumerable<T> records) where T : class, IRecord;
         Result Delete<T>(T record) where T : class, IRecord;
+        Result<ProjectMetadata> GetProjectMetadata();
         Result<Dictionary<Guid, CachedLanguage>> GetAllLanguages();
         Result<Dictionary<Guid, CachedCategory>> GetAllCategories();
         Result<Dictionary<Guid, CachedRoot>> GetAllRoots();

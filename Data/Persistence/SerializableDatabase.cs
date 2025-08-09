@@ -27,8 +27,7 @@ namespace Comparatist.Data.Persistence
 
         public void RestoreTo(Database db)
         {
-            db.Metadata.Modified = Metadata.Modified;
-
+            db.Metadata = Metadata;
             db.GetRepository<Category>().Import(Categories);
             db.GetRepository<Language>().Import(Languages);
             db.GetRepository<Root>().Import(Roots);

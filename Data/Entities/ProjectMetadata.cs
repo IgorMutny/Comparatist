@@ -3,7 +3,7 @@
 namespace Comparatist.Data.Persistence
 {
     [MessagePackObject]
-    public class ProjectMetadata
+    public class ProjectMetadata : ICloneable
     {
         [Key(0)] public Guid Id { get; set; }
         [Key(1)] public int Version { get; set; }
@@ -18,6 +18,17 @@ namespace Comparatist.Data.Persistence
                 Version = 1,
                 Created = DateTime.UtcNow,
                 Modified = DateTime.UtcNow
+            };
+        }
+
+        public object Clone()
+        {
+            return new ProjectMetadata
+            {
+                Id = Id,
+                Version = Version,
+                Created = Created,
+                Modified = Modified
             };
         }
     }

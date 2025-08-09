@@ -62,6 +62,11 @@ namespace Comparatist.Application.Management
             return Execute(() => _database.Save(path));
         }
 
+        public Result<ProjectMetadata> GetProjectMetadata()
+        {
+            return Execute(_database.GetMetadata);
+        }
+
         public Result<Dictionary<Guid, CachedLanguage>> GetAllLanguages()
         {
             return Execute(_cacheQueryService.GetAllLanguages);
