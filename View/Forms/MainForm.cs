@@ -12,10 +12,7 @@ namespace Comparatist
         private MainMenuHandler _mainMenuHandler;
 
         private LanguageGridPresenter _languageGridPresenter;
-
-        private CategoryTreeViewAdapter _categoryTreeViewAdapter;
         private CategoryTreePresenter _categoryTreePresenter;
-
         private WordGridPresenter _wordGridPresenter;
     
         private IProjectService _service;
@@ -33,8 +30,9 @@ namespace Comparatist
             var languageInputHandler = new LanguageGridInputHandler(_languageGridView);
             _languageGridPresenter = new LanguageGridPresenter(_service, languageRenderer, languageInputHandler);
 
-            _categoryTreeViewAdapter = new(_categoryTreeView);
-            _categoryTreePresenter = new(_service, _categoryTreeViewAdapter);
+            var categoryTreeRenderer = new CategoryTreeRenderer(_categoryTreeView);
+            var categoryTreeInputHandler = new CategoryTreeInputHandler(_categoryTreeView);
+            _categoryTreePresenter = new(_service, categoryTreeRenderer, categoryTreeInputHandler);
 
             var wordRenderer = new WordGridRenderer(_wordGridView);
             var wordInputHandler = new WordGridInputHandler(_wordGridView);
@@ -45,9 +43,9 @@ namespace Comparatist
                 _languageGridPresenter,
                 "Languages");
 
-            _mainMenuHandler.RegisterViewAdapter(
+            _mainMenuHandler.RegisterPresenter(
                 ContentTypes.Categories,
-                _categoryTreeViewAdapter,
+                _categoryTreePresenter,
                 "Categories");
 
             _mainMenuHandler.RegisterPresenter(

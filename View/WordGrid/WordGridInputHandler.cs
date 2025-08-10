@@ -26,7 +26,6 @@ namespace Comparatist.View.WordGrid
 
         public WordGridInputHandler(DataGridView control) : base(control)
         {
-            Control.Dock = DockStyle.Fill;
             Control.AllowUserToAddRows = false;
             Control.RowHeadersVisible = false;
             Control.AutoGenerateColumns = false;

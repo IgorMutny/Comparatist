@@ -109,14 +109,9 @@ namespace Comparatist.View.LanguageGrid
             }
 
             _currentState = state;
-            UpdateState();
-            _previousState = state;
-        }
-
-        private void UpdateState()
-        {
             UpdateBinderSet();
             UpdateBindersContent();
+            _previousState = state;
         }
 
         private void UpdateBindersContent()
@@ -153,6 +148,8 @@ namespace Comparatist.View.LanguageGrid
 
             foreach (var removedId in removedIds)
                 RemoveBinder(removedId);
+
+            UpdateChildrenOrder();
         }
 
         private void UpdateChildrenOrder()

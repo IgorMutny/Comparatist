@@ -11,7 +11,6 @@ namespace Comparatist.View.WordGrid
     {
         private SortingTypes _sortingType = SortingTypes.Alphabet;
         private Dictionary<Guid, CategoryBinder> _binders = new();
-        private List<Guid> _orderedBinderIds = new();
         private bool _isShown;
 
         public WordGridPresenter(
@@ -70,7 +69,6 @@ namespace Comparatist.View.WordGrid
         private void Reset()
         {
             _binders.Clear();
-            _orderedBinderIds.Clear();
             Renderer.Reset();
         }
 
@@ -183,7 +181,6 @@ namespace Comparatist.View.WordGrid
         {
             var binder = new CategoryBinder(category, Renderer);
             _binders.Add(category.Record.Id, binder);
-            _orderedBinderIds.Add(category.Record.Id);
             Renderer.Add(binder);
             binder.OnCreate();
         }

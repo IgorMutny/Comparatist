@@ -11,14 +11,14 @@ namespace Comparatist.View.MainMenu
     {
         private const string Extension = ".comparatist";
 
-        private Dictionary<ContentTypes, IViewAdapter_old> _adapters = new();
         private Dictionary<ContentTypes, IPresenter> _presenters = new();
-        private Dictionary<ContentTypes, ToolStripMenuItem> _adapterItems = new();
-        private Dictionary<SortingTypes, ToolStripMenuItem> _sortingItems = new();
-        private string _filePath = string.Empty;
-        private ToolStripMenuItem _adaptersItem = new();
-        private MenuStrip _menu;
+        private Dictionary<ContentTypes, ToolStripMenuItem> _contentItems = new();
+        private Dictionary<SortingTypes, ToolStripMenuItem> _sortingTypeItems = new();
+
         private IProjectService _service;
+        private string _filePath = string.Empty;
+        private MenuStrip _menu;
+        private ToolStripMenuItem _contentMenu = new();
 
         public event Action? ExitRequest;
 
@@ -35,18 +35,11 @@ namespace Comparatist.View.MainMenu
             ShowContent(ContentTypes.Words);
         }
 
-        public void RegisterViewAdapter(ContentTypes type, IViewAdapter_old adapter, string text)
-        {
-            _adapters[type] = adapter;
-            var adapterItem = AddMenuItem(text, () => ShowContent(type), _adaptersItem);
-            _adapterItems[type] = adapterItem;
-        }
-
         public void RegisterPresenter(ContentTypes type, IPresenter presenter, string text)
         {
             _presenters[type] = presenter;
-            var adapterItem = AddMenuItem(text, () => ShowContent(type), _adaptersItem);
-            _adapterItems[type] = adapterItem;
+            var adapterItem = AddMenuItem(text, () => ShowContent(type), _contentMenu);
+            _contentItems[type] = adapterItem;
         }
 
         private void SetupMenu()
@@ -60,7 +53,7 @@ namespace Comparatist.View.MainMenu
             fileItem.DropDownItems.Add(new ToolStripSeparator());
             var exitItem = AddMenuItem("Exit", Exit, fileItem);
 
-            _adaptersItem = AddMenuItem("Content", null, _menu);
+            _contentMenu = AddMenuItem("Content", null, _menu);
 
             var settingsItem = AddMenuItem("Settings", null, _menu);
 
@@ -74,8 +67,8 @@ namespace Comparatist.View.MainMenu
                 () => SwitchRootSortingType(SortingTypes.Categories),
                 settingsItem);
 
-            _sortingItems.Add(SortingTypes.Alphabet, alphabetItem);
-            _sortingItems.Add(SortingTypes.Categories, categories);
+            _sortingTypeItems.Add(SortingTypes.Alphabet, alphabetItem);
+            _sortingTypeItems.Add(SortingTypes.Categories, categories);
 
             settingsItem.DropDownItems.Add(new ToolStripSeparator());
             var autoreplaceItem = AddMenuItem("Autoreplace settings", ShowAutoReplace, settingsItem);
@@ -163,17 +156,6 @@ namespace Comparatist.View.MainMenu
 
         private void ShowContent(ContentTypes type)
         {
-            foreach (var pair in _adapters)
-            {
-                if (pair.Key == type)
-                    pair.Value.Show();
-                else
-                    pair.Value.Hide();
-            }
-
-            foreach (var pair in _adapterItems)
-                pair.Value.Checked = pair.Key == type;
-
             foreach (var pair in _presenters)
             {
                 if (pair.Key == type)
@@ -182,7 +164,7 @@ namespace Comparatist.View.MainMenu
                     pair.Value.Hide();
             }
 
-            foreach (var pair in _adapterItems)
+            foreach (var pair in _contentItems)
                 pair.Value.Checked = pair.Key == type;
         }
 
@@ -193,7 +175,7 @@ namespace Comparatist.View.MainMenu
 
         private void SwitchRootSortingType(SortingTypes type)
         {
-            foreach (var pair in _sortingItems)
+            foreach (var pair in _sortingTypeItems)
                 pair.Value.Checked = pair.Key == type;
 
             var presenter = _presenters[ContentTypes.Words] as WordGridPresenter;

@@ -10,7 +10,7 @@ namespace Comparatist.View.Common
         protected Binder(TCached state, TRenderer renderer)
         {
             CurrentState = state;
-            PreviousState = state;
+            PreviousState = (TCached)state.Clone();
             Renderer = renderer;
         }
         
@@ -29,7 +29,7 @@ namespace Comparatist.View.Common
         {
             CurrentState = newState;
             OnUpdate();
-            PreviousState = newState;
+            PreviousState = (TCached)newState.Clone();
         }
 
         public virtual void OnCreate() { }

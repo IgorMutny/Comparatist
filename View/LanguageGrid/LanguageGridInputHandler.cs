@@ -27,7 +27,6 @@ namespace Comparatist.View.LanguageGrid
                 ("Edit language", RequestEditLanguage),
                 ("Delete language", RequestDeleteLanguage));
 
-            Control.Dock = DockStyle.Fill;
             Control.AllowUserToAddRows = false;
             Control.RowHeadersVisible = false;
             Control.AutoGenerateColumns = false;

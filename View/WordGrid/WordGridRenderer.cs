@@ -28,14 +28,6 @@ namespace Comparatist.View.WordGrid
             _stemRenderer = new StemBinderRenderer(control, _roots, _stems);
             _wordRenderer = new WordBinderRenderer(control, _columns, _stems, _words);
             _richTextCellPainter = new(Control);
-
-            Control.Dock = DockStyle.Fill;
-            Control.AllowUserToAddRows = false;
-            Control.RowHeadersVisible = false;
-            Control.AutoGenerateColumns = false;
-            Control.MultiSelect = false;
-            Control.ReadOnly = true;
-            Control.Visible = false;
         }
 
         public override void Dispose()

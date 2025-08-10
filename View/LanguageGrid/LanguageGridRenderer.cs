@@ -20,14 +20,18 @@ namespace Comparatist.View.LanguageGrid
 
         public void Remove(LanguageBinder binder)
         {
-            var row = _languages[binder];
+            if (!_languages.TryGetValue(binder, out var row))
+                return;
+
             Control.Rows.Remove(row);
             _languages.Remove(binder);
         }
 
         public void Update(LanguageBinder binder)
         {
-            var row = _languages[binder];
+            if (!_languages.TryGetValue(binder, out var row))
+                return;
+
             var cell = row.Cells[0];
             cell.Tag = binder.Language;
             cell.Value = binder.Language.Value;
@@ -35,7 +39,9 @@ namespace Comparatist.View.LanguageGrid
 
         public void Move(LanguageBinder currentBinder, LanguageBinder? previousBinder)
         {
-            var row = _languages[currentBinder];
+            if (!_languages.TryGetValue(currentBinder, out var row))
+                return;
+
             Control.Rows.Remove(row);
 
             int position = previousBinder != null 

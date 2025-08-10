@@ -2,7 +2,6 @@
 using Comparatist.Data.Entities;
 using Comparatist.Application.Cache;
 using Comparatist.Application.CacheManagement;
-using Comparatist.Application.CacheManagement;
 using Comparatist.Application.CascadeDelete;
 
 namespace Comparatist.Application.Management

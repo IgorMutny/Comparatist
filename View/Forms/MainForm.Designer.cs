@@ -23,27 +23,23 @@ namespace Comparatist
             _categoryTreeView = new TreeView();
             _wordGridView = new DataGridView();
             SuspendLayout();
- 
-            _mainMenuStrip.Location = new Point(0, 0);
-            _mainMenuStrip.Size = new Size(800, 24);
 
-            _languageGridView.Location = new Point(0, 24);
-            _languageGridView.Size = new Size(800, 426);
-            _languageGridView.Visible = false;
-
-            _categoryTreeView.Location = new Point(0, 24);
-            _categoryTreeView.Size = new Size(800, 426);
-            
-            _wordGridView.Location = new Point(0, 24);
-            _wordGridView.Size = new Size(800, 426);
+            _mainMenuStrip.Dock = DockStyle.Top;
+            _languageGridView.Dock = DockStyle.Fill;
+            _categoryTreeView.Dock = DockStyle.Fill;
+            _wordGridView.Dock = DockStyle.Fill;
 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
-            Controls.Add(_wordGridView);
-            Controls.Add(_categoryTreeView);
-            Controls.Add(_languageGridView);
+
+            var contentPanel = new Panel { Dock = DockStyle.Fill };
+            contentPanel.Controls.Add(_languageGridView);
+            contentPanel.Controls.Add(_categoryTreeView);
+            contentPanel.Controls.Add(_wordGridView);
+            Controls.Add(contentPanel);
             Controls.Add(_mainMenuStrip);
+
             MainMenuStrip = _mainMenuStrip;
             Name = "MainForm";
             Text = "Comparatist";
