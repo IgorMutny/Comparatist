@@ -5,7 +5,7 @@ using Comparatist.View.Common;
 namespace Comparatist.View.WordGrid.Binders
 {
     internal class StemBinder: 
-        CompositeBinder<CachedStem, WordBinder, WordGridRenderer>, IOrderableBinder
+        CompositeBinder<CachedStem, WordBinder>, IOrderableBinder
     { 
         public StemBinder(CachedStem state, RootBinder parent, WordGridRenderer renderer)
             : base (state, renderer)
@@ -16,7 +16,7 @@ namespace Comparatist.View.WordGrid.Binders
         public bool NeedsReorder { get; set; }
         public Stem Stem => CurrentState.Record;
         public RootBinder Parent { get; private set; }
-        public string Order => CurrentState.Record.Value;
+        public IComparable Order => CurrentState.Record.Value;
         public override Guid Id => Stem.Id;
 
         public override void OnCreate()

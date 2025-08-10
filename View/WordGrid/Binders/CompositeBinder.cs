@@ -1,13 +1,12 @@
 ﻿using Comparatist.Application.Cache;
-using Comparatist.View.WordGrid;
+using Comparatist.View.Common;
 
-namespace Comparatist.View.Common
+namespace Comparatist.View.WordGrid.Binders
 {
-    internal abstract class CompositeBinder<TCached, TChildBinder, TRenderer>
-        : Binder<TCached, TRenderer>, ICompositeBinder
+    internal abstract class CompositeBinder<TCached, TChildBinder>
+        : Binder<TCached, WordGridRenderer>, ICompositeBinder
         where TCached : class, ICachedRecord 
         where TChildBinder : class, IBinder
-        where TRenderer: class, IRenderer
     {
         private bool _childrenCanBeReordered;
 

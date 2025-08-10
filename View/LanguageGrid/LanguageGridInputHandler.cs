@@ -79,10 +79,8 @@ namespace Comparatist.View.LanguageGrid
 
             var cell = Control.SelectedCells[0];
 
-            if (cell.Tag is not CachedLanguage cached)
+            if (cell.Tag is not Language language)
                 return;
-
-            var language = cached.Record;
 
             string? input = InputBox.Show(
                 $"New name for {language.Value}",
@@ -103,10 +101,8 @@ namespace Comparatist.View.LanguageGrid
 
             var cell = Control.SelectedCells[0];
 
-            if (cell.Tag is not CachedLanguage cached)
+            if (cell.Tag is not Language language)
                 return;
-
-            var language = cached.Record;
 
             var result = MessageBox.Show(
                 $"Delete {language.Value}? All words of this language will also be deleted!",
@@ -128,13 +124,13 @@ namespace Comparatist.View.LanguageGrid
 
             foreach (DataGridViewRow movedRow in Control.Rows)
             {
-                var language = movedRow.Cells[0].Tag as CachedLanguage;
+                var language = movedRow.Cells[0].Tag as Language;
 
                 if (language == null)
                     continue;
 
-                language.Record.Order = movedRow.Index;
-                movedLanguages.Add(language.Record);
+                language.Order = movedRow.Index;
+                movedLanguages.Add(language);
             }
 
             UpdateManyRequest?.Invoke(movedLanguages);

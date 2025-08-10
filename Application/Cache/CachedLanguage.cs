@@ -1,5 +1,4 @@
-﻿using Comparatist.Data.Persistence;
-using Comparatist.Data.Entities;
+﻿using Comparatist.Data.Entities;
 
 namespace Comparatist.Application.Cache
 {

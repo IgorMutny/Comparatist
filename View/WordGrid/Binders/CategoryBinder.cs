@@ -1,11 +1,10 @@
 ﻿using Comparatist.Data.Entities;
 using Comparatist.Application.Cache;
-using Comparatist.View.Common;
 
 namespace Comparatist.View.WordGrid.Binders
 {
     internal class CategoryBinder :
-        CompositeBinder<CachedCategory, RootBinder, WordGridRenderer>
+        CompositeBinder<CachedCategory, RootBinder>
     {
         public CategoryBinder(CachedCategory state, WordGridRenderer renderer)
             : base(state, renderer) { }

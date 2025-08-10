@@ -20,6 +20,7 @@ namespace Comparatist.View.WordGrid
             WordGridInputHandler inputHandler) :
             base(service, renderer, inputHandler)
         { }
+
         public SortingTypes SortingType
         {
             get { return _sortingType; }

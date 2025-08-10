@@ -5,45 +5,42 @@ namespace Comparatist.View.LanguageGrid
 {
     internal class LanguageGridRenderer : Renderer<DataGridView>
     {
-        private Dictionary<Guid, DataGridViewRow> _cachedRows = new();
+        private Dictionary<LanguageBinder, DataGridViewRow> _languages = new();
 
         public LanguageGridRenderer(DataGridView control) : base(control) { }
 
-        public void Add(CachedLanguage language)
+        public void Add(LanguageBinder binder)
         {
             int rowIndex = Control.Rows.Add();
             var row = Control.Rows[rowIndex];
-            var cell = row.Cells[0];
-            cell.Value = language.Record.Value;
-            cell.Tag = (CachedLanguage)language.Clone();
-            _cachedRows.Add(language.Record.Id, row);
+            _languages.Add(binder, row);
+
+            Update(binder);
         }
 
-        public void Remove(Guid id)
+        public void Remove(LanguageBinder binder)
         {
-            var row = _cachedRows[id];
+            var row = _languages[binder];
             Control.Rows.Remove(row);
-            _cachedRows.Remove(id);
+            _languages.Remove(binder);
         }
 
-        public void Update(Guid id, CachedLanguage language)
+        public void Update(LanguageBinder binder)
         {
-            var row = _cachedRows[id];
+            var row = _languages[binder];
             var cell = row.Cells[0];
-            cell.Value = language.Record.Value;
+            cell.Tag = binder.Language;
+            cell.Value = binder.Language.Value;
         }
 
-        public void Move(Guid id, Guid before)
+        public void Move(LanguageBinder currentBinder, LanguageBinder? previousBinder)
         {
-            var row = _cachedRows[id];
+            var row = _languages[currentBinder];
             Control.Rows.Remove(row);
-            int position = Control.Rows.Count;
 
-            if (before != Guid.Empty)
-            {
-                var nextRow = _cachedRows[before];
-                position = Control.Rows.IndexOf(nextRow);
-            }
+            int position = previousBinder != null 
+                ? _languages[previousBinder].Index
+                : 0;
 
             Control.Rows.Insert(position, row);
         }
@@ -52,7 +49,7 @@ namespace Comparatist.View.LanguageGrid
         {
             Control.Rows.Clear();
             Control.Columns.Clear();
-            _cachedRows.Clear();
+            _languages.Clear();
 
             Control.Columns.Add(new DataGridViewTextBoxColumn
             {

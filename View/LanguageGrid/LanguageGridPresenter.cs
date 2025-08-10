@@ -8,7 +8,9 @@ namespace Comparatist.View.LanguageGrid
     internal class LanguageGridPresenter :
         Presenter<LanguageGridRenderer, LanguageGridInputHandler>
     {
-        private Dictionary<Guid, CachedLanguage>? _previousLanguages;
+        private Dictionary<Guid, CachedLanguage> _previousState = new();
+        private Dictionary<Guid, CachedLanguage> _currentState = new();
+        private Dictionary<Guid, LanguageBinder> _binders = new();
 
         public LanguageGridPresenter(
             IProjectService service,
@@ -45,11 +47,13 @@ namespace Comparatist.View.LanguageGrid
 
         private void Reset()
         {
-            _previousLanguages?.Clear();
+            _previousState.Clear();
+            _currentState.Clear();
+            _binders.Clear();
             Renderer.Reset();
         }
 
-         private void OnAddRequest(Language language)
+        private void OnAddRequest(Language language)
         {
             Execute(() => Service.Add(language));
             DrawDiff();
@@ -85,65 +89,107 @@ namespace Comparatist.View.LanguageGrid
                 return;
             }
 
-            var orderedLanguages = languages.Values.OrderBy(e => e.Record.Order).ToList();
-            foreach (var language in orderedLanguages)
-                Renderer.Add(language);
+            _currentState = languages;
+            _previousState = languages;
 
-            _previousLanguages = languages.ToDictionary(
-                pair => pair.Key,
-                pair => (CachedLanguage)pair.Value.Clone());
+            var orderedLanguages = languages.Values.OrderBy(e => e.Record.Order).ToList();
+
+            foreach (var language in orderedLanguages)
+                AddBinder(language);
         }
 
         private void DrawDiff()
         {
-            var languages = Execute(Service.GetAllLanguages);
+            var state = Execute(Service.GetAllLanguages);
 
-            if (languages == null)
+            if (state == null)
             {
                 Renderer.ShowError("No language cache received");
                 return;
             }
 
-            var currentIds = languages.Keys.ToList();
-            var previousIds = _previousLanguages!.Keys.ToList();
+            _currentState = state;
+            UpdateState();
+            _previousState = state;
+        }
 
-            var orderedIds = languages
-                .Select(pair => new KeyValuePair<int, Guid>(
-                    pair.Value.Record.Order,
-                    pair.Key))
-                .ToDictionary();
+        private void UpdateState()
+        {
+            UpdateBinderSet();
+            UpdateBindersContent();
+        }
+
+        private void UpdateBindersContent()
+        {
+            var oldBinderIds = _currentState.Keys.Intersect(_previousState.Keys);
+            bool needsReorder = false;
+
+            foreach (var id in oldBinderIds)
+            {
+                var binder = _binders[id];
+                binder.Update(_currentState[id]);
+
+                if (binder.NeedsReorder)
+                    needsReorder = true;
+            }
+
+            if (needsReorder)
+                UpdateChildrenOrder();
+        }
+
+        private void UpdateBinderSet()
+        {
+            var currentIds = _currentState.Keys;
+            var previousIds = _previousState.Keys;
 
             var addedIds = currentIds.Except(previousIds);
+            var removedIds = previousIds.Except(currentIds);
 
             foreach (var addedId in addedIds)
             {
-                var language = languages[addedId];
-                Renderer.Add(language);
+                var language = _currentState[addedId];
+                AddBinder(language);
             }
-
-            var removedIds = previousIds.Except(currentIds);
 
             foreach (var removedId in removedIds)
-                Renderer.Remove(removedId);
+                RemoveBinder(removedId);
+        }
 
-            foreach (var pair in languages)
+        private void UpdateChildrenOrder()
+        {
+            var orderedBinders = _binders.Values
+                .OrderBy(b => b.Order)
+                .ToList();
+
+            for (int i = orderedBinders.Count - 1; i >= 0; i--)
             {
-                if (_previousLanguages.TryGetValue(pair.Key, out var previousLanguage))
-                {
-                    if (previousLanguage.Record.Value != pair.Value.Record.Value)
-                        Renderer.Update(pair.Key, pair.Value);
+                var currentBinder = orderedBinders[i];
 
-                    if (previousLanguage.Record.Order != pair.Value.Record.Order)
-                    {
-                        if (!orderedIds.TryGetValue(pair.Value.Record.Order + 1, out var nextId))
-                            nextId = Guid.Empty;
+                if (!currentBinder.NeedsReorder)
+                    continue;
 
-                        Renderer.Move(pair.Key, nextId);
-                    }
-                }
+                var previousBinder = i > 0
+                    ? orderedBinders[i - 1]
+                    : null;
+
+                Renderer.Move(currentBinder, previousBinder);
+                currentBinder.NeedsReorder = false;
             }
+        }
 
-            _previousLanguages = languages;
+        private void AddBinder(CachedLanguage language)
+        {
+            var binder = new LanguageBinder(language, Renderer);
+            _binders.Add(binder.Id, binder);
+            Renderer.Add(binder);
+            binder.NeedsReorder = true;
+        }
+
+        private void RemoveBinder(Guid id)
+        {
+            var binder = _binders[id];
+            Renderer.Remove(binder);
+            _binders.Remove(id);
         }
     }
 }

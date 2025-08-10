@@ -5,7 +5,7 @@ using Comparatist.View.Common;
 namespace Comparatist.View.WordGrid.Binders
 {
     internal class RootBinder :
-        CompositeBinder<CachedRoot, StemBinder, WordGridRenderer>, IOrderableBinder
+        CompositeBinder<CachedRoot, StemBinder>, IOrderableBinder
     { 
         private bool _isExpanded;
 
@@ -19,7 +19,7 @@ namespace Comparatist.View.WordGrid.Binders
         public Root Root => CurrentState.Record;
         public CategoryBinder Parent { get; private set; }
         public string ExpandedMark => _isExpanded ? "▼" : "▶";
-        public string Order => CurrentState.Record.Value;
+        public IComparable Order => CurrentState.Record.Value;
         public override Guid Id => Root.Id;
 
         protected override void OnUpdate()

@@ -7,7 +7,7 @@ namespace Comparatist.View.Common
         where TCached : class, ICachedRecord
         where TRenderer : class, IRenderer
     {
-        protected Binder(TCached state, WordGridRenderer renderer)
+        protected Binder(TCached state, TRenderer renderer)
         {
             CurrentState = state;
             PreviousState = state;
@@ -17,7 +17,7 @@ namespace Comparatist.View.Common
         public abstract Guid Id { get; }
         public TCached CurrentState { get; private set; }
         protected TCached PreviousState { get; private set; }
-        protected WordGridRenderer Renderer { get; private set; }
+        protected TRenderer Renderer { get; private set; }
 
         public void Update(ICachedRecord cached)
         {
