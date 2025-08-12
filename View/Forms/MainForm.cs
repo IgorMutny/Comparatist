@@ -25,6 +25,8 @@ namespace Comparatist
 
             _mainMenuHandler = new(_service, _mainMenuStrip);
             _mainMenuHandler.ExitRequest += Close;
+            FormClosing += OnClosing;
+            FormClosed += OnClosed;
 
             var languageRenderer = new LanguageGridRenderer(_languageGridView);
             var languageInputHandler = new LanguageGridInputHandler(_languageGridView);
@@ -54,6 +56,28 @@ namespace Comparatist
                 "Word table");
 
             _mainMenuHandler.Initialize();
+        }
+
+        private void OnClosing(object? sender, FormClosingEventArgs e)
+        {
+            var result = MessageBox.Show(
+                text: null,
+                caption: "Save changes before closing?",
+                buttons: MessageBoxButtons.YesNoCancel);
+
+            switch (result)
+            {
+                case DialogResult.Yes: _mainMenuHandler.Save(); break;
+                case DialogResult.No: break;
+                case DialogResult.Cancel: e.Cancel = true; break;
+            }
+        }
+
+        private void OnClosed(object? sender, EventArgs e)
+        {
+            _wordGridPresenter.Dispose();
+            _categoryTreePresenter.Dispose();
+            _languageGridPresenter.Dispose();
         }
     }
 }

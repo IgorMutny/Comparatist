@@ -42,6 +42,14 @@ namespace Comparatist.View.MainMenu
             _contentItems[type] = adapterItem;
         }
 
+        public void Save()
+        {
+            if (string.IsNullOrEmpty(_filePath))
+                SaveAs();
+            else
+                _service.SaveDatabase(_filePath);
+        }
+
         private void SetupMenu()
         {
             var fileItem = AddMenuItem("File", null, _menu);
@@ -128,14 +136,6 @@ namespace Comparatist.View.MainMenu
                 .AppendLine($"Modified: {data.Modified}");
 
             MessageBox.Show( builder.ToString() );
-        }
-
-        private void Save()
-        {
-            if (string.IsNullOrEmpty(_filePath))
-                SaveAs();
-            else
-                _service.SaveDatabase(_filePath);
         }
 
         private void SaveAs()
