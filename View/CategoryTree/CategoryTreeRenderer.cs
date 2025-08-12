@@ -56,7 +56,9 @@ namespace Comparatist.View.CategoryTree
             var node = _categories[binder];
             var parentNode = node.Parent;
             node.Remove();
-            var index = previousBinder != null ? _categories[previousBinder].Index + 1 : 0;
+            var index = previousBinder != null 
+                ? _categories[previousBinder].Index + 1 
+                : 0;
 
             if (parentNode != null)
                 parentNode.Nodes.Insert(index, node);

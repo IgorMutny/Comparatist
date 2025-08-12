@@ -44,11 +44,11 @@ namespace Comparatist.View.LanguageGrid
 
             Control.Rows.Remove(row);
 
-            int position = previousBinder != null 
-                ? _languages[previousBinder].Index
+            int index = previousBinder != null 
+                ? _languages[previousBinder].Index + 1
                 : 0;
 
-            Control.Rows.Insert(position, row);
+            Control.Rows.Insert(index, row);
         }
 
         public void Reset()

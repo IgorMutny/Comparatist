@@ -14,7 +14,7 @@ namespace Comparatist.View.WordGrid.Binders
 
         public override void OnCreate()
         {
-            foreach (var root in CurrentState.OrderedRoots)
+            foreach (var root in CurrentState.OrderedRoots.Reverse())
                 AddChild(root);
         }
 

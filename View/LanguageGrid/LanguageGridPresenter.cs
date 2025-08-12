@@ -147,24 +147,25 @@ namespace Comparatist.View.LanguageGrid
             foreach (var removedId in removedIds)
                 RemoveBinder(removedId);
 
-            UpdateChildrenOrder();
+            if (addedIds.Count() > 0 || removedIds.Count() > 0)
+                UpdateChildrenOrder();
         }
 
         private void UpdateChildrenOrder()
         {
-            var orderedBinders = _binders.Values
+            var orderedChildren = _binders.Values
                 .OrderBy(b => b.Order)
                 .ToList();
 
-            for (int i = orderedBinders.Count - 1; i >= 0; i--)
+            for (int i = 0; i < orderedChildren.Count; i++)
             {
-                var currentBinder = orderedBinders[i];
+                var currentBinder = orderedChildren[i];
 
                 if (!currentBinder.NeedsReorder)
                     continue;
 
                 var previousBinder = i > 0
-                    ? orderedBinders[i - 1]
+                    ? orderedChildren[i - 1]
                     : null;
 
                 Renderer.Move(currentBinder, previousBinder);

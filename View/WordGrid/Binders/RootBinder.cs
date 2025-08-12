@@ -49,7 +49,7 @@ namespace Comparatist.View.WordGrid.Binders
 
         private void Expand()
         {
-            foreach (var stem in CurrentState.OrderedStems)
+            foreach (var stem in CurrentState.OrderedStems.Reverse())
                 AddChild(stem);
 
             _isExpanded = true;
