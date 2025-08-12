@@ -21,6 +21,12 @@ namespace Comparatist.View.WordGrid.Binders
         public string ExpandedMark => _isExpanded ? "▼" : "▶";
         public IComparable Order => CurrentState.Record.Value;
         public override Guid Id => Root.Id;
+        public bool IsExpanded => _isExpanded;
+
+        public int GetStemCount()
+        {
+            return CurrentState.Stems.Count;
+        }
 
         protected override void OnUpdate()
         {

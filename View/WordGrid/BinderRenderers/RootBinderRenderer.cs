@@ -31,10 +31,15 @@ namespace Comparatist.View.WordGrid.BinderRenderers
 
         public void Move(RootBinder binder, RootBinder? previousBinder)
         {
-            var previousRow = previousBinder == null
-                ? _categories[binder.Parent]
-                : _roots[previousBinder];
+            if (previousBinder == null)
+                InsertAfterParent(binder, binder.Parent);
+            else
+                InsertAfterRoot(binder, previousBinder);
+        }
 
+        private void InsertAfterParent(RootBinder binder, CategoryBinder category)
+        {
+            var previousRow = _categories[binder.Parent];
             var row = _roots[binder];
 
             if (previousRow.Index + 1 == row.Index)
@@ -42,6 +47,21 @@ namespace Comparatist.View.WordGrid.BinderRenderers
 
             _grid.Rows.Remove(row);
             var index = previousRow.Index + 1;
+            _grid.Rows.Insert(index, row);
+        }
+
+        private void InsertAfterRoot(RootBinder binder, RootBinder previousBinder)
+        {
+            var previousRow = _roots[previousBinder];
+            var row = _roots[binder];
+
+            var offset = previousBinder.IsExpanded ? previousBinder.GetStemCount() + 1 : 1;
+
+            if (previousRow.Index + offset == row.Index)
+                return;
+
+            _grid.Rows.Remove(row);
+            var index = previousRow.Index + offset;
             _grid.Rows.Insert(index, row);
         }
 
