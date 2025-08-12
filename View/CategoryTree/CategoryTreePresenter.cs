@@ -9,8 +9,8 @@ namespace Comparatist.View.CategoryTree
         Presenter<CategoryTreeRenderer, CategoryTreeInputHandler>
     {
         private Dictionary<Guid, CategoryNodeBinder> _binders = new();
-        private Dictionary<Guid, CachedCategory> _previousState = new();
-        private Dictionary<Guid, CachedCategory> _currentState = new();
+        private List<CachedCategory> _previousState = new();
+        private List<CachedCategory> _currentState = new();
 
         public CategoryTreePresenter(IProjectService service, CategoryTreeRenderer renderer, CategoryTreeInputHandler inputHandler) :
             base(service, renderer, inputHandler)
@@ -78,7 +78,7 @@ namespace Comparatist.View.CategoryTree
         {
             Reset();
 
-            var baseCategories = Execute(Service.GetCategoryTree);
+            var baseCategories = Execute(Service.GetBaseCategories);
 
             if (baseCategories == null)
             {
@@ -86,20 +86,16 @@ namespace Comparatist.View.CategoryTree
                 return;
             }
 
-            _currentState = baseCategories;
-            _previousState = baseCategories;
+            _currentState = baseCategories.ToList();
+            _previousState = baseCategories.Select(e => (CachedCategory)e.Clone()).ToList();
 
-            var orderedCategories = baseCategories.Values
-                .OrderBy(e => e.Record.Order)
-                .ToList();
-
-            foreach (var category in orderedCategories)
+            foreach (var category in _currentState)
                 AddBinder(category);
         }
 
         private void DrawDiff()
         {
-            var state = Execute(Service.GetCategoryTree);
+            var state = Execute(Service.GetBaseCategories);
 
             if (state == null)
             {
@@ -107,23 +103,22 @@ namespace Comparatist.View.CategoryTree
                 return;
             }
 
-            _currentState = state;
-            UpdateBinderSet();
-            UpdateBindersContent();
-            _previousState = state;
+            _currentState = state.ToList();
+            var currentIds = _currentState.Select(e => e.Record.Id).ToList();
+            var previousIds = _previousState.Select(e => e.Record.Id).ToList();
+            UpdateBinderSet(currentIds, previousIds);
+            UpdateBindersContent(currentIds, previousIds);
+            _previousState = state.Select(e => (CachedCategory)e.Clone()).ToList();
         }
 
-        private void UpdateBinderSet()
+        private void UpdateBinderSet(List<Guid> currentIds, List<Guid> previousIds)
         {
-            var currentIds = _currentState.Keys;
-            var previousIds = _previousState.Keys;
-
             var addedIds = currentIds.Except(previousIds);
             var removedIds = previousIds.Except(currentIds);
 
             foreach (var addedId in addedIds)
             {
-                var category = _currentState[addedId];
+                var category = _currentState.First(e => e.Record.Id == addedId);
                 AddBinder(category);
             }
 
@@ -134,15 +129,16 @@ namespace Comparatist.View.CategoryTree
                 UpdateBinderOrder();
         }
 
-        private void UpdateBindersContent()
+        private void UpdateBindersContent(List<Guid> currentIds, List<Guid> previousIds)
         {
-            var oldCategoryIds = _previousState.Keys.Intersect(_currentState.Keys);
+            var updatedIds = currentIds.Intersect(previousIds);
             var needsReorder = false;
 
-            foreach (var categoryId in oldCategoryIds)
+            foreach (var categoryId in updatedIds)
             {
                 var binder = _binders[categoryId];
-                binder.Update(_currentState[categoryId]);
+                var category = _currentState.First(e => e.Record.Id == categoryId);
+                binder.Update(category);
 
                 if (binder.NeedsReorder)
                     needsReorder = true;

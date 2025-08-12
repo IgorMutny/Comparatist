@@ -13,11 +13,12 @@ namespace Comparatist.Application.Management
         Result UpdateMany<T>(IEnumerable<T> records) where T : class, IRecord;
         Result Delete<T>(T record) where T : class, IRecord;
         Result<ProjectMetadata> GetProjectMetadata();
-        Result<Dictionary<Guid, CachedLanguage>> GetAllLanguages();
-        Result<Dictionary<Guid, CachedCategory>> GetAllCategories();
-        Result<Dictionary<Guid, CachedRoot>> GetAllRoots();
-        Result<Dictionary<Guid, CachedCategory>> GetWordTableByAlphabet();
-        Result<Dictionary<Guid, CachedCategory>> GetWordTableByCategory();
-        Result<Dictionary<Guid, CachedCategory>> GetCategoryTree();
+        Result<IEnumerable<CachedLanguage>> GetAllLanguages();
+        Result<IEnumerable<CachedRoot>> GetAllRoots();
+        Result<IEnumerable<CachedCategory>> GetAllCategories();
+        Result<IEnumerable<CachedCategory>> GetBaseCategories();
+        Result<IEnumerable<CachedRoot>> GetUncategorizedRoots();
+        Result<IEnumerable<CachedCategory>> GetWordTableByAlphabet();
+        Result<IEnumerable<CachedCategory>> GetWordTableByCategories();
     }
 }

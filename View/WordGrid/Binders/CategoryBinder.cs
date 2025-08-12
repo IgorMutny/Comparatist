@@ -14,11 +14,7 @@ namespace Comparatist.View.WordGrid.Binders
 
         public override void OnCreate()
         {
-            var orderedRoots = CurrentState.Roots.Values
-                .OrderByDescending(e => e.Record.Value)
-                .ToList();
-
-            foreach (var root in orderedRoots)
+            foreach (var root in CurrentState.OrderedRoots)
                 AddChild(root);
         }
 
@@ -34,7 +30,8 @@ namespace Comparatist.View.WordGrid.Binders
 
         public void ExpandOrCollapse(Root root)
         {
-            Children[root.Id].ExpandOrCollapse();
+            if (Children.TryGetValue(root.Id, out var rootBinder))
+                rootBinder.ExpandOrCollapse();
         }
 
         protected override RootBinder CreateChild(ICachedRecord cached)

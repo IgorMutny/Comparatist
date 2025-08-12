@@ -66,34 +66,39 @@ namespace Comparatist.Application.Management
             return Execute(_database.GetMetadata);
         }
 
-        public Result<Dictionary<Guid, CachedLanguage>> GetAllLanguages()
+        public Result<IEnumerable<CachedLanguage>> GetAllLanguages()
         {
             return Execute(_cacheQueryService.GetAllLanguages);
         }
 
-        public Result<Dictionary<Guid, CachedCategory>> GetAllCategories()
+        public Result<IEnumerable<CachedCategory>> GetAllCategories()
         {
             return Execute(_cacheQueryService.GetAllCategories);
         }
 
-        public Result<Dictionary<Guid, CachedRoot>> GetAllRoots()
+        public Result<IEnumerable<CachedRoot>> GetAllRoots()
         {
             return Execute(_cacheQueryService.GetAllRoots);
         }
 
-        public Result<Dictionary<Guid, CachedCategory>> GetWordTableByCategory()
+        public Result<IEnumerable<CachedCategory>> GetBaseCategories()
         {
-            return Execute(_cacheQueryService.GetWordTableByCategory);
+            return Execute(_cacheQueryService.GetBaseCategories);
         }
 
-        public Result<Dictionary<Guid, CachedCategory>> GetWordTableByAlphabet()
+        public Result<IEnumerable<CachedRoot>> GetUncategorizedRoots()
         {
-            return Execute( _cacheQueryService.GetWordTableByAlphabet);
+            return Execute( _cacheQueryService.GetUncategorizedRoots);
         }
 
-        public Result<Dictionary<Guid, CachedCategory>> GetCategoryTree()
+        public Result<IEnumerable<CachedCategory>> GetWordTableByAlphabet()
         {
-            return Execute(_cacheQueryService.GetCategoryTree);
+            return Execute(_cacheQueryService.GetWordTableByAlphabet);
+        }
+
+        public Result<IEnumerable<CachedCategory>> GetWordTableByCategories()
+        {
+            return Execute(_cacheQueryService.GetWordTableByCategories);
         }
 
         public Result Add<T>(T record) where T : class, IRecord

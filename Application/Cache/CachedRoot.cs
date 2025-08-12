@@ -8,6 +8,9 @@ namespace Comparatist.Application.Cache
         public required Root Record { get; set; }
         public Dictionary<Guid, CachedStem> Stems { get; set; } = new();
 
+        public IEnumerable<CachedStem> OrderedStems 
+            => Stems.Values.OrderBy(e => e.Record.Value).ToList();
+
         public string Value => Record.Value;
         public string Translation => Record.Translation;
         public bool IsNative => Record.IsNative;

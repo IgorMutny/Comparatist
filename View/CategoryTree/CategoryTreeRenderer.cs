@@ -16,22 +16,23 @@ namespace Comparatist.View.CategoryTree
 
         public void Add(CategoryNodeBinder binder, CategoryNodeBinder? parent)
         {
+            TreeNode node;
+
             if (parent == null)
             {
-                var node = Control.Nodes.Add($"{binder.Category.Value} --- {binder.Order}");
-                node.Tag = binder.Category;
-                _categories.Add(binder, node);
+                node = Control.Nodes.Add(binder.Category.Value);
             }
             else
             {
                 if (!_categories.TryGetValue(parent, out var parentNode))
                     return;
 
-                var node = new TreeNode($"{binder.Category.Value} --- {binder.Order}");
+                node = new TreeNode(binder.Category.Value);
                 parentNode.Nodes.Insert(binder.Category.Order, node);
-                node.Tag = binder.Category;
-                _categories.Add(binder, node);
             }
+
+            node.Tag = binder.Category;
+            _categories.Add(binder, node);
         }
 
         public void Remove(CategoryNodeBinder binder)
@@ -47,7 +48,7 @@ namespace Comparatist.View.CategoryTree
                 return;
 
             node.Tag = binder.Category;
-            node.Text = $"{binder.Category.Value} --- {binder.Order}";
+            node.Text = binder.Category.Value;
         }
 
         public void Move(CategoryNodeBinder binder, CategoryNodeBinder? previousBinder)

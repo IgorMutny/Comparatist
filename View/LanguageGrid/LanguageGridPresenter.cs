@@ -8,8 +8,8 @@ namespace Comparatist.View.LanguageGrid
     internal class LanguageGridPresenter :
         Presenter<LanguageGridRenderer, LanguageGridInputHandler>
     {
-        private Dictionary<Guid, CachedLanguage> _previousState = new();
-        private Dictionary<Guid, CachedLanguage> _currentState = new();
+        private List<CachedLanguage> _previousState = new();
+        private List<CachedLanguage> _currentState = new();
         private Dictionary<Guid, LanguageBinder> _binders = new();
 
         public LanguageGridPresenter(
@@ -89,12 +89,10 @@ namespace Comparatist.View.LanguageGrid
                 return;
             }
 
-            _currentState = languages;
-            _previousState = languages;
+            _currentState = languages.ToList();
+            _previousState = languages.Select(e => (CachedLanguage)e.Clone()).ToList();
 
-            var orderedLanguages = languages.Values.OrderBy(e => e.Record.Order).ToList();
-
-            foreach (var language in orderedLanguages)
+            foreach (var language in _currentState)
                 AddBinder(language);
         }
 
@@ -108,21 +106,24 @@ namespace Comparatist.View.LanguageGrid
                 return;
             }
 
-            _currentState = state;
-            UpdateBinderSet();
-            UpdateBindersContent();
-            _previousState = state;
+            _currentState = state.ToList();
+            var currentIds = _currentState.Select(e => e.Record.Id).ToList();
+            var previousIds = _previousState.Select(e => e.Record.Id).ToList();
+            UpdateBinderSet(currentIds, previousIds);
+            UpdateBindersContent(currentIds, previousIds);
+            _previousState = state.Select(e => (CachedLanguage)e.Clone()).ToList();
         }
 
-        private void UpdateBindersContent()
+        private void UpdateBindersContent(List<Guid> currentIds, List<Guid> previousIds)
         {
-            var oldBinderIds = _currentState.Keys.Intersect(_previousState.Keys);
+            var updatedIds = currentIds.Intersect(previousIds);
             bool needsReorder = false;
 
-            foreach (var id in oldBinderIds)
+            foreach (var id in updatedIds)
             {
                 var binder = _binders[id];
-                binder.Update(_currentState[id]);
+                var language = _currentState.First(e => e.Record.Id == id);
+                binder.Update(language);
 
                 if (binder.NeedsReorder)
                     needsReorder = true;
@@ -132,17 +133,14 @@ namespace Comparatist.View.LanguageGrid
                 UpdateChildrenOrder();
         }
 
-        private void UpdateBinderSet()
+        private void UpdateBinderSet(List<Guid> currentIds, List<Guid> previousIds)
         {
-            var currentIds = _currentState.Keys;
-            var previousIds = _previousState.Keys;
-
             var addedIds = currentIds.Except(previousIds);
             var removedIds = previousIds.Except(currentIds);
 
             foreach (var addedId in addedIds)
             {
-                var language = _currentState[addedId];
+                var language = _currentState.First(e => e.Record.Id == addedId);
                 AddBinder(language);
             }
 

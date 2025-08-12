@@ -46,9 +46,11 @@ namespace Comparatist.View.WordGrid
             _columns.Clear();
         }
 
-        public void CreateColumns(List<CachedLanguage> languages) 
-            => _columnRenderer.CreateColumns(languages);
- 
+        public void CreateColumns(List<CachedLanguage> languages)
+        {
+            _columnRenderer.CreateColumns(languages);
+        }
+
         public void Add<T>(T binder)
             where T : class, IBinder
         {

@@ -9,6 +9,12 @@ namespace Comparatist.Application.Cache
         public Dictionary<Guid, CachedCategory> Children { get; set; } = new();
         public Dictionary<Guid, CachedRoot> Roots { get; set; } = new();
 
+        public IEnumerable<CachedRoot> OrderedRoots 
+            => Roots.Values.OrderBy(e => e.Record.Value);
+
+        public IEnumerable<CachedCategory> OrderedChildren
+            => Children.Values.OrderBy(e => e.Record.Order);
+
         public object Clone()
         {
             return Clone(new HashSet<Guid>());

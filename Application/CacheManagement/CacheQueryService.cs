@@ -1,5 +1,4 @@
-﻿using Comparatist.Application.Exceptions;
-using Comparatist.Application.Cache;
+﻿using Comparatist.Application.Cache;
 using Comparatist.Data.Entities;
 
 namespace Comparatist.Application.CacheManagement
@@ -13,89 +12,91 @@ namespace Comparatist.Application.CacheManagement
             _cache = cache;
         }
 
-        public Dictionary<Guid, CachedLanguage> GetAllLanguages()
+        public IEnumerable<CachedLanguage> GetAllLanguages()
         {
             return _cache.Languages
-                .Select(pair => new KeyValuePair<Guid, CachedLanguage>(
-                    pair.Key,
-                    (CachedLanguage)pair.Value.Clone()))
-                .ToDictionary();
+                .Select(pair => (CachedLanguage)pair.Value.Clone())
+                .OrderBy(e => e.Record.Order);
         }
 
-        public Dictionary<Guid, CachedCategory> GetWordTableByCategory()
-        {
-            var categories = GetAllCategories();
-
-            var uncategorizedRoots = _cache.UncategorizedRootIds
-                .Select(id => new KeyValuePair<Guid, CachedRoot>(
-                    id,
-                    (CachedRoot)_cache.Roots[id].Clone()))
-                .ToDictionary();
-
-            var uncategorizedCategory = new CachedCategory
-            {
-                Record = new Category { Value = "Uncategorized", Order = int.MaxValue },
-                Roots = uncategorizedRoots
-            };
-
-            categories.Add(Guid.Empty, uncategorizedCategory);
-
-            return categories;
-        }
-
-        public Dictionary<Guid, CachedCategory> GetWordTableByAlphabet()
-        {
-            var allRoots = _cache.Roots
-                .Select(pair => new KeyValuePair<Guid, CachedRoot>(
-                    pair.Key,
-                    (CachedRoot)pair.Value.Clone()))
-                .OrderBy(e => e.Value.Record.Value)
-                .ToDictionary();
-
-            var category = new CachedCategory
-            {
-                Record = new Category { Value = "By alphabet" },
-                Roots = allRoots
-            };
-
-            return new Dictionary<Guid, CachedCategory> { { Guid.Empty, category } };
-        }
-
-        public Dictionary<Guid, CachedCategory> GetAllCategories()
-        {
-            return _cache.Categories
-                .Select(pair => new KeyValuePair<Guid, CachedCategory>
-                (
-                    pair.Key,
-                    (CachedCategory)pair.Value.Clone()
-                ))
-                .ToDictionary();
-        }
-
-        public Dictionary<Guid, CachedRoot> GetAllRoots()
+        public IEnumerable<CachedRoot> GetAllRoots()
         {
             return _cache.Roots
-                .Select(pair => new KeyValuePair<Guid, CachedRoot>
-                (
-                    pair.Key,
-                    (CachedRoot)pair.Value.Clone()
-                ))
-                .ToDictionary();
+                .Select(pair => (CachedRoot)pair.Value.Clone())
+                .OrderBy(e => e.Record.Value);
         }
 
-
-        public Dictionary<Guid, CachedCategory> GetCategoryTree()
+        public IEnumerable<CachedCategory> GetAllCategories()
         {
-            var result = new Dictionary<Guid, CachedCategory>();
+            var allCategories = new List<CachedCategory>();
+            var baseCategories = GetBaseCategories();
 
-            foreach (var id in _cache.BaseCategoryIds)
+            foreach (var category in baseCategories)
+                CollectCategoriesRecursively(category, allCategories);
+
+            return allCategories.Select(e => (CachedCategory)e.Clone());
+        }
+
+        private void CollectCategoriesRecursively(CachedCategory category, List<CachedCategory> result)
+        {
+            result.Add(category);
+            var orderedChildren = category.Children.Values.OrderBy(e => e.Record.Order);
+
+            foreach (var child in orderedChildren)
+                CollectCategoriesRecursively(child, result);
+        }
+
+        public IEnumerable<CachedCategory> GetBaseCategories()
+        {
+            return _cache.BaseCategoryIds
+                .Select(id => (CachedCategory)_cache.Categories[id].Clone())
+                .OrderBy(e => e.Record.Order);
+        }
+
+        public IEnumerable<CachedRoot> GetUncategorizedRoots()
+        {
+            return _cache.UncategorizedRootIds
+                .Select(id => (CachedRoot)_cache.Roots[id].Clone()).
+                OrderBy(e => e.Record.Value);
+        }
+
+        public IEnumerable<CachedCategory> GetWordTableByAlphabet()
+        {
+            var cachedCategory = new CachedCategory
             {
-                if (!_cache.Categories.TryGetValue(id, out var cached))
-                    throw new CachedRecordNotFoundException(typeof(CachedCategory), id);
+                Record = new Category{ Id = Guid.Empty, Value = "By alphabet" },
+                Roots = GetAllRoots()
+                    .Select(root => new KeyValuePair<Guid, CachedRoot>(
+                        root.Record.Id,
+                        root))
+                    .ToDictionary()
+            };
 
-                result.Add(id, (CachedCategory)cached.Clone());
-            }
+            return new List<CachedCategory> { cachedCategory };
+        }
 
+        public IEnumerable<CachedCategory> GetWordTableByCategories()
+        {
+            var result = GetAllCategories().ToList();
+
+            var uncategorized = new Category
+            {
+                Id = Guid.Empty,
+                Value = "Uncategorized",
+                Order = result.Count()
+            };
+
+            var cachedUncategorized = new CachedCategory
+            {
+                Record = uncategorized,
+                Roots = GetUncategorizedRoots()
+                    .Select(root => new KeyValuePair<Guid, CachedRoot>(
+                        root.Record.Id,
+                        root))
+                    .ToDictionary()
+            };
+
+            result.Add(cachedUncategorized);
             return result;
         }
     }

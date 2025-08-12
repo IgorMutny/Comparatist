@@ -29,6 +29,7 @@ namespace Comparatist.View.LanguageGrid
 
             Control.AllowUserToAddRows = false;
             Control.RowHeadersVisible = false;
+            Control.ColumnHeadersVisible = false;
             Control.AutoGenerateColumns = false;
             Control.MultiSelect = false;
             Control.AllowDrop = true;

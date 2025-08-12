@@ -3,6 +3,8 @@ using Comparatist.Application.Cache;
 using Comparatist.Application.Management;
 using Comparatist.View.Common;
 using Comparatist.View.WordGrid.Binders;
+using System.Text;
+using System.Diagnostics;
 
 namespace Comparatist.View.WordGrid
 {
@@ -130,12 +132,15 @@ namespace Comparatist.View.WordGrid
         {
             Reset();
 
-            var languages = Execute(Service.GetAllLanguages);
+            var languages = Execute(Service.GetAllLanguages)?.ToList();
             var categories = Execute(Service.GetAllCategories);
             var roots = Execute(Service.GetAllRoots);
-            var state = SortingType == SortingTypes.Categories
-                ? Execute(Service.GetWordTableByCategory)
-                : Execute(Service.GetWordTableByAlphabet);
+            var state = SortingType switch
+            {
+                SortingTypes.Alphabet => Execute(Service.GetWordTableByAlphabet),
+                SortingTypes.Categories => Execute(Service.GetWordTableByCategories),
+                _ => throw new NotSupportedException()
+            };
 
             if (languages == null || categories == null || roots == null || state == null)
             {
@@ -143,36 +148,33 @@ namespace Comparatist.View.WordGrid
                 return;
             }
 
-            InputHandler.AllCategories = categories.Values.Select(e => e.Record).ToList();
-            InputHandler.AllRoots = roots.Values.Select(e => e.Record).OrderBy(e => e.Value).ToList();
+            InputHandler.AllCategories = categories.Select(e => e.Record).ToList();
+            InputHandler.AllRoots = roots.Select(e => e.Record).ToList();
+            Renderer.CreateColumns(languages);
 
-            var orderedLanguages = languages.Values.OrderBy(e => e.Record.Order).ToList();
-            Renderer.CreateColumns(orderedLanguages);
-
-            var orderedCategories = state.Values.OrderBy(e => e.Record.Order).ToList();
-
-            foreach (var category in orderedCategories)
+            foreach (var category in state)
                 AddBinder(category);
         }
 
         private void DrawDiff()
         {
-            var categories = Execute(Service.GetAllCategories);
             var roots = Execute(Service.GetAllRoots);
-            var state = SortingType == SortingTypes.Categories
-                ? Execute(Service.GetWordTableByCategory)
-                : Execute(Service.GetWordTableByAlphabet);
+            var state = SortingType switch
+            {
+                SortingTypes.Alphabet => Execute(Service.GetWordTableByAlphabet),
+                SortingTypes.Categories => Execute(Service.GetWordTableByCategories),
+                _ => throw new NotSupportedException()
+            };
 
-            if (state == null || roots == null || categories == null)
+            if (state == null || roots == null)
             {
                 Renderer.ShowError("No cached data received");
                 return;
             }
 
-            InputHandler.AllCategories = categories.Values.Select(e => e.Record).ToList();
-            InputHandler.AllRoots = roots.Values.Select(e => e.Record).OrderBy(e => e.Value).ToList();
+            InputHandler.AllRoots = roots.Select(e => e.Record).ToList();
 
-            foreach (var category in state.Values)
+            foreach (var category in state)
                 if (_binders.TryGetValue(category.Record.Id, out var binder))
                     binder.Update(category);
         }

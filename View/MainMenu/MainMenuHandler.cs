@@ -107,8 +107,8 @@ namespace Comparatist.View.MainMenu
                 {
                     _filePath = dialog.FileName;
                     _service.LoadDatabase(_filePath);
-                    ShowContent(ContentTypes.Words);
                     SwitchRootSortingType(SortingTypes.Alphabet);
+                    ShowContent(ContentTypes.Words);
 
                     var metadataQuery = _service.GetProjectMetadata();
 
