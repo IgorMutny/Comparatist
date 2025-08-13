@@ -21,6 +21,17 @@
             Control.Hide();
         }
 
+        public void OnBeginUpdate()
+        {
+            Control.SuspendLayout();
+        }
+
+        public void OnEndUpdate()
+        {
+            Control.ResumeLayout();
+            Control.Refresh();
+        }
+
         public void ShowError(string? message)
         {
             MessageBox.Show(

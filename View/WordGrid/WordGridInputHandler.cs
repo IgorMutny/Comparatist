@@ -3,6 +3,7 @@ using Comparatist.Application.Cache;
 using Comparatist.View.Common;
 using Comparatist.View.Utilities;
 using System.Diagnostics.CodeAnalysis;
+using Comparatist.View.Forms;
 
 namespace Comparatist.View.WordGrid
 {
@@ -22,7 +23,7 @@ namespace Comparatist.View.WordGrid
         public event Action<Word>? AddWordRequest;
         public event Action<Word>? UpdateWordRequest;
         public event Action<Word>? DeleteWordRequest;
-        public event Action<Root>? ExpandOrCollapseRequested;
+        public event Action<Root>? ExpandOrCollapseRequest;
 
         public WordGridInputHandler(DataGridView control) : base(control)
         {
@@ -37,6 +38,7 @@ namespace Comparatist.View.WordGrid
                 ("Add root", AddRoot));
 
             _rootMenu = new DisposableMenu(
+                ("Expand / collapse", ExpandOrCollapse),
                 ("Add root", AddRoot),
                 ("Edit root", EditRoot),
                 ("Delete root", DeleteRoot),
@@ -45,7 +47,8 @@ namespace Comparatist.View.WordGrid
             _stemMenu = new DisposableMenu(
                 ("Add stem", AddStem),
                 ("Edit stem", EditStem),
-                ("Delete stem", DeleteStem));
+                ("Delete stem", DeleteStem),
+                ("Add word set", AddWordSet));
 
             _wordMenu = new DisposableMenu(
                 ("Add or edit word", AddOrEditWord),
@@ -72,6 +75,24 @@ namespace Comparatist.View.WordGrid
             {
                 var newRoot = form.GetResult();
                 AddRootRequest?.Invoke(newRoot);
+
+                var stemRequired = MessageBox.Show(
+                    $"Add default stem for {newRoot.Value}?",
+                    "Add default stem",
+                    MessageBoxButtons.YesNo);
+
+                if (stemRequired == DialogResult.Yes)
+                {
+                    var stem = new Stem
+                    {
+                        Value = newRoot.Value,
+                        Translation = newRoot.Translation,
+                        IsNative = newRoot.IsNative,
+                        RootIds = { newRoot.Id }
+                    };
+
+                    AddStemRequest?.Invoke(stem);
+                }
             }
         }
 
@@ -227,6 +248,66 @@ namespace Comparatist.View.WordGrid
                 DeleteWordRequest?.Invoke(word);
         }
 
+
+        private void AddWordSet()
+        {
+            if (Control.SelectedCells.Count == 0)
+                return;
+
+            var row = Control.Rows[Control.SelectedCells[0].RowIndex];
+
+            if (row.Cells[0].Tag is not Stem stem)
+                return;
+
+            var languages = new List<Language>();
+            var existingWords = new Dictionary<Guid, string>();
+            CollectAddWordSetFormData(row, languages, existingWords);
+
+            var dialog = new AddWordSetForm(languages, existingWords);
+
+            if (dialog.ShowDialog() == DialogResult.OK && dialog.Values != null)
+                AddWordsFromSet(stem, dialog.Values);
+        }
+
+        private void AddWordsFromSet(Stem stem, Dictionary<Guid, string> result)
+        {
+            foreach (var pair in result)
+            {
+                var word = new Word
+                {
+                    Value = pair.Value,
+                    Translation = stem.Translation,
+                    IsNative = stem.IsNative,
+                    IsChecked = false,
+                    StemId = stem.Id,
+                    LanguageId = pair.Key,
+                };
+
+                AddWordRequest?.Invoke(word);
+            }
+        }
+
+        private void CollectAddWordSetFormData(DataGridViewRow row, List<Language> languages, Dictionary<Guid, string> existingWords)
+        {
+            for (int i = 1; i < Control.Columns.Count; i++)
+            {
+                if (Control.Columns[i].Tag is not Language language)
+                    continue;
+
+                languages.Add(language);
+                var cell = row.Cells[i];
+
+                if (cell.Tag is Word word)
+                    existingWords.Add(language.Id, word.Value);
+            }
+        }
+
+        private void ExpandOrCollapse()
+        {
+            if (TryGetSelected(out Root root))
+                ExpandOrCollapseRequest?.Invoke(root);
+        }
+
         private bool TryGetSelected<T>([NotNullWhen(true)] out T result) where T : class, IRecord
         {
             result = default!;
@@ -279,7 +360,9 @@ namespace Comparatist.View.WordGrid
             SelectCellUnderCursor(e);
 
             if (TryGetSelected(out Root root))
-                ExpandOrCollapseRequested?.Invoke(root);
+                ExpandOrCollapseRequest?.Invoke(root);
+            else if (Control.Rows[Control.SelectedCells[0].RowIndex].Cells[0].Tag is Stem)
+                AddOrEditWord();
         }
 
         private void SelectCellUnderCursor(MouseEventArgs e)

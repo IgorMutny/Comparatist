@@ -4,20 +4,21 @@ namespace Comparatist
 {
     partial class MainForm
     {
-        private System.ComponentModel.IContainer components = null;
+        private System.ComponentModel.IContainer _components = null;
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
+            if (disposing && (_components != null))
             {
-                components.Dispose();
+                _components.Dispose();
             }
+
             base.Dispose(disposing);
         }
 
         private void InitializeComponent()
         {
-            components = new System.ComponentModel.Container();
+            _components = new System.ComponentModel.Container();
             _mainMenuStrip = new MenuStrip();
             _languageGridView = new DataGridView();
             _categoryTreeView = new TreeView();

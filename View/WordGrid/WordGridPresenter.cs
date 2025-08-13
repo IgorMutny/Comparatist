@@ -39,7 +39,7 @@ namespace Comparatist.View.WordGrid
             InputHandler.AddWordRequest += OnAddWordRequest;
             InputHandler.UpdateWordRequest += OnUpdateWordRequest;
             InputHandler.DeleteWordRequest += OnDeleteWordRequest;
-            InputHandler.ExpandOrCollapseRequested += OnExpandOrCollapseRequested;
+            InputHandler.ExpandOrCollapseRequest += OnExpandOrCollapseRequested;
         }
 
         protected override void Unsubscribe()
@@ -53,7 +53,7 @@ namespace Comparatist.View.WordGrid
             InputHandler.AddWordRequest -= OnAddWordRequest;
             InputHandler.UpdateWordRequest -= OnUpdateWordRequest;
             InputHandler.DeleteWordRequest -= OnDeleteWordRequest;
-            InputHandler.ExpandOrCollapseRequested -= OnExpandOrCollapseRequested;
+            InputHandler.ExpandOrCollapseRequest -= OnExpandOrCollapseRequested;
         }
 
         protected override void OnShow()
@@ -158,6 +158,7 @@ namespace Comparatist.View.WordGrid
 
         private void DrawDiff()
         {
+            Renderer.OnBeginUpdate();
             var roots = Execute(Service.GetAllRoots);
             var state = SortingType switch
             {
@@ -177,6 +178,8 @@ namespace Comparatist.View.WordGrid
             foreach (var category in state)
                 if (_binders.TryGetValue(category.Record.Id, out var binder))
                     binder.Update(category);
+
+            Renderer.OnEndUpdate();
         }
 
         private void AddBinder(CachedCategory category)

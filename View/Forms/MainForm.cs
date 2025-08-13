@@ -61,8 +61,8 @@ namespace Comparatist
         private void OnClosing(object? sender, FormClosingEventArgs e)
         {
             var result = MessageBox.Show(
-                text: null,
-                caption: "Save changes before closing?",
+                text: "Save changes before closing?",
+                caption: "Save changes",
                 buttons: MessageBoxButtons.YesNoCancel);
 
             switch (result)

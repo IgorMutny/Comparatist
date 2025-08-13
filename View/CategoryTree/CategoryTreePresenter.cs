@@ -95,6 +95,7 @@ namespace Comparatist.View.CategoryTree
 
         private void DrawDiff()
         {
+            Renderer.OnBeginUpdate();
             var state = Execute(Service.GetBaseCategories);
 
             if (state == null)
@@ -109,6 +110,7 @@ namespace Comparatist.View.CategoryTree
             UpdateBinderSet(currentIds, previousIds);
             UpdateBindersContent(currentIds, previousIds);
             _previousState = state.Select(e => (CachedCategory)e.Clone()).ToList();
+            Renderer.OnEndUpdate();
         }
 
         private void UpdateBinderSet(List<Guid> currentIds, List<Guid> previousIds)

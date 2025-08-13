@@ -4,6 +4,8 @@
     {
         void Show();
         void Hide();
+        void OnBeginUpdate();
+        void OnEndUpdate();
         void ShowError(string? message);
     }
 }

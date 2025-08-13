@@ -98,6 +98,7 @@ namespace Comparatist.View.LanguageGrid
 
         private void DrawDiff()
         {
+            Renderer.OnBeginUpdate();
             var state = Execute(Service.GetAllLanguages);
 
             if (state == null)
@@ -112,6 +113,7 @@ namespace Comparatist.View.LanguageGrid
             UpdateBinderSet(currentIds, previousIds);
             UpdateBindersContent(currentIds, previousIds);
             _previousState = state.Select(e => (CachedLanguage)e.Clone()).ToList();
+            Renderer.OnEndUpdate();
         }
 
         private void UpdateBindersContent(List<Guid> currentIds, List<Guid> previousIds)
