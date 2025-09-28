@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using Comparatist.View.Fonts;
+using System.ComponentModel;
 
 namespace Comparatist.View.Forms
 {
@@ -21,8 +22,9 @@ namespace Comparatist.View.Forms
             _grid.Location = new Point(0, 0);
             _grid.RowHeadersVisible = false;
             _grid.Size = new Size(400, 300);
+			_grid.Font = FontManager.Instance.Font;
 
-            _grid.Columns.AddRange(new DataGridViewColumn[]
+			_grid.Columns.AddRange(new DataGridViewColumn[]
             {
                 new DataGridViewTextBoxColumn()
                 {

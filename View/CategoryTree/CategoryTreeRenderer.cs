@@ -1,4 +1,5 @@
 ﻿using Comparatist.View.Common;
+using Comparatist.View.Fonts;
 
 namespace Comparatist.View.CategoryTree
 {
@@ -12,7 +13,9 @@ namespace Comparatist.View.CategoryTree
         {
             _categories.Clear();
             Control.Nodes.Clear();
-        }
+
+			Control.Font = FontManager.Instance.Font;
+		}
 
         public void Add(CategoryNodeBinder binder, CategoryNodeBinder? parent)
         {

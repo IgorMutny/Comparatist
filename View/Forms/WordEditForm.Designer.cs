@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Comparatist.View.Fonts;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -88,40 +89,45 @@ namespace Comparatist
             _valueTextBox.Name = "_valueTextBox";
             _valueTextBox.Size = new Size(180, 23);
             _valueTextBox.TabIndex = 1;
-            // 
-            // _translationTextBox
-            // 
-            _translationTextBox.Location = new Point(100, 42);
+			_valueTextBox.Font = FontManager.Instance.Font;
+			// 
+			// _translationTextBox
+			// 
+			_translationTextBox.Location = new Point(100, 42);
             _translationTextBox.Name = "_translationTextBox";
             _translationTextBox.Size = new Size(180, 23);
             _translationTextBox.TabIndex = 3;
-            // 
-            // _commentTextBox
-            // 
-            _commentTextBox.Location = new Point(100, 72);
+            _translationTextBox.Font = FontManager.Instance.Font;
+			// 
+			// _commentTextBox
+			// 
+			_commentTextBox.Location = new Point(100, 72);
             _commentTextBox.Name = "_commentTextBox";
             _commentTextBox.Size = new Size(180, 23);
             _commentTextBox.TabIndex = 5;
-            // 
-            // _stemTextBox
-            // 
-            _stemTextBox.Location = new Point(100, 102);
+			_commentTextBox.Font = FontManager.Instance.Font;
+			// 
+			// _stemTextBox
+			// 
+			_stemTextBox.Location = new Point(100, 102);
             _stemTextBox.Name = "_stemTextBox";
             _stemTextBox.ReadOnly = true;
             _stemTextBox.Size = new Size(180, 23);
             _stemTextBox.TabIndex = 7;
-            // 
-            // _languageTextBox
-            // 
-            _languageTextBox.Location = new Point(100, 133);
+			_stemTextBox.Font = FontManager.Instance.Font;
+			// 
+			// _languageTextBox
+			// 
+			_languageTextBox.Location = new Point(100, 133);
             _languageTextBox.Name = "_languageTextBox";
             _languageTextBox.ReadOnly = true;
             _languageTextBox.Size = new Size(180, 23);
             _languageTextBox.TabIndex = 8;
-            // 
-            // _checkedBox
-            // 
-            _checkedBox.Location = new Point(100, 182);
+			_languageTextBox.Font = FontManager.Instance.Font;
+			// 
+			// _checkedBox
+			// 
+			_checkedBox.Location = new Point(100, 182);
             _checkedBox.Name = "_checkedBox";
             _checkedBox.Size = new Size(100, 20);
             _checkedBox.TabIndex = 10;

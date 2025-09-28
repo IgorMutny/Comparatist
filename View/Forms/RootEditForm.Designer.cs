@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using Comparatist.View.Fonts;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace Comparatist
@@ -75,40 +76,44 @@ namespace Comparatist
             _valueTextBox.Name = "_valueTextBox";
             _valueTextBox.Size = new Size(180, 23);
             _valueTextBox.TabIndex = 1;
-            // 
-            // _translationTextBox
-            // 
-            _translationTextBox.Location = new Point(100, 42);
+            _valueTextBox.Font = FontManager.Instance.Font;
+			// 
+			// _translationTextBox
+			// 
+			_translationTextBox.Location = new Point(100, 42);
             _translationTextBox.Name = "_translationTextBox";
             _translationTextBox.Size = new Size(180, 23);
             _translationTextBox.TabIndex = 3;
-            // 
-            // _commentTextBox
-            // 
-            _commentTextBox.Location = new Point(100, 72);
+			_translationTextBox.Font = FontManager.Instance.Font;
+			// 
+			// _commentTextBox
+			// 
+			_commentTextBox.Location = new Point(100, 72);
             _commentTextBox.Name = "_commentTextBox";
             _commentTextBox.Size = new Size(180, 23);
             _commentTextBox.TabIndex = 5;
-            // 
-            // _rootsTextBox
-            // 
-            _groupsTextBox.Location = new Point(100, 102);
+			_commentTextBox.Font = FontManager.Instance.Font;
+			// 
+			// _groupsTextBox
+			// 
+			_groupsTextBox.Location = new Point(100, 102);
             _groupsTextBox.Name = "_groupsTextBox";
             _groupsTextBox.Size = new Size(150, 23);
             _groupsTextBox.TabIndex = 7;
             _groupsTextBox.ReadOnly = true;
-            // 
-            // _rootSelectionButton
-            // 
-            _groupSelectionButton.Location = new Point(255, 102);
+			_groupsTextBox.Font = FontManager.Instance.Font;
+			// 
+			// _rootSelectionButton
+			// 
+			_groupSelectionButton.Location = new Point(255, 102);
             _groupSelectionButton.Name = "_groupSelectionButton";
             _groupSelectionButton.Size = new Size(25, 25);
             _groupSelectionButton.TabIndex = 11;
             _groupSelectionButton.Text = "...";
-            // 
-            // _checkedBox
-            // 
-            _checkedBox.Location = new Point(100, 162);
+			// 
+			// _checkedBox
+			// 
+			_checkedBox.Location = new Point(100, 162);
             _checkedBox.Name = "_checkedBox";
             _checkedBox.Size = new Size(100, 20);
             _checkedBox.TabIndex = 10;

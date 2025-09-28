@@ -1,4 +1,5 @@
 ﻿using Comparatist.Data.Entities;
+using Comparatist.View.Fonts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,16 +16,17 @@ namespace Comparatist
 
         private void InitializeComponent()
         {
-            _checkedListBox = new CheckedListBox();
+			_checkedListBox = new CheckedListBox();
             _okButton = new Button();
             _cancelButton = new Button();
 
             // CheckedListBox
             _checkedListBox.Dock = DockStyle.Top;
             _checkedListBox.Height = 300;
+			_checkedListBox.Font = FontManager.Instance.Font;
 
-            // OK Button
-            _okButton.Text = "OK";
+			// OK Button
+			_okButton.Text = "OK";
             _okButton.DialogResult = DialogResult.OK;
             _okButton.Dock = DockStyle.Bottom;
 

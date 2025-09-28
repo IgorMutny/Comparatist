@@ -11,7 +11,6 @@ namespace Comparatist.View.WordGrid
 	{
 		private SortingTypes _sortingType = SortingTypes.Alphabet;
 		private Dictionary<Guid, CategoryBinder> _binders = new();
-		private bool _isShown;
 
 		public WordGridPresenter(
 			IProjectService service,
@@ -21,8 +20,12 @@ namespace Comparatist.View.WordGrid
 		{ }
 
 		public SortingTypes SortingType {
-			get { return _sortingType; }
-			set { _sortingType = value; if(_isShown) { RedrawAll(); } }
+			get => _sortingType;
+			set {
+				_sortingType = value;
+				if(IsActive)
+					RedrawAll();
+			}
 		}
 
 		protected override void Subscribe()
@@ -55,14 +58,14 @@ namespace Comparatist.View.WordGrid
 
 		protected override void OnShow()
 		{
+			IsActive = true;
 			RedrawAll();
-			_isShown = true;
 		}
 
 		protected override void OnHide()
 		{
+			IsActive = false;
 			Reset();
-			_isShown = false;
 		}
 
 		private void Reset()
@@ -125,8 +128,11 @@ namespace Comparatist.View.WordGrid
 			DrawDiff();
 		}
 
-		private void RedrawAll()
+		public override void RedrawAll()
 		{
+			if(!IsActive)
+				return;
+
 			Reset();
 
 			var languages = Execute(Service.GetAllLanguages)?.ToList();

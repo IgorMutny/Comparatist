@@ -37,11 +37,13 @@ namespace Comparatist.View.LanguageGrid
 
         protected override void OnShow()
         {
+            IsActive = true;
             RedrawAll();
         }
 
         protected override void OnHide()
         {
+            IsActive = false;
             Reset();
         }
 
@@ -77,8 +79,11 @@ namespace Comparatist.View.LanguageGrid
             DrawDiff();
         }
 
-        private void RedrawAll()
+        public override void RedrawAll()
         {
+            if(!IsActive)
+                return;
+
             Reset();
 
             var languages = Execute(Service.GetAllLanguages);

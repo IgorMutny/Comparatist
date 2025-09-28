@@ -2,6 +2,7 @@
 using Comparatist.Data.Persistence;
 using Comparatist.View.Autoreplace;
 using Comparatist.View.Common;
+using Comparatist.View.Fonts;
 using Comparatist.View.Stats;
 using Comparatist.View.WordGrid;
 using System.Text;
@@ -92,7 +93,9 @@ namespace Comparatist.View.MainMenu
 			_viewMenu.DropDownItems.Add(new ToolStripSeparator());
 
 			var settingsItem = AddMenuItem("Settings", null, _menu);
+
             var stats = AddMenuItem("Statistics", ShowStats, settingsItem);
+			var fonts = AddMenuItem("Change font", ChangeFont, settingsItem);
 			var autoreplaceItem = AddMenuItem("Autoreplace settings", ShowAutoReplace, settingsItem);
         }
 
@@ -207,6 +210,24 @@ namespace Comparatist.View.MainMenu
 
 			StatsManager.ShowForm(metadataQuery.Value, statsQuery.Value);
         }
+
+        private void ChangeFont()
+        {
+			using(FontDialog fontDialog = new FontDialog())
+            {
+                fontDialog.ShowColor = false;
+                fontDialog.ShowEffects = false;
+
+                if(fontDialog.ShowDialog() == DialogResult.OK)
+                {
+                    FontManager.Instance.Font = fontDialog.Font;
+
+                    foreach(var presenter in _presenters.Values)
+                        if(presenter.IsActive)
+                            presenter.RedrawAll();
+                }
+            }
+		}
 
         private void Exit()
         {

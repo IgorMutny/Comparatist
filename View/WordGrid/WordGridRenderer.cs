@@ -1,5 +1,6 @@
 ﻿using Comparatist.Application.Cache;
 using Comparatist.View.Common;
+using Comparatist.View.Fonts;
 using Comparatist.View.WordGrid.BinderRenderers;
 using Comparatist.View.WordGrid.Binders;
 
@@ -44,7 +45,9 @@ namespace Comparatist.View.WordGrid
             _stems.Clear();
             _words.Clear();
             _columns.Clear();
-        }
+
+			Control.Font = FontManager.Instance.Font;
+		}
 
         public void CreateColumns(List<CachedLanguage> languages)
         {

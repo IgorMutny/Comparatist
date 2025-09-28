@@ -18,7 +18,9 @@ namespace Comparatist.View.Common
             Subscribe();
         }
 
-        public void Dispose()
+		public bool IsActive { get; protected set; }
+
+		public void Dispose()
         {
             Unsubscribe();
             InputHandler?.Dispose();
@@ -36,6 +38,8 @@ namespace Comparatist.View.Common
             Renderer.Hide();
             OnHide();
         }
+
+        public abstract void RedrawAll();
 
         protected abstract void Subscribe();
         protected abstract void Unsubscribe();

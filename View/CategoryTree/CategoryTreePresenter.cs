@@ -34,12 +34,14 @@ namespace Comparatist.View.CategoryTree
 
         protected override void OnShow()
         {
+            IsActive = true;
             RedrawAll();
         }
 
         protected override void OnHide()
         {
-            Reset();
+			IsActive = false;
+			Reset();
         }
 
         private void OnAddRequest(Category category)
@@ -74,8 +76,11 @@ namespace Comparatist.View.CategoryTree
             Renderer.Reset();
         }
 
-        private void RedrawAll()
+        public override void RedrawAll()
         {
+            if (!IsActive)
+                return;
+
             Reset();
 
             var baseCategories = Execute(Service.GetBaseCategories);

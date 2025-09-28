@@ -1,5 +1,6 @@
 ﻿using Comparatist.Application.Cache;
 using Comparatist.View.Common;
+using Comparatist.View.Fonts;
 
 namespace Comparatist.View.LanguageGrid
 {
@@ -62,6 +63,8 @@ namespace Comparatist.View.LanguageGrid
                 HeaderText = "Language",
                 Width = 200
             });
+
+            Control.Font = FontManager.Instance.Font;
         }
 
     }
