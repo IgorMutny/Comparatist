@@ -23,7 +23,7 @@ namespace Comparatist.View.WordGrid.BinderRenderers
 
             var cell = row.Cells[0];
             cell.Tag = binder.Category;
-            cell.Value = $"[b]{binder.Category.Value.ToUpper()}[/b]";
+            cell.Value = $"[b]{binder.Category.Value.ToUpper()}";
 
             _categories.Add(binder, row);
         }

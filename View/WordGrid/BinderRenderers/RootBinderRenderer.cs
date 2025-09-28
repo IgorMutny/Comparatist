@@ -79,7 +79,8 @@ namespace Comparatist.View.WordGrid.BinderRenderers
             if (!_roots.TryGetValue(binder, out var row))
                 return;
 
-            var cell = row.Cells[0];
+			row.DefaultCellStyle.BackColor = Color.LightYellow;
+			var cell = row.Cells[0];
             cell.Tag = binder.Root;
             CellFormatter.FormatCell(cell, binder.CurrentState, binder.ExpandedMark);
         }

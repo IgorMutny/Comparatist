@@ -3,28 +3,41 @@ using Comparatist.Application.Cache;
 
 namespace Comparatist.View.WordGrid
 {
-    internal static class CellFormatter
-    {
-        private static readonly Color CheckedFrontColor = Color.Black;
-        private static readonly Color UncheckedFrontColor = Color.DarkGray;
-        public static readonly Color EmptyWordCellColor = Color.LightGray;
-        public static readonly Color FilledWordCellColor = Color.White;
+	internal static class CellFormatter
+	{
+		private static readonly Color CheckedFrontColor = Color.Black;
+		private static readonly Color UncheckedFrontColor = Color.DarkGray;
+		public static readonly Color EmptyWordCellColor = Color.LightGray;
+		public static readonly Color FilledWordCellColor = Color.White;
 
-        public static void ColorizeWordCell(DataGridViewCell cell)
-        {
-            if (cell.ColumnIndex <= 0 || cell.OwningRow?.Cells[0].Tag is not Stem)
-                throw new ArgumentException("Not a word cell");
+		public static void ColorizeWordCell(DataGridViewCell cell)
+		{
+			if(cell.ColumnIndex <= 0 || cell.OwningRow?.Cells[0].Tag is not Stem)
+				throw new ArgumentException("Not a word cell");
 
-            cell.Style.BackColor = cell.Tag != null ? FilledWordCellColor : EmptyWordCellColor;
-        }
+			cell.Style.BackColor = cell.Tag != null ? FilledWordCellColor : EmptyWordCellColor;
+		}
 
-        public static void FormatCell(
-            DataGridViewCell cell,
-            IDisplayableCachedRecord data,
-            string prefix = "")
-        {
-            cell.Style.ForeColor = data.IsChecked ? CheckedFrontColor : UncheckedFrontColor;
-            cell.Value = $"{prefix}[b]{data.Value}[/b] {data.Translation}";
-        }
-    }
+		public static void FormatCell(
+			DataGridViewCell cell,
+			IDisplayableCachedRecord data,
+			string prefix = "")
+		{
+			cell.Style.ForeColor = data.IsChecked 
+				? CheckedFrontColor 
+				: UncheckedFrontColor;
+
+			var value = $"[b]{prefix}{data.Value}";
+
+			var translation = !string.IsNullOrWhiteSpace(data.Translation)
+				? $"\n{data.Translation}"
+				: string.Empty;
+
+			var comment = !string.IsNullOrWhiteSpace(data.Comment)
+				? $"\n[i]{data.Comment}"
+				: string.Empty;
+
+			cell.Value = value + translation + comment;
+		}
+	}
 }
