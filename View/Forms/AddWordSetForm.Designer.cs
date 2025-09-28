@@ -58,7 +58,7 @@ namespace Comparatist.View.Forms
             MaximizeBox = false;
             MinimizeBox = false;
             StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            Text = "Edit AutoReplace List";
+            Text = $"Add word set for stem {_stemValue}";
 
             ((ISupportInitialize)(_grid)).EndInit();
             this.ResumeLayout(false);

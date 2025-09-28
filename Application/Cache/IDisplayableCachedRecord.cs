@@ -4,7 +4,7 @@
     {
         string Value { get; }
         string Translation { get; }
-        bool IsNative { get; }
-        bool IsChecked { get; }
+		string Comment { get; }
+		bool IsChecked { get; }
     }
 }

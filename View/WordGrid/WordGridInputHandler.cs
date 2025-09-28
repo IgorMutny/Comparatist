@@ -87,7 +87,6 @@ namespace Comparatist.View.WordGrid
                     {
                         Value = newRoot.Value,
                         Translation = newRoot.Translation,
-                        IsNative = newRoot.IsNative,
                         RootIds = { newRoot.Id }
                     };
 
@@ -107,6 +106,7 @@ namespace Comparatist.View.WordGrid
             {
                 var updatedRoot = form.GetResult();
                 UpdateRootRequest?.Invoke(updatedRoot);
+                ExpandOrCollapseRequest?.Invoke(updatedRoot);
             }
         }
 
@@ -128,26 +128,17 @@ namespace Comparatist.View.WordGrid
         private void AddStem()
         {
             var selectedRootIds = new List<Guid>();
-            bool isNative;
 
             if (TryGetSelected(out Root root))
-            {
                 selectedRootIds.Add(root.Id);
-                isNative = root.IsNative;
-            }
             else if (TryGetSelected(out Stem stem))
-            {
                 selectedRootIds.AddRange(stem.RootIds);
-                isNative = stem.IsNative;
-            }
             else
-            {
                 return;
-            }
 
             var form = new StemEditForm(
                 "Add stem",
-                new Stem { IsNative = isNative },
+                new Stem(),
                 AllRoots,
                 selectedRootIds);
 
@@ -205,7 +196,7 @@ namespace Comparatist.View.WordGrid
                 return;
 
             var word = new Word();
-            word.IsNative = stem.IsNative;
+
             var form = new WordEditForm(word, stem, language);
 
             if (form.ShowDialog() == DialogResult.OK)
@@ -263,7 +254,7 @@ namespace Comparatist.View.WordGrid
             var existingWords = new Dictionary<Guid, string>();
             CollectAddWordSetFormData(row, languages, existingWords);
 
-            var dialog = new AddWordSetForm(languages, existingWords);
+            var dialog = new AddWordSetForm(stem.Value, languages, existingWords);
 
             if (dialog.ShowDialog() == DialogResult.OK && dialog.Values != null)
                 AddWordsFromSet(stem, dialog.Values);
@@ -277,7 +268,6 @@ namespace Comparatist.View.WordGrid
                 {
                     Value = pair.Value,
                     Translation = stem.Translation,
-                    IsNative = stem.IsNative,
                     IsChecked = false,
                     StemId = stem.Id,
                     LanguageId = pair.Key,
@@ -361,7 +351,7 @@ namespace Comparatist.View.WordGrid
 
             if (TryGetSelected(out Root root))
                 ExpandOrCollapseRequest?.Invoke(root);
-            else if (Control.Rows[Control.SelectedCells[0].RowIndex].Cells[0].Tag is Stem)
+            else if (Control.SelectedCells.Count > 0 && Control.Rows[Control.SelectedCells[0].RowIndex].Cells[0].Tag is Stem)
                 AddOrEditWord();
         }
 

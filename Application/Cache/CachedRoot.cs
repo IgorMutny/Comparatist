@@ -13,8 +13,8 @@ namespace Comparatist.Application.Cache
 
         public string Value => Record.Value;
         public string Translation => Record.Translation;
-        public bool IsNative => Record.IsNative;
-        public bool IsChecked => Record.IsChecked;
+		public string Comment => Record.Comment;
+		public bool IsChecked => Record.IsChecked;
 
         public object Clone()
         {

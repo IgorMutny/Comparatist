@@ -23,10 +23,8 @@ namespace Comparatist.View.WordGrid
             IDisplayableCachedRecord data,
             string prefix = "")
         {
-            var open = data.IsNative ? string.Empty : "《";
-            var close = data.IsNative ? string.Empty : "》";
             cell.Style.ForeColor = data.IsChecked ? CheckedFrontColor : UncheckedFrontColor;
-            cell.Value = $"{prefix}{open}[b]{data.Value}[/b] {data.Translation} {close}";
+            cell.Value = $"{prefix}[b]{data.Value}[/b] {data.Translation}";
         }
     }
 }

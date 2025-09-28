@@ -12,7 +12,6 @@ namespace Comparatist.Data.Entities
         [Key(3)] public string Comment { get; set; } = string.Empty;
         [Key(4)] public Guid LanguageId { get; set; }
         [Key(5)] public Guid StemId { get; set; }
-        [Key(6)] public bool IsNative { get; set; } = false;
         [Key(7)] public bool IsChecked { get; set; } = false;
 
         public object Clone()
@@ -25,7 +24,6 @@ namespace Comparatist.Data.Entities
                 Comment = Comment,
                 LanguageId = LanguageId,
                 StemId = StemId,
-                IsNative = IsNative,
                 IsChecked = IsChecked
             };
         }
@@ -39,7 +37,6 @@ namespace Comparatist.Data.Entities
                    && Value == other.Value
                    && Translation == other.Translation
                    && Comment == other.Comment
-                   && IsNative == other.IsNative
                    && IsChecked == other.IsChecked
                    && StemId == other.StemId
                    && LanguageId == other.LanguageId;

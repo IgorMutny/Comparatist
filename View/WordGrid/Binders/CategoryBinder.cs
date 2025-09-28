@@ -34,6 +34,18 @@ namespace Comparatist.View.WordGrid.Binders
                 rootBinder.ExpandOrCollapse();
         }
 
+        public void ExpandAll()
+        {
+            foreach(var child in Children.Values)
+                child.Expand();
+        }
+
+        public void CollapseAll()
+        {
+			foreach(var child in Children.Values)
+				child.Collapse();
+		}
+
         protected override RootBinder CreateChild(ICachedRecord cached)
         {
             if (cached is not CachedRoot cachedRoot)

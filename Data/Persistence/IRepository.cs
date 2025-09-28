@@ -20,6 +20,7 @@ namespace Comparatist.Data.Persistence
         void Delete(Guid id);
 
         bool TryGet(Guid id, out T record);
+        int GetCount();
         IEnumerable<T> GetAll();
     }
 }

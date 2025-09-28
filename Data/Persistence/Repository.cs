@@ -55,6 +55,8 @@ namespace Comparatist.Data.Persistence
             return false;
         }
 
+        public int GetCount() => _storage.Count;
+
         public IEnumerable<T> GetAll()
         {
             return _storage.Values.Select(record => (T)record.Clone());

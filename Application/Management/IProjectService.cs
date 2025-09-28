@@ -20,5 +20,6 @@ namespace Comparatist.Application.Management
         Result<IEnumerable<CachedRoot>> GetUncategorizedRoots();
         Result<IEnumerable<CachedCategory>> GetWordTableByAlphabet();
         Result<IEnumerable<CachedCategory>> GetWordTableByCategories();
+        Result<Dictionary<Type, int>> GetProjectStats();
     }
 }

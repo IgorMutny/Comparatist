@@ -20,7 +20,6 @@ namespace Comparatist
             _valueTextBox.Text = root.Value;
             _translationTextBox.Text = root.Translation;
             _commentTextBox.Text = root.Comment;
-            _nativeBox.Checked = root.IsNative;
             _checkedBox.Checked = root.IsChecked;
             _valueTextBox.EnableAutoReplace();
             _translationTextBox.EnableAutoReplace();
@@ -43,7 +42,6 @@ namespace Comparatist
                 Value = _valueTextBox.Text,
                 Translation = _translationTextBox.Text,
                 Comment = _commentTextBox.Text,
-                IsNative = _nativeBox.Checked,
                 IsChecked = _checkedBox.Checked,
                 CategoryIds = _selectedCategoryIds
             };

@@ -6,162 +6,187 @@ using Comparatist.Application.CascadeDelete;
 
 namespace Comparatist.Application.Management
 {
-    public class ProjectService : IProjectService
-    {
-        private IDatabase _database;
-        private ProjectCache _projectCache;
-        private CascadeDeleteService _cascadeDelete;
-        private LanguageCacheUpdater _languageCacheUpdater;
-        private CategoryCacheUpdater _categoryCacheUpdater;
-        private RootCacheUpdater _rootCacheUpdater;
-        private StemCacheUpdater _stemCacheUpdater;
-        private WordCacheUpdater _wordCacheUpdater;
-        private CacheQueryService _cacheQueryService;
+	public class ProjectService : IProjectService
+	{
+		private IDatabase _database;
+		private ProjectCache _projectCache;
+		private CascadeDeleteService _cascadeDelete;
+		private LanguageCacheUpdater _languageCacheUpdater;
+		private CategoryCacheUpdater _categoryCacheUpdater;
+		private RootCacheUpdater _rootCacheUpdater;
+		private StemCacheUpdater _stemCacheUpdater;
+		private WordCacheUpdater _wordCacheUpdater;
+		private CacheQueryService _cacheQueryService;
 
-        public ProjectService()
-        {
-            _database = new Database();
-            _projectCache = new ProjectCache();
+		public ProjectService()
+		{
+			_database = new Database();
+			_projectCache = new ProjectCache();
 
-            _cascadeDelete = new CascadeDeleteService(_database);
-            _languageCacheUpdater = new LanguageCacheUpdater(_database, _projectCache);
-            _categoryCacheUpdater = new CategoryCacheUpdater(_database, _projectCache);
-            _rootCacheUpdater = new RootCacheUpdater(_database, _projectCache);
-            _stemCacheUpdater = new StemCacheUpdater(_database, _projectCache);
-            _wordCacheUpdater = new WordCacheUpdater(_database, _projectCache);
-            _languageCacheUpdater.Initialize();
-            _categoryCacheUpdater.Initialize();
-            _rootCacheUpdater.Initialize();
-            _stemCacheUpdater.Initialize();
-            _wordCacheUpdater.Initialize();
-            _cacheQueryService = new CacheQueryService(_projectCache);
-        }
+			_cascadeDelete = new CascadeDeleteService(_database);
+			_languageCacheUpdater = new LanguageCacheUpdater(_database, _projectCache);
+			_categoryCacheUpdater = new CategoryCacheUpdater(_database, _projectCache);
+			_rootCacheUpdater = new RootCacheUpdater(_database, _projectCache);
+			_stemCacheUpdater = new StemCacheUpdater(_database, _projectCache);
+			_wordCacheUpdater = new WordCacheUpdater(_database, _projectCache);
+			_languageCacheUpdater.Initialize();
+			_categoryCacheUpdater.Initialize();
+			_rootCacheUpdater.Initialize();
+			_stemCacheUpdater.Initialize();
+			_wordCacheUpdater.Initialize();
+			_cacheQueryService = new CacheQueryService(_projectCache);
+		}
 
-        public void Dispose()
-        {
-            _wordCacheUpdater.Dispose();
-            _stemCacheUpdater.Dispose();
-            _rootCacheUpdater.Dispose();
-            _categoryCacheUpdater.Dispose();
-            _languageCacheUpdater.Dispose();
-        }
+		public void Dispose()
+		{
+			_wordCacheUpdater.Dispose();
+			_stemCacheUpdater.Dispose();
+			_rootCacheUpdater.Dispose();
+			_categoryCacheUpdater.Dispose();
+			_languageCacheUpdater.Dispose();
+		}
 
-        public Result LoadDatabase(string path)
-        {
-            return Execute(() =>
-            {
-                _database.Load(path);
-                _projectCache.Clear();
-                RebuildProjectCache();
-            });
-        }
+		public Result LoadDatabase(string path)
+		{
+			return Execute(() =>
+			{
+				_database.Load(path);
+				_projectCache.Clear();
+				RebuildProjectCache();
+			});
+		}
 
-        public Result SaveDatabase(string path)
-        {
-            return Execute(() => _database.Save(path));
-        }
+		public Result SaveDatabase(string path)
+		{
+			return Execute(() => _database.Save(path));
+		}
 
-        public Result<ProjectMetadata> GetProjectMetadata()
-        {
-            return Execute(_database.GetMetadata);
-        }
+		public Result<ProjectMetadata> GetProjectMetadata()
+		{
+			return Execute(_database.GetMetadata);
+		}
 
-        public Result<IEnumerable<CachedLanguage>> GetAllLanguages()
-        {
-            return Execute(_cacheQueryService.GetAllLanguages);
-        }
+		public Result<IEnumerable<CachedLanguage>> GetAllLanguages()
+		{
+			return Execute(_cacheQueryService.GetAllLanguages);
+		}
 
-        public Result<IEnumerable<CachedCategory>> GetAllCategories()
-        {
-            return Execute(_cacheQueryService.GetAllCategories);
-        }
+		public Result<IEnumerable<CachedCategory>> GetAllCategories()
+		{
+			return Execute(_cacheQueryService.GetAllCategories);
+		}
 
-        public Result<IEnumerable<CachedRoot>> GetAllRoots()
-        {
-            return Execute(_cacheQueryService.GetAllRoots);
-        }
+		public Result<IEnumerable<CachedRoot>> GetAllRoots()
+		{
+			return Execute(_cacheQueryService.GetAllRoots);
+		}
 
-        public Result<IEnumerable<CachedCategory>> GetBaseCategories()
-        {
-            return Execute(_cacheQueryService.GetBaseCategories);
-        }
+		public Result<IEnumerable<CachedCategory>> GetBaseCategories()
+		{
+			return Execute(_cacheQueryService.GetBaseCategories);
+		}
 
-        public Result<IEnumerable<CachedRoot>> GetUncategorizedRoots()
-        {
-            return Execute( _cacheQueryService.GetUncategorizedRoots);
-        }
+		public Result<IEnumerable<CachedRoot>> GetUncategorizedRoots()
+		{
+			return Execute(_cacheQueryService.GetUncategorizedRoots);
+		}
 
-        public Result<IEnumerable<CachedCategory>> GetWordTableByAlphabet()
-        {
-            return Execute(_cacheQueryService.GetWordTableByAlphabet);
-        }
+		public Result<IEnumerable<CachedCategory>> GetWordTableByAlphabet()
+		{
+			return Execute(_cacheQueryService.GetWordTableByAlphabet);
+		}
 
-        public Result<IEnumerable<CachedCategory>> GetWordTableByCategories()
-        {
-            return Execute(_cacheQueryService.GetWordTableByCategories);
-        }
+		public Result<IEnumerable<CachedCategory>> GetWordTableByCategories()
+		{
+			return Execute(_cacheQueryService.GetWordTableByCategories);
+		}
 
-        public Result Add<T>(T record) where T : class, IRecord
-        {
-            return Execute(() => _database.GetRepository<T>().Add(record));
-        }
+		public Result Add<T>(T record) where T : class, IRecord
+		{
+			return Execute(() => _database.GetRepository<T>().Add(record));
+		}
 
-        public Result Update<T>(T record) where T : class, IRecord
-        {
-            return Execute(() => _database.GetRepository<T>().Update(record));
-        }
+		public Result Update<T>(T record) where T : class, IRecord
+		{
+			return Execute(() => _database.GetRepository<T>().Update(record));
+		}
 
-        public Result UpdateMany<T>(IEnumerable<T> records) where T : class, IRecord
-        {
-            return Execute(() =>
-            {
-                var repo = _database.GetRepository<T>();
+		public Result UpdateMany<T>(IEnumerable<T> records) where T : class, IRecord
+		{
+			return Execute(() =>
+			{
+				var repo = _database.GetRepository<T>();
 
-                foreach (var record in records)
-                    repo.Update(record);
-            });
-        }
+				foreach(var record in records)
+					repo.Update(record);
+			});
+		}
 
-        public Result Delete<T>(T record) where T : class, IRecord
-        {
-            return Execute(() => _cascadeDelete.Delete(record));
-        }
+		public Result Delete<T>(T record) where T : class, IRecord
+		{
+			return Execute(() => _cascadeDelete.Delete(record));
+		}
 
-        private Result Execute(Action action)
-        {
-            try
-            {
-                action();
-                return Result.OK;
-            }
-            catch (Exception e)
-            {
-                return new Result(false, $"{e.Message}: {e.StackTrace}");
-            }
-        }
+		public Result<Dictionary<Type, int>> GetProjectStats()
+		{
+			return Execute(GetProjectStatsInternal);
+		}
 
-        private Result<T> Execute<T>(Func<T> func)
-        {
-            try
-            {
-                T value = func();
-                return new Result<T>(true, value, string.Empty);
-            }
-            catch (Exception e)
-            {
-                return new Result<T>(false, default, $"{e.Message}: {e.StackTrace}");
-            }
-        }
+		private Dictionary<Type, int> GetProjectStatsInternal()
+		{
+			var languages = _database?.GetRepository<Language>()?.GetCount() ?? 0;
+			var categories = _database?.GetRepository<Category>()?.GetCount() ?? 0;
+			var roots = _database?.GetRepository<Root>()?.GetCount() ?? 0;
+			var stems = _database?.GetRepository<Stem>()?.GetCount() ?? 0;
+			var words = _database?.GetRepository<Word>()?.GetCount() ?? 0;
 
-        private void RebuildProjectCache()
-        {
-            _languageCacheUpdater.RebuildCache();
-            _categoryCacheUpdater.RebuildCache();
-            _rootCacheUpdater.RebuildCache();
-            _stemCacheUpdater.RebuildCache();
-            _wordCacheUpdater.RebuildCache();
-        }
-    }
+			var result = new Dictionary<Type, int>
+			{
+				[typeof(Language)] = languages,
+				[typeof(Category)] = categories,
+				[typeof(Root)] = roots,
+				[typeof(Stem)] = stems,
+				[typeof(Word)] = words,
+			};
+
+			return result;
+		}
+
+		private Result Execute(Action action)
+		{
+			try
+			{
+				action();
+				return Result.OK;
+			}
+			catch(Exception e)
+			{
+				return new Result(false, $"{e.Message}: {e.StackTrace}");
+			}
+		}
+
+		private Result<T> Execute<T>(Func<T> func)
+		{
+			try
+			{
+				T value = func();
+				return new Result<T>(true, value, string.Empty);
+			}
+			catch(Exception e)
+			{
+				return new Result<T>(false, default, $"{e.Message}: {e.StackTrace}");
+			}
+		}
+
+		private void RebuildProjectCache()
+		{
+			_languageCacheUpdater.RebuildCache();
+			_categoryCacheUpdater.RebuildCache();
+			_rootCacheUpdater.RebuildCache();
+			_stemCacheUpdater.RebuildCache();
+			_wordCacheUpdater.RebuildCache();
+		}
+	}
 }
 
 

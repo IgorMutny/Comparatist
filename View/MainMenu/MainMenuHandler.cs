@@ -2,6 +2,7 @@
 using Comparatist.Data.Persistence;
 using Comparatist.View.Autoreplace;
 using Comparatist.View.Common;
+using Comparatist.View.Stats;
 using Comparatist.View.WordGrid;
 using System.Text;
 
@@ -18,7 +19,7 @@ namespace Comparatist.View.MainMenu
         private IProjectService _service;
         private string _filePath = string.Empty;
         private MenuStrip _menu;
-        private ToolStripMenuItem _contentMenu = new();
+        private ToolStripMenuItem _viewMenu = new();
 
         public event Action? ExitRequest;
 
@@ -38,7 +39,7 @@ namespace Comparatist.View.MainMenu
         public void RegisterPresenter(ContentTypes type, IPresenter presenter, string text)
         {
             _presenters[type] = presenter;
-            var adapterItem = AddMenuItem(text, () => ShowContent(type), _contentMenu);
+            var adapterItem = AddMenuItem(text, () => ShowContent(type), _viewMenu);
             _contentItems[type] = adapterItem;
         }
 
@@ -61,25 +62,38 @@ namespace Comparatist.View.MainMenu
             fileItem.DropDownItems.Add(new ToolStripSeparator());
             var exitItem = AddMenuItem("Exit", Exit, fileItem);
 
-            _contentMenu = AddMenuItem("Content", null, _menu);
-
-            var settingsItem = AddMenuItem("Settings", null, _menu);
+			_viewMenu = AddMenuItem("View", null, _menu);
 
             var alphabetItem = AddMenuItem(
                 "Roots by alphabet",
                 () => SwitchRootSortingType(SortingTypes.Alphabet),
-                settingsItem);
+				_viewMenu);
 
             var categories = AddMenuItem(
                 "Roots by categories",
                 () => SwitchRootSortingType(SortingTypes.Categories),
-                settingsItem);
+				_viewMenu);
 
             _sortingTypeItems.Add(SortingTypes.Alphabet, alphabetItem);
             _sortingTypeItems.Add(SortingTypes.Categories, categories);
 
-            settingsItem.DropDownItems.Add(new ToolStripSeparator());
-            var autoreplaceItem = AddMenuItem("Autoreplace settings", ShowAutoReplace, settingsItem);
+            _viewMenu.DropDownItems.Add(new ToolStripSeparator());
+
+            var expandAll = AddMenuItem(
+                "Expand all",
+                ExpandAll,
+                _viewMenu);
+
+			var collapseAll = AddMenuItem(
+	            "Collapse all",
+	            CollapseAll,
+	            _viewMenu);
+
+			_viewMenu.DropDownItems.Add(new ToolStripSeparator());
+
+			var settingsItem = AddMenuItem("Settings", null, _menu);
+            var stats = AddMenuItem("Statistics", ShowStats, settingsItem);
+			var autoreplaceItem = AddMenuItem("Autoreplace settings", ShowAutoReplace, settingsItem);
         }
 
         private ToolStripMenuItem AddMenuItem(string text, Action? action, ToolStripMenuItem parent)
@@ -117,25 +131,8 @@ namespace Comparatist.View.MainMenu
                     _service.LoadDatabase(_filePath);
                     SwitchRootSortingType(SortingTypes.Alphabet);
                     ShowContent(ContentTypes.Words);
-
-                    var metadataQuery = _service.GetProjectMetadata();
-
-                    if (metadataQuery.IsSuccess && metadataQuery.Value != null)
-                        ShowMetadata(metadataQuery.Value);
                 }
             }
-        }
-
-        private void ShowMetadata(ProjectMetadata data)
-        {
-            var builder = new StringBuilder()
-                .AppendLine("Database loaded")
-                .AppendLine($"Project id: {data.Id}")
-                .AppendLine($"Database version: {data.Version}")
-                .AppendLine($"Created: {data.Created}")
-                .AppendLine($"Modified: {data.Modified}");
-
-            MessageBox.Show( builder.ToString() );
         }
 
         private void SaveAs()
@@ -182,6 +179,33 @@ namespace Comparatist.View.MainMenu
 
             if (presenter != null)
                 presenter.SortingType = type;
+        }
+
+        private void ExpandAll()
+        {
+			var presenter = _presenters[ContentTypes.Words] as WordGridPresenter;
+            presenter?.ExpandAll();
+		}
+
+        private void CollapseAll()
+        {
+			var presenter = _presenters[ContentTypes.Words] as WordGridPresenter;
+			presenter?.CollapseAll();
+		}
+
+        private void ShowStats()
+        {
+			var metadataQuery = _service.GetProjectMetadata();
+
+            if(!metadataQuery.IsSuccess || metadataQuery.Value == null)
+                return;
+
+			var statsQuery = _service.GetProjectStats();
+
+			if(!statsQuery.IsSuccess || statsQuery.Value == null)
+				return;
+
+			StatsManager.ShowForm(metadataQuery.Value, statsQuery.Value);
         }
 
         private void Exit()

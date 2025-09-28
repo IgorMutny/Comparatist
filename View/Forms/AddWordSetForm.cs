@@ -6,11 +6,15 @@ namespace Comparatist.View.Forms
     internal partial class AddWordSetForm : Form
     {
         private Dictionary<Guid, DataGridViewCell> _resultingCells = new();
+        private string _stemValue;
 
         public AddWordSetForm(
+            string stemValue,
             IEnumerable<Language> languages,
             Dictionary<Guid, string> existingWords)
         {
+            _stemValue = stemValue;
+
             InitializeComponent();
 
             _grid.EnableAutoReplace();

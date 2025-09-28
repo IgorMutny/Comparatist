@@ -15,7 +15,6 @@ namespace Comparatist
         private TextBox _commentTextBox;
         private TextBox _groupsTextBox;
 
-        private CheckBox _nativeBox;
         private CheckBox _checkedBox;
 
         private Button _groupSelectionButton;
@@ -33,7 +32,6 @@ namespace Comparatist
             _commentTextBox = new TextBox();
             _groupsTextBox = new TextBox();
             _groupSelectionButton = new Button();
-            _nativeBox = new CheckBox();
             _checkedBox = new CheckBox();
             _okButton = new Button();
             _cancelButton = new Button();
@@ -108,16 +106,6 @@ namespace Comparatist
             _groupSelectionButton.TabIndex = 11;
             _groupSelectionButton.Text = "...";
             // 
-            // _nativeBox
-            // 
-            _nativeBox.AutoSize = true;
-            _nativeBox.Location = new Point(100, 142);
-            _nativeBox.Name = "_nativeBox";
-            _nativeBox.Size = new Size(60, 19);
-            _nativeBox.TabIndex = 6;
-            _nativeBox.Text = "Native";
-            _nativeBox.UseVisualStyleBackColor = true;
-            // 
             // _checkedBox
             // 
             _checkedBox.Location = new Point(100, 162);
@@ -158,7 +146,6 @@ namespace Comparatist
             Controls.Add(_lblSemanticGroups);
             Controls.Add(_groupsTextBox);
             Controls.Add(_groupSelectionButton);
-            Controls.Add(_nativeBox);
             Controls.Add(_checkedBox);
             Controls.Add(_okButton);
             Controls.Add(_cancelButton);

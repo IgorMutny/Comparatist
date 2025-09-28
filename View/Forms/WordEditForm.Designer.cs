@@ -20,7 +20,6 @@ namespace Comparatist
         private TextBox _stemTextBox;
         private TextBox _languageTextBox;
 
-        private CheckBox _nativeBox;
         private CheckBox _checkedBox;
 
         private Button _okButton;
@@ -38,7 +37,6 @@ namespace Comparatist
             _commentTextBox = new TextBox();
             _stemTextBox = new TextBox();
             _languageTextBox = new TextBox();
-            _nativeBox = new CheckBox();
             _checkedBox = new CheckBox();
             _okButton = new Button();
             _cancelButton = new Button();
@@ -121,16 +119,6 @@ namespace Comparatist
             _languageTextBox.Size = new Size(180, 23);
             _languageTextBox.TabIndex = 8;
             // 
-            // _nativeBox
-            // 
-            _nativeBox.AutoSize = true;
-            _nativeBox.Location = new Point(100, 162);
-            _nativeBox.Name = "_nativeBox";
-            _nativeBox.Size = new Size(60, 19);
-            _nativeBox.TabIndex = 6;
-            _nativeBox.Text = "Native";
-            _nativeBox.UseVisualStyleBackColor = true;
-            // 
             // _checkedBox
             // 
             _checkedBox.Location = new Point(100, 182);
@@ -172,7 +160,6 @@ namespace Comparatist
             Controls.Add(_stemTextBox);
             Controls.Add(_lblLanguage);
             Controls.Add(_languageTextBox);
-            Controls.Add(_nativeBox);
             Controls.Add(_checkedBox);
             Controls.Add(_okButton);
             Controls.Add(_cancelButton);
