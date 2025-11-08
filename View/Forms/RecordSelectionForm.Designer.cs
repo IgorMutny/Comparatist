@@ -39,7 +39,7 @@ namespace Comparatist
             Controls.Add(_checkedListBox);
             Controls.Add(_okButton);
             Controls.Add(_cancelButton);
-            Text = "Semantic group selection";
+            Text = string.Empty;
             ClientSize = new Size(300, 350);
         }
     }
